@@ -1,0 +1,144 @@
+@import "normalize"
+
+header
+  @extend .boxShadow
+  position: relative
+  z-index: 2
+  background: url('../images/header.jpg') center center no-repeat
+  background-size: cover
+  color: white
+  padding: 1em 0em
+  h1
+    font-weight: 400
+  .userBox
+    padding-top: 10px
+    text-align: right
+  a
+    color: white
+
+footer
+  @extend .boxShadow
+  background: $verde
+  padding: 1em 0em
+  color: white
+  text-align: center
+  line-height: 1.2em
+  font-size: 0.8em
+  position: relative
+  z-index: 3
+
+section
+  background: #eceff1
+  padding: 50px 0px
+  position: relative
+  z-index: 1
+
+
+.boxSem
+  display: block
+  table
+    @extend .boxShadow
+    border-radius: 5px
+    thead
+      th
+        @extend .boxInset
+        color: white
+        text-align: center
+        font-weight: 400
+        background: $azulO
+        &:first-child
+          line-height: 1em
+          font-size: 1.5em
+    tbody
+      tr:nth-child(odd)
+        td
+          background: $azulR
+      tr:nth-child(even)
+        td
+          background: $azulC
+      td
+        @extend .boxInset
+        text-align: center
+        color: white
+        i
+          color: $amarillo
+          line-height: 1em
+          font-size: 1.3em
+        .progress
+          margin-top: 10px
+          margin-bottom: 10px
+    tfoot
+      td
+        @extend .boxInset
+        text-align: left
+        background: $azulO
+        color: white
+        .gem
+          display: block
+          background: url('../images/gem.png') left center no-repeat
+          background-size: auto 14px
+          padding-left: 25px
+        .med
+          display: block
+          background: url('../images/med.png') left center no-repeat
+          background-size: auto 18px
+          padding-left: 20px
+
+.boxFacciones
+  display: block
+  &::after
+    content: ''
+    display: block
+    clear: both
+  .fac1,
+  .fac2
+    @extend .boxShadow
+    display: block
+    width: 50%
+    float: left
+    vertical-align: top
+  table
+    thead
+      th
+        @extend .boxInset
+        color: white
+        i
+          background: $rojo
+          border-radius: 100px
+          padding: 6px
+        .cop
+          display: block
+          background: url('../images/cop.png') left center no-repeat
+          background-size: auto 18px
+          padding-left: 25px
+        .mon
+          display: block
+          background: url('../images/mon.png') left center no-repeat
+          background-size: auto 18px
+          padding-left: 20px
+    tbody
+      td
+        @extend .boxInset
+        background: #eceff1
+  .fac1
+    table
+      thead
+        tr:nth-child(1)
+          th
+            background: $fac1a
+        tr:nth-child(2)
+          th:nth-child(1)
+            background: $fac1b
+          th:nth-child(2)
+            background: $fac1c
+  .fac2
+    table
+      thead
+        tr:nth-child(1)
+          th
+            background: $fac2a
+        tr:nth-child(2)
+          th:nth-child(1)
+            background: $fac2b
+          th:nth-child(2)
+            background: $fac2c
