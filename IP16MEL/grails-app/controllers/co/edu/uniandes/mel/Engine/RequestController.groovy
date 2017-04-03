@@ -16,20 +16,53 @@ class RequestController {
 	def springSecurityService //Permite acceder a la información del usuario de la sesión
 	
 	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
+	String url = "http://playngage.io/api/" //Token de API en PlayNGage
 	String idInApp = 'rca1' //Este es el id_in_app de un jugador <-- Puede ser el username Uniandes o el ID de una plataforma
 	String action_tag = 'intercept_test' //Este es el tag de una acción
 	String testGroup = "First"
+	
+	/**
+	 * Llamado general a un servicio de playNGage
+	 * @param apiName el nombre del api a llamar
+	 * @param parameters map de parámetros a enviar
+	 * @return restResponse la respuesta del llamado al servicio
+	 */
+	RestResponse callRequest(String apiName, def parameters) {
+		RestResponse restResoponse = null
+		String concatenateSymbol = "?"
+		if(apiName!=null) {
+			if(!apiName.trim().equals("")) {
+				String urlCall = url + apiName
+				String[] paramKeys = parameters.keySet();
+				if(paramKeys!=null) {
+					for(int i=0;i<paramKeys.length;i++) {
+						urlCall += concatenateSymbol + paramKeys[i] + "=" + parameters[paramKeys[i]]
+						concatenateSymbol = "&"
+					}
+				}
+				//System.out.println(urlCall)
+				RestBuilder restBuilder = new RestBuilder()
+				restResoponse = restBuilder.post(urlCall) {
+					header 'Authorization', 'Token token=' + token
+					header 'Accept', '*/*'
+				} 
+			}
+		}
+		return(restResoponse)
+	}
 	
 	/**
 	 * Index que carga el dashboard
 	 **/
 	def index() {
 		//Ejemplo de llamado a un método para retornar el usuario
-		def userData = getUserData("rca1_dev")
+		def userData = [:]
+		userData["id_in_app"] = "rca1_dev" 
+		RestResponse restResponse= callRequest("players", userData)
 		
 		// Instancia datos del usuario y de su pestaña individual
-		String userName = userData[0]
-		String user = userData[1]
+		String userName = restResponse.json.player.id_in_app
+		String user = restResponse.json.player.email
 		def semanas = [2,3,4,5,6]
 		def estrellas = [3,2,4,6,4]
 		def porcentajes = [40,30,40,70,90]
