@@ -94,9 +94,9 @@ class RequestController {
 		String message = "Compra exitosa"
 		Faccion faccion = Faccion.find{id == params.int('faccionId')}
 		Integer value = params.int('value1')
-		System.out.println(params.int('faccionId') + " " + value)
+		//System.out.println(params.int('faccionId') + " " + value)
 		if(value>faccion.monedas) {
-			message = "No tiene suficientes monedas"
+			message = faccion.nombreFaccion + " no tiene suficientes monedas"
 		} else {
 			faccion.monedas -= value
 			faccion.save(flush: true)
@@ -104,30 +104,49 @@ class RequestController {
 		[message: message]
 	}
 
-	def comprar2() {
-		def users = User.findAll.sort(false){it.username}
+	def comprarEnGrupo() {
+		def users = User.findAll{}.sort(false){it.username}
 		[users: users]
 	}
 
-	def comprar2Save() {
-		User user1 = User.find{username == params['username1']}
-		User user2 = User.find{username == params['username2']}
+	def comprarEnGrupoSave() {
+		String message = "Compra exitosa"
+		User user1 = User.find{id == params.int('userId1')}
+		User user2 = User.find{id == params.int('userId2')}
 		Integer value1 = params.int('value1')
 		Integer value2 = params.int('value2')
-		redirect(url: '/')
+		System.out.println(value1 + " " + value2 + " " + params['userId1'])
+		if(value1>user1.gemas) {
+			message = user1.username + " no tiene suficientes gemas"
+		} else if(value2>user2.gemas) {
+			message = user2.username + " no tiene suficientes gemas"
+		} else {
+			user1.gemas -= value1
+			user2.gemas -= value2
+			user1.save(flush: true)
+			user2.save(flush: true)
+		}
+
+		[message: message]
 	}
 
-	def comprar3() {
-		def users = User.findAll.sort(false){it.username}
+	def comprarEjercicios() {
+		def users = User.findAll{}.sort(false){it.username}
 		[users: users]
 	}
 
-	def comprar3Save() {
-		User user1 = User.find{username == params['username1']}
-		User user2 = User.find{username == params['username2']}
-		Integer value1 = params.int('value1')
-		Integer value2 = params.int('value2')
-		redirect(url: '/')
+	def comprarEjerciciosSave() {
+		String message = "Compra exitosa"
+		User user = User.find{id == params.int('userId1')}
+		Integer value = params.int('value1')
+		if(value>user.gemas) {
+			message = user.username + " no tiene suficientes gemas"
+		} else {
+			user.gemas -= value
+			user.save(flush: true)
+		}
+
+		[message: message]
 	}
 
 
@@ -225,42 +244,42 @@ class RequestController {
 	/**
 	 * Index que carga el dashboard anterior
 	 **/
-	def index1() {
-		//Ejemplo de llamado a un método para retornar el usuario
-		def userData = [:]
-		userData["id_in_app"] = "rca1_dev" 
-		RestResponse restResponse= callRequest("players", userData, GET)
-		
-		// Instancia datos del usuario y de su pestaña individual
-		String userName = restResponse.json.player.id_in_app
-		String user = restResponse.json.player.email
-		def semanas = [2,3,4,5,6]
-		def estrellas = [3,2,4,6,4]
-		def porcentajes = [40,30,40,70,90]
-		String gemas = "3"
-		String medallas = "9"
-		
-		FaccionDTO faccion = getTeam("faccion1a")
-		// Instancia datos de la primera facción
-		String faccion1Copas = "220"
-		String faccion1Monedas = "50"
-		def faccion1Nombres = ["Carolina Castro", "Juan Orozco", "David Medina", "Adriana Jaramillo", "Diego Zuluaga"]
-		def faccion1Medallas = [2,2,2,2,2]
-		def faccion1Puntos = [90,89,85,88,80]
-
-		// Instancia datos de la segunda facción
-		String faccion2Copas = "230"
-		String faccion2Monedas = "60"
-		def faccion2Nombres = ["Ana Grajales", "Sandra Restrepo", "Lukas Giraldo", "Santiago Duque", "Felipe Arango"]
-		def faccion2Medallas = [5,5,5,4,4]
-		def faccion2Puntos = [90, 90, 89,89,85]
-		
-		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
-			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos, 
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
-			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos, 
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
-	}
+//	def index1() {
+//		//Ejemplo de llamado a un método para retornar el usuario
+//		def userData = [:]
+//		userData["id_in_app"] = "rca1_dev" 
+//		RestResponse restResponse= callRequest("players", userData, GET)
+//		
+//		// Instancia datos del usuario y de su pestaña individual
+//		String userName = restResponse.json.player.id_in_app
+//		String user = restResponse.json.player.email
+//		def semanas = [2,3,4,5,6]
+//		def estrellas = [3,2,4,6,4]
+//		def porcentajes = [40,30,40,70,90]
+//		String gemas = "3"
+//		String medallas = "9"
+//		
+//		FaccionDTO faccion = getTeam("faccion1a")
+//		// Instancia datos de la primera facción
+//		String faccion1Copas = "220"
+//		String faccion1Monedas = "50"
+//		def faccion1Nombres = ["Carolina Castro", "Juan Orozco", "David Medina", "Adriana Jaramillo", "Diego Zuluaga"]
+//		def faccion1Medallas = [2,2,2,2,2]
+//		def faccion1Puntos = [90,89,85,88,80]
+//
+//		// Instancia datos de la segunda facción
+//		String faccion2Copas = "230"
+//		String faccion2Monedas = "60"
+//		def faccion2Nombres = ["Ana Grajales", "Sandra Restrepo", "Lukas Giraldo", "Santiago Duque", "Felipe Arango"]
+//		def faccion2Medallas = [5,5,5,4,4]
+//		def faccion2Puntos = [90, 90, 89,89,85]
+//		
+//		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
+//			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos, 
+//			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
+//			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos, 
+//			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
+//	}
 
 	def getUserData(String userName) {
 		def ret = [] //Arreglo con los datos a retornar del motor a la aplicación

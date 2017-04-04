@@ -77,7 +77,7 @@
           <tfoot>
             <tr>
               <td colspan="2">
-                <span class="gem">${gemas}</span>
+                <span class="gem">${gemas} - Puntos: ${user.puntos}</span>
               </td>
               <td>
                 <span class="med">${medallas}</span>
