@@ -10,6 +10,17 @@ class User {
 	boolean accountExpired
 	boolean accountLocked
 	boolean passwordExpired
+	
+	/**
+	 * Adicionados al modelo
+	 */
+	int medallas=0;
+	int gemas=0;
+	int puntos=0;
+	int[] estrellasSemanas=[0,0,0,0,0,0,0,0,0];
+	double[] aporteSemanas=[0,0,0,0,0,0,0,0,0];
+	static belongsTo = [faccion: Faccion]
+
 
 	static transients = ['springSecurityService']
 

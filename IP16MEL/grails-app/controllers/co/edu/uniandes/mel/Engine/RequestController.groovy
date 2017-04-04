@@ -2,6 +2,8 @@ package co.edu.uniandes.mel.Engine
 
 import java.util.ArrayList;
 
+import co.edu.uniandes.login.Faccion
+import co.edu.uniandes.login.User
 import co.edu.uniandes.mel.dto.FaccionDTO
 import co.edu.uniandes.mel.dto.UsuarioDTO;
 import grails.converters.JSON
@@ -11,7 +13,7 @@ import grails.transaction.Transactional
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.springsecurity.SpringSecurityService
 
-@Secured(['permitAll'])
+@Secured(['ROLE_ADMIN'])
 @Transactional
 class RequestController {
 	public static final int GET = 1
@@ -19,13 +21,110 @@ class RequestController {
 	//static scaffold = true //Habilita el CRUD automático si el controlador es de un dominio
 	def grailsApplication //Permite utilizar las constantes del config
 	def springSecurityService //Permite acceder a la información del usuario de la sesión
+	int numeroSemanas = 3
 	
 	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
 	String url = "http://playngage.io/api/" //Token de API en PlayNGage
 	String idInApp = 'rca1' //Este es el id_in_app de un jugador <-- Puede ser el username Uniandes o el ID de una plataforma
 	String action_tag = 'intercept_test' //Este es el tag de una acción
 	String testGroup = "First"
+
+	/**
+	 * Index que carga el dashboard
+	 **/
+	@Secured(['ROLE_STUDENT'])
+	def index() {
+		//Ejemplo de llamado a un método para retornar el usuario
+		User user = springSecurityService.getCurrentUser()
+		
+		// Instancia datos del usuario y de su pestaña individual
+		String userName = user.username
+		def semanas = []
+		def estrellas = []
+		def porcentajes = []
+		for(int i=0;i<numeroSemanas;i++) {
+			semanas.add(i+1)
+			estrellas.add(user.estrellasSemanas[i])
+			porcentajes.add(user.aporteSemanas[i])
+		}
+		String gemas = user.gemas
+		String medallas = user.medallas
+		
+		Faccion faccion1 = Faccion.find{id == 1}
+		faccion1.miembros = faccion1.miembros.sort(false){-it.medallas}
+		// Instancia datos de la primera facción
+		String faccion1Copas = faccion1.puntos
+		String faccion1Monedas = faccion1.monedas
+		def faccion1Nombres = []
+		def faccion1Medallas = []
+		def faccion1Puntos = []
+		faccion1.miembros.each { miembro ->
+			faccion1Nombres.add(miembro.username)
+			faccion1Medallas.add(miembro.medallas)
+			faccion1Puntos.add(miembro.puntos)
+		}
+
+		// Instancia datos de la segunda facción
+		Faccion faccion2 = Faccion.find{id == 2}
+		faccion2.miembros = faccion2.miembros.sort(false){-it.medallas}
+		def faccion2Nombres = []
+		def faccion2Medallas = []
+		def faccion2Puntos = []
+		String faccion2Copas = faccion2.puntos
+		String faccion2Monedas = faccion2.monedas
+		faccion2.miembros.each { miembro ->
+			faccion2Nombres.add(miembro.username)
+			faccion2Medallas.add(miembro.medallas)
+			faccion2Puntos.add(miembro.puntos)
+		}
+		
+		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
+			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
+			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
+	}
 	
+	def comprar1() {
+		def users = User.findAll.sort(false){it.username}
+		[users: users]
+	}
+	
+	def comprar1Save() {
+		User user1 = User.find{username == params['username1']}
+		User user2 = User.find{username == params['username2']}
+		Integer value1 = params.int('value1')
+		Integer value2 = params.int('value2')
+		redirect(url: '/')
+	}
+
+	def comprar2() {
+		def users = User.findAll.sort(false){it.username}
+		[users: users]
+	}
+
+	def comprar2Save() {
+		User user1 = User.find{username == params['username1']}
+		User user2 = User.find{username == params['username2']}
+		Integer value1 = params.int('value1')
+		Integer value2 = params.int('value2')
+		redirect(url: '/')
+	}
+
+	def comprar3() {
+		def users = User.findAll.sort(false){it.username}
+		[users: users]
+	}
+
+	def comprar3Save() {
+		User user1 = User.find{username == params['username1']}
+		User user2 = User.find{username == params['username2']}
+		Integer value1 = params.int('value1')
+		Integer value2 = params.int('value2')
+		redirect(url: '/')
+	}
+
+
 	/**
 	 * Llamado general a un servicio de playNGage
 	 * @param apiName el nombre del api a llamar
@@ -118,9 +217,9 @@ class RequestController {
 	}
 	
 	/**
-	 * Index que carga el dashboard
+	 * Index que carga el dashboard anterior
 	 **/
-	def index() {
+	def index1() {
 		//Ejemplo de llamado a un método para retornar el usuario
 		def userData = [:]
 		userData["id_in_app"] = "rca1_dev" 

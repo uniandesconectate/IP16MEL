@@ -22,7 +22,7 @@
     </div>
     <div class="col-xs-12 col-md-4">
       <div class="userBox">
-        <div class="user">${user + "(" + userName + ")"}</div>
+        <div class="user">${userName}</div>
         <a href="#">Cerrar Sesión</a>
       </div>
     </div>
