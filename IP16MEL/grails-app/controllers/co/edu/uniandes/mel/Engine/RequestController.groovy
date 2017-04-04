@@ -1,5 +1,9 @@
 package co.edu.uniandes.mel.Engine
 
+import java.util.ArrayList;
+
+import co.edu.uniandes.mel.dto.FaccionDTO
+import co.edu.uniandes.mel.dto.UsuarioDTO;
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
@@ -10,7 +14,8 @@ import grails.plugin.springsecurity.SpringSecurityService
 @Secured(['permitAll'])
 @Transactional
 class RequestController {
-
+	public static final int GET = 1
+	public static final int POST = 2
 	//static scaffold = true //Habilita el CRUD automático si el controlador es de un dominio
 	def grailsApplication //Permite utilizar las constantes del config
 	def springSecurityService //Permite acceder a la información del usuario de la sesión
@@ -27,7 +32,7 @@ class RequestController {
 	 * @param parameters map de parámetros a enviar
 	 * @return restResponse la respuesta del llamado al servicio
 	 */
-	RestResponse callRequest(String apiName, def parameters) {
+	RestResponse callRequest(String apiName, def parameters, int method) {
 		RestResponse restResoponse = null
 		String concatenateSymbol = "?"
 		if(apiName!=null) {
@@ -40,15 +45,76 @@ class RequestController {
 						concatenateSymbol = "&"
 					}
 				}
-				//System.out.println(urlCall)
+				System.out.println(urlCall)
 				RestBuilder restBuilder = new RestBuilder()
-				restResoponse = restBuilder.post(urlCall) {
-					header 'Authorization', 'Token token=' + token
-					header 'Accept', '*/*'
-				} 
+				if(method==GET) {
+					restResoponse = restBuilder.get(urlCall) {
+						header 'Authorization', 'Token token=' + token
+						header 'Accept', '*/*'
+					}
+				} else {
+					restResoponse = restBuilder.post(urlCall) {
+						header 'Authorization', 'Token token=' + token
+						header 'Accept', '*/*'
+					}
+				}
 			}
 		}
 		return(restResoponse)
+	}
+	
+	FaccionDTO getTeam(String tag) {
+		FaccionDTO faccion = null
+		RestResponse restResponse= callRequest("v2/teams/" + tag, [:], GET)
+		String successMessage = restResponse.json.success
+		if(successMessage!="false") {
+			faccion = new FaccionDTO()
+			faccion.setNombreFaccion(restResponse.json.name)
+			faccion.setMonedas(restResponse.json.currencies.team_currencies.monedas.quantity)
+			if(restResponse.json.members!=null) {
+				ArrayList<UsuarioDTO> usuarios = new ArrayList<UsuarioDTO>();
+				restResponse.json.members.each { member ->
+					UsuarioDTO usuario = new UsuarioDTO();
+					usuario.setNombreUsuario(member)
+					usuarios.add(usuario)
+				}
+			}
+			//System.out.println(restResponse.getBody())
+			System.out.println(faccion.getNombreFaccion())
+		}
+		return(faccion)
+	}
+	
+	def upload() {
+		String csvFile = "c:\\tmp\\prueba.txt";
+	    BufferedReader br = null;
+	    String line = "";
+	    String cvsSplitBy = ",";
+	
+	    try {
+	
+			br = new BufferedReader(new FileReader(csvFile));
+	        while ((line = br.readLine()) != null) {
+				// use comma as separator
+	            String[] country = line.split(cvsSplitBy);
+	
+	            System.out.println("Country [code= " + country[1] + " , name=" + country[2] + "]");
+            }
+	
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (br != null) {
+	                try {
+	                    br.close();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+		render "listo"
 	}
 	
 	/**
@@ -58,7 +124,7 @@ class RequestController {
 		//Ejemplo de llamado a un método para retornar el usuario
 		def userData = [:]
 		userData["id_in_app"] = "rca1_dev" 
-		RestResponse restResponse= callRequest("players", userData)
+		RestResponse restResponse= callRequest("players", userData, GET)
 		
 		// Instancia datos del usuario y de su pestaña individual
 		String userName = restResponse.json.player.id_in_app
@@ -69,11 +135,12 @@ class RequestController {
 		String gemas = "3"
 		String medallas = "9"
 		
+		FaccionDTO faccion = getTeam("faccion1a")
 		// Instancia datos de la primera facción
 		String faccion1Copas = "220"
 		String faccion1Monedas = "50"
 		def faccion1Nombres = ["Carolina Castro", "Juan Orozco", "David Medina", "Adriana Jaramillo", "Diego Zuluaga"]
-		def faccion1Medallas = [5,5,4,3,2]
+		def faccion1Medallas = [2,2,2,2,2]
 		def faccion1Puntos = [90,89,85,88,80]
 
 		// Instancia datos de la segunda facción
@@ -152,7 +219,7 @@ class RequestController {
 			group.each { grp->
 				String nameOfFaction = name + num + grp
 				RestResponse resp = rest.post("http://playngage.io//api/teams" +
-					"?name=" + nameOfFaction) {
+					"?name=" + nameOfFaction + "&tag=" + nameOfFaction.toLowerCase()) {
 				header 'Authorization', 'Token token=' + token
 				header 'Accept', '*/*'
 				}
