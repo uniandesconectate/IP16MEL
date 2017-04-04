@@ -85,17 +85,23 @@ class RequestController {
 			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
 	}
 	
-	def comprar1() {
-		def users = User.findAll.sort(false){it.username}
-		[users: users]
+	def comprarFaccion() {
+		def facciones = Faccion.findAll{}.sort(false){it.nombreFaccion}
+		[facciones: facciones]
 	}
 	
-	def comprar1Save() {
-		User user1 = User.find{username == params['username1']}
-		User user2 = User.find{username == params['username2']}
-		Integer value1 = params.int('value1')
-		Integer value2 = params.int('value2')
-		redirect(url: '/')
+	def comprarFaccionSave() {
+		String message = "Compra exitosa"
+		Faccion faccion = Faccion.find{id == params.int('faccionId')}
+		Integer value = params.int('value1')
+		System.out.println(params.int('faccionId') + " " + value)
+		if(value>faccion.monedas) {
+			message = "No tiene suficientes monedas"
+		} else {
+			faccion.monedas -= value
+			faccion.save(flush: true)
+		}
+		[message: message]
 	}
 
 	def comprar2() {
