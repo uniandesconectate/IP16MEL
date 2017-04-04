@@ -18,7 +18,24 @@ import grails.plugin.springsecurity.SpringSecurityService
 class RequestController {
 	public static final int GET = 1
 	public static final int POST = 2
-	//static scaffold = true //Habilita el CRUD automático si el controlador es de un dominio
+
+	// Configuracion puntajes,gemas,monedas
+	public static final double MINSCORECOG = 80.0
+	public static final double MINSCOREHON = 80.0
+	
+	public static final int PTOSCOGFACIL = 5
+	public static final int PTOSCOGMEDIO = 12
+	public static final int PTOSCOGDIFICIL = 20
+	
+	public static final int GEMCOGFACIL = 1
+	public static final int GEMCOGMEDIO = 2
+	public static final int GEMCOGDIFICIL = 3
+	
+	public static final int HONORMEDALLAS = 1
+	public static final int HONORPUNTOS = 30
+	
+	public static final int TOTALPRUEBASMEC = 300
+
 	def grailsApplication //Permite utilizar las constantes del config
 	def springSecurityService //Permite acceder a la información del usuario de la sesión
 	int numeroSemanas = 3
@@ -51,7 +68,7 @@ class RequestController {
 		String medallas = user.medallas
 		
 		Faccion faccion1 = Faccion.find{id == 1}
-		faccion1.miembros = faccion1.miembros.sort(false){-it.medallas}
+		faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
 		// Instancia datos de la primera facción
 		String faccion1Copas = faccion1.puntos
 		String faccion1Monedas = faccion1.monedas
@@ -66,7 +83,7 @@ class RequestController {
 
 		// Instancia datos de la segunda facción
 		Faccion faccion2 = Faccion.find{id == 2}
-		faccion2.miembros = faccion2.miembros.sort(false){-it.medallas}
+		faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
 		def faccion2Nombres = []
 		def faccion2Medallas = []
 		def faccion2Puntos = []
@@ -149,6 +166,160 @@ class RequestController {
 		[message: message]
 	}
 
+	def upload() {
+		String csvFile = "c:\\tmp\\" + params["archivo"];
+		int semana = params.int('semana')
+		System.out.println(csvFile + semana)
+		BufferedReader br = null;
+		String line = "";
+		String cvsSplitBy = ";";
+		
+	
+		try {
+			def mecanicasUsuarios= [:]
+			
+			br = new BufferedReader(new FileReader(csvFile));
+			while ((line = br.readLine()) != null) {
+				// use comma as separator
+				String[] linea = line.split(cvsSplitBy);
+				System.out.println(line + " -- " + cvsSplitBy)
+				if(!linea[6].contains("Total")) {
+					proceseLinea(linea,semana,mecanicasUsuarios);
+				}
+			}
+			proceseTotalesMecanicos(mecanicasUsuarios, semana-1)
+	
+		} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally { 
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		redirect(uri: "/")
+	}
+
+	
+	def proceseLinea(String[] linea, int semana,def mecanicasUsuarios) {
+		Double totalUser=0.0
+		String userId = linea[0]
+		String prueba = linea[6]
+		String  tipoPrueba = prueba.subSequence(0,1)
+		int numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
+		int sem = Integer.parseInt(prueba.subSequence(2,4))
+		String scoreTxt = "0"
+		if(linea[7]!=null) {
+			if(!linea[7].trim().equals("")) {
+				scoreTxt = linea[7]
+			}
+		}
+		//System.out.println("Prueba:" + prueba + " sub: " + prueba.substring(prueba.length() - 2) + " num: " + prueba.subSequence(2,4) + "scoreTxt: " + scoreTxt)
+		double score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", ""));
+		
+		User user = User.find{username == userId}
+		Faccion faccion = user.faccion
+		
+		if ((tipoPrueba == 'M' ) && (semana==sem) ) {
+			System.out.println("Tipo prueba: " + tipoPrueba)
+			totalUser = mecanicasUsuarios[userId]
+			if  (totalUser == null) {
+				mecanicasUsuarios[userId] = score
+			} else {
+				mecanicasUsuarios[userId] =score + totalUser
+			}
+		} else if ((tipoPrueba == 'C') && (score >= MINSCORECOG) && (sem==semana-1)) {
+			System.out.println("Tipo prueba: " + tipoPrueba + " - " + numPrueba)
+		
+				if (numPrueba==1) {
+					// agregar al usuario userId PTOSCOGFACIL puntos  GEMCOGFACIL gemas
+					// agragar a la faccion del usuario PTOSCOGFACIL puntos
+					user.puntos += PTOSCOGFACIL
+					user.gemas += GEMCOGFACIL
+					faccion.puntos += PTOSCOGFACIL
+					
+				} else if (numPrueba==2) {
+					// agregar al usuario userId PTOSCOGMEDIO puntos  GEMCOGMEDIO gemas
+					// agragar a la faccion del usuario PTOSCOGMEDIO puntos
+					user.puntos += PTOSCOGMEDIO
+					user.gemas += GEMCOGMEDIO
+					faccion.puntos += PTOSCOGMEDIO
+				
+				} else if (numPrueba==3) {
+				
+					// agregar al usuario userId PTOSCOGDIFICIL puntos  GEMCOGDIFICIL gemas
+					// agragar a la faccion del usuario PTOSCOGDIFICIL puntos
+					user.puntos += PTOSCOGDIFICIL
+					user.gemas += GEMCOGDIFICIL
+					faccion.puntos += PTOSCOGDIFICIL
+
+				}
+				user.save(flush: true)
+				faccion.save(flush: true)
+		} else if ((tipoPrueba == 'H') && (score > MINSCOREHON)) {
+			// Agragar al usuario userId HONORPUNTOS y HONORMEDALLAS
+			// Agregar a la faccion de usuario HONORPUNTOS
+			user.puntos += HONORPUNTOS
+			user.medallas += HONORMEDALLAS
+			faccion.puntos += HONORPUNTOS
+			user.save(flush: true)
+			faccion.save(flush: true)
+		}
+	}
+	
+	def proceseTotalesMecanicos(def mecanicasUsuarios, int semana)	{
+
+		def keys = mecanicasUsuarios.keySet();
+		
+		
+		
+		mecanicasUsuarios.each { userId, total ->
+			User user = User.find{username == userId}
+			Faccion faccion = user.faccion
+			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
+			if (total == 300) {
+				System.out.println("Total " + total)
+				// Agragar al usuario userId 5 estrella en la semana
+				// Agragar al usuario userId 1 gema
+				// Agregar a la facción 10 monedas
+				user.estrellasSemanas[semana] = 5
+				user.gemas++
+				faccion.monedas += 10
+				
+			} else if (total >= 270) {
+				System.out.println("Total " + total)
+ 				// Agragar al usuario userId 4 estrella
+				// Agregar a la facción 5 monedas
+				user.estrellasSemanas[semana] = 4
+				faccion.monedas += 5
+			} else if (total >= 240) {
+				System.out.println("Total " + total)
+				// Agragar al usuario userId 3 estrella
+				// Agregar a la facción 4 monedas
+				user.estrellasSemanas[semana] = 3
+				faccion.monedas += 4
+			} else if (total >= 180) {
+				System.out.println("Total " + total)
+				// Agragar al usuario userId 2 estrella
+				// Agregar a la facción 3 monedas
+				user.estrellasSemanas[semana] = 2
+				faccion.monedas += 3
+			} else if (total >= 105) {
+				System.out.println("Total " + total)
+				// Agragar al usuario userId 1 estrella
+				// Agregar a la facción 2 monedas
+				user.estrellasSemanas[semana] = 1
+				faccion.monedas += 2
+			}
+			user.save(flush: true)
+			faccion.save(flush: true)
+		}
+	}
 
 	/**
 	 * Llamado general a un servicio de playNGage
@@ -209,77 +380,6 @@ class RequestController {
 		return(faccion)
 	}
 	
-	def upload() {
-		String csvFile = "c:\\tmp\\prueba.txt";
-	    BufferedReader br = null;
-	    String line = "";
-	    String cvsSplitBy = ",";
-	
-	    try {
-	
-			br = new BufferedReader(new FileReader(csvFile));
-	        while ((line = br.readLine()) != null) {
-				// use comma as separator
-	            String[] country = line.split(cvsSplitBy);
-	
-	            System.out.println("Country [code= " + country[1] + " , name=" + country[2] + "]");
-            }
-	
-	        } catch (FileNotFoundException e) {
-	            e.printStackTrace();
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        } finally {
-	            if (br != null) {
-	                try {
-	                    br.close();
-	                } catch (IOException e) {
-	                    e.printStackTrace();
-	                }
-	            }
-	        }
-		render "listo"
-	}
-	
-	/**
-	 * Index que carga el dashboard anterior
-	 **/
-//	def index1() {
-//		//Ejemplo de llamado a un método para retornar el usuario
-//		def userData = [:]
-//		userData["id_in_app"] = "rca1_dev" 
-//		RestResponse restResponse= callRequest("players", userData, GET)
-//		
-//		// Instancia datos del usuario y de su pestaña individual
-//		String userName = restResponse.json.player.id_in_app
-//		String user = restResponse.json.player.email
-//		def semanas = [2,3,4,5,6]
-//		def estrellas = [3,2,4,6,4]
-//		def porcentajes = [40,30,40,70,90]
-//		String gemas = "3"
-//		String medallas = "9"
-//		
-//		FaccionDTO faccion = getTeam("faccion1a")
-//		// Instancia datos de la primera facción
-//		String faccion1Copas = "220"
-//		String faccion1Monedas = "50"
-//		def faccion1Nombres = ["Carolina Castro", "Juan Orozco", "David Medina", "Adriana Jaramillo", "Diego Zuluaga"]
-//		def faccion1Medallas = [2,2,2,2,2]
-//		def faccion1Puntos = [90,89,85,88,80]
-//
-//		// Instancia datos de la segunda facción
-//		String faccion2Copas = "230"
-//		String faccion2Monedas = "60"
-//		def faccion2Nombres = ["Ana Grajales", "Sandra Restrepo", "Lukas Giraldo", "Santiago Duque", "Felipe Arango"]
-//		def faccion2Medallas = [5,5,5,4,4]
-//		def faccion2Puntos = [90, 90, 89,89,85]
-//		
-//		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
-//			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos, 
-//			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
-//			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos, 
-//			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
-//	}
 
 	def getUserData(String userName) {
 		def ret = [] //Arreglo con los datos a retornar del motor a la aplicación

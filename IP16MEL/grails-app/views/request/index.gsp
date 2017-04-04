@@ -23,7 +23,7 @@
     <div class="col-xs-12 col-md-4">
       <div class="userBox">
         <div class="user">${userName}</div>
-        <a href="#">Cerrar Sesión</a>
+        <g:link controller="logout">Salir</g:link>
       </div>
     </div>
   </div>
