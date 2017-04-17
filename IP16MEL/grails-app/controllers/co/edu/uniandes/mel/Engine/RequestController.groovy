@@ -3,7 +3,10 @@ package co.edu.uniandes.mel.Engine
 import java.util.ArrayList;
 
 import co.edu.uniandes.login.Faccion
+import co.edu.uniandes.login.Role
 import co.edu.uniandes.login.User
+import co.edu.uniandes.login.UserRole
+import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.mel.dto.FaccionDTO
 import co.edu.uniandes.mel.dto.UsuarioDTO;
 import grails.converters.JSON
@@ -46,12 +49,20 @@ class RequestController {
 	String action_tag = 'intercept_test' //Este es el tag de una acción
 	String testGroup = "First"
 
+	@Secured(['ROLE_STUDENT','ROLE_ADMIN'])
+	def index() {
+		User currentUser = springSecurityService.getCurrentUser()
+		UserRole role = UserRole.find{user.id == currentUser.id && role.authority == "ROLE_STUDENT"}
+		System.out.println(currentUser.username + "-" + role)
+		if(role!=null) {
+			redirect action: 'dashboard'
+		}
+	}
 	/**
-	 * Index que carga el dashboard
+	 * Carga el dashboard
 	 **/
 	@Secured(['ROLE_STUDENT'])
-	def index() {
-		//Ejemplo de llamado a un método para retornar el usuario
+	def dashboard() {
 		User user = springSecurityService.getCurrentUser()
 		
 		// Instancia datos del usuario y de su pestaña individual
@@ -67,7 +78,7 @@ class RequestController {
 		String gemas = user.gemas
 		String medallas = user.medallas
 		
-		Faccion faccion1 = Faccion.find{id == 1}
+		Faccion faccion1 = user.faccion
 		faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
 		// Instancia datos de la primera facción
 		String faccion1Copas = faccion1.puntos
@@ -82,7 +93,7 @@ class RequestController {
 		}
 
 		// Instancia datos de la segunda facción
-		Faccion faccion2 = Faccion.find{id == 2}
+		Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
 		faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
 		def faccion2Nombres = []
 		def faccion2Medallas = []
@@ -102,6 +113,82 @@ class RequestController {
 			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
 	}
 	
+	def dashboardEstudiante() {
+		//Ejemplo de llamado a un método para retornar el usuario
+		User user = User.find{username==params['username']}
+		//System.out.println(params['username'])
+		def users = [] // User.findAll()
+		String userName = ""
+		def semanas = []
+		def estrellas = []
+		def porcentajes = []
+		String gemas = ""
+		String medallas = ""
+
+		String faccion1Copas = ""
+		String faccion1Monedas = ""
+		def faccion1Nombres = []
+		def faccion1Medallas = []
+		def faccion1Puntos = []
+
+		def faccion2Nombres = []
+		def faccion2Medallas = []
+		def faccion2Puntos = []
+		String faccion2Copas = ""
+		String faccion2Monedas = ""
+
+		User userProfesor = springSecurityService.getCurrentUser()
+		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
+		System.out.println(secciones)
+		secciones.each { seccion ->
+			users = users + seccion.estudiantes
+		}
+		users = users.sort(false){it.username}
+
+		if(user!=null) {			
+			// Instancia datos del usuario y de su pestaña individual
+			userName = user.username
+			for(int i=0;i<numeroSemanas;i++) {
+				semanas.add(i+1)
+				estrellas.add(user.estrellasSemanas[i])
+				porcentajes.add(user.aporteSemanas[i])
+			}
+			gemas = user.gemas
+			medallas = user.medallas
+			
+			Faccion faccion1 = user.faccion
+			faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
+			// Instancia datos de la primera facción
+			faccion1Copas = faccion1.puntos
+			faccion1Monedas = faccion1.monedas
+			faccion1.miembros.each { miembro ->
+				faccion1Nombres.add(miembro.username)
+				faccion1Medallas.add(miembro.medallas)
+				faccion1Puntos.add(miembro.puntos)
+			}
+	
+			// Instancia datos de la segunda facción
+			Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
+			faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
+			faccion2Copas = faccion2.puntos
+			faccion2Monedas = faccion2.monedas
+			faccion2.miembros.each { miembro ->
+				faccion2Nombres.add(miembro.username)
+				faccion2Medallas.add(miembro.medallas)
+				faccion2Puntos.add(miembro.puntos)
+			}
+	
+		} else {
+			user = springSecurityService.getCurrentUser()
+		}
+		
+		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
+			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
+			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, users: users]
+	}
+
 	def comprarFaccion() {
 		def facciones = Faccion.findAll{}.sort(false){it.nombreFaccion}
 		[facciones: facciones]

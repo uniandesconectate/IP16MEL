@@ -7,7 +7,13 @@ class Faccion {
 	int monedas = 0;
 	
 	static hasMany = [miembros: User]
+	static belongsTo = [seccion: Seccion]
 
     static constraints = {
+		nombreFaccion()
+		puntos()
+		monedas()
+		miembros()
+		seccion()
     }
 }

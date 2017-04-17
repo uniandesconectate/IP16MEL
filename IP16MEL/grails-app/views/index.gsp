@@ -18,27 +18,41 @@
     <div class="col-xs-12 col-md-8">
       <h1>Matématica Estructural y Lógica</h1>
     </div>
-    <div class="col-xs-12 col-md-4">
-      <div class="userBox">
-        <div class="user">${userName}</div>
-        <g:link controller="logout">Salir</g:link>
-      </div>
-    </div>
+	<sec:ifLoggedIn>
+	    <div class="col-xs-12 col-md-4">
+	      <div class="userBox">
+	        <div class="user">${userName}</div>
+	        <g:link controller="logout">Salir</g:link>
+	      </div>
+	    </div>
+	 </sec:ifLoggedIn>
+	<sec:ifNotLoggedIn>
+	    <div class="col-xs-12 col-md-4">
+	      <div class="userBox">
+	        <div class="user"></div>
+				<g:link controller="request" action="index">Login</g:link><br />
+			</div>
+	    </div>
+	</sec:ifNotLoggedIn>
+	 
   </div>
 </header>
 
 <section>
-	<div class="container">
-		<h1>Opciones</h1>
-			<g:link controller="request" action="index">Dashboard</g:link><br />
-			<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
-			<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
-			<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
-			<g:link controller="request" action="upload" params="[semana: '1', archivo: 'ArchivoPrueba1.csv']">Cargar semana 1</g:link><br />
-			<g:link controller="request" action="upload" params="[semana: '2', archivo: 'ArchivoPrueba2.csv']">Cargar semana 2</g:link><br />
-			<g:link controller="request" action="upload" params="[semana: '3', archivo: 'ArchivoPrueba3.csv']">Cargar semana 3</g:link><br />
-		
-	</div>
+	Bienvenido
+	<sec:ifLoggedIn>
+		<div class="container">
+			<h1>Opciones</h1>
+				<g:link controller="request" action="dashboardEstudiante">Ver Dashboard de un estudiante</g:link><br />
+				<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
+				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
+				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
+				<g:link controller="request" action="upload" params="[semana: '1', archivo: 'ArchivoPrueba1.csv']">Cargar semana 1</g:link><br />
+				<g:link controller="request" action="upload" params="[semana: '2', archivo: 'ArchivoPrueba2.csv']">Cargar semana 2</g:link><br />
+				<g:link controller="request" action="upload" params="[semana: '3', archivo: 'ArchivoPrueba3.csv']">Cargar semana 3</g:link><br />
+			
+		</div>
+	</sec:ifLoggedIn>
 </section>
 
 <footer>

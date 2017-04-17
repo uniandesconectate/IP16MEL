@@ -1,5 +1,6 @@
 import co.edu.uniandes.login.Faccion
 import co.edu.uniandes.login.Role
+import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.login.User;
 import co.edu.uniandes.login.UserRole;
 
@@ -7,13 +8,20 @@ class BootStrap {
 	def GrailsApplication
 	
     def init = { servletContext ->
-		def roles=createRoles()
-		def users=createUsers(roles)
+		def roles=crearRoles()
+		def usuarios=crearUsuarios(roles)
+		def secciones=crearSecciones(usuarios)
+		def facciones=crearFacciones(secciones)
+		User user = new User(username: "pruebamel1", password:'12345', faccion: facciones[0])
+		user.save(flush: true)
+		UserRole.create user, roles[1], true
+		secciones[0].estudiantes.add(user)
+		secciones[0].save(flush:true)
     }
     def destroy = {
     }
 	
-	def createRoles() {
+	def crearRoles() {
 		def ret=[]
 		ret.add(new Role(authority: GrailsApplication.config.co.edu.uniandes.login.role.admin))
 		ret.add(new Role(authority: GrailsApplication.config.co.edu.uniandes.login.role.student))
@@ -24,41 +32,49 @@ class BootStrap {
 		
 		return(ret)
 	}
-
-	def createUsers(def roles) {
-		
-		Faccion faccion1 = new Faccion(nombreFaccion: "Faccion 1", miembros: [])
-		faccion1.save(flush: true)
-
-		Faccion faccion2 = new Faccion(nombreFaccion: "Faccion 2", miembros: [])
-		faccion2.save(flush: true)
-
-		Faccion faccionAdmins = new Faccion(nombreFaccion: "Faccion Admina", miembros: [])
-		faccionAdmins.save(flush: true)
-
+	
+	def crearUsuarios(def roles) {
 		def ret=[]
-		ret.add(new User(username: 'cr.calle', password:'ks3d7fcd8$f1', faccion: faccionAdmins))
-		ret.add(new User(username: 'gcortes', password:'ks3d7fcd8$f1', faccion: faccionAdmins))
+		def usuarios = ["cr.calle","gcortes","u1","u2","u3","u4","u5","u6"]
+		Seccion seccionProf = new Seccion(nombre: "Curso profesores")
+		seccionProf.save(flush: true)
+		Faccion faccion=new Faccion(nombreFaccion: "Faccion profesores", miembros: [], seccion: seccionProf)
+		faccion.save(flush:true)
 
-		def ret1=[]
-		for(int i=1;i<6;i++) {
-			ret1.add(new User(username: 'pruebamel' + i, password:'12345', faccion: faccion1))
+		usuarios.each { usuario ->
+			def usuarioNuevo = new User(username: usuario, password:'ks3d7fcd8$f1', faccion: faccion)
+			usuarioNuevo.save(flush: true) 
+			UserRole.create usuarioNuevo, roles[0], true
+			ret.add(usuarioNuevo)
 		}
-		for(int i=6;i<11;i++) {
-			ret1.add(new User(username: 'pruebamel' + i, password:'12345', faccion: faccion2))
-		}
-		ret.each { retValue ->
-			retValue.save(flush: true)
-			UserRole.create retValue,roles[0], true
-		}
-		ret1.each { retValue ->
-			retValue.save(flush: true)
-			UserRole.create retValue,roles[1], true
-			//ret.add(retValue)
-		}
-		
+		return(ret)
+	}
 
-		return(ret1)
+	def crearSecciones(def usuarios) {
+		def ret=[]
+		def secciones = ["s1","s2","s3","s4","s5","s6","s7","s8"]
+		for(int i=0;i<secciones.size();i++) {
+			Seccion seccion=new Seccion(nombre: secciones[i], profesor: usuarios[i], facciones: [], estudiantes: [])
+			seccion.save(flush: true)
+			ret.add(seccion)
+		}
+		return(ret)
+	}
+	
+	def crearFacciones(def secciones) {
+		def ret=[]
+		def faccionesAB = ["A", "B"]
+		secciones.each { seccion ->
+			faccionesAB.each { faccionAB -> 
+				Faccion faccion = new Faccion(nombreFaccion: "Faccion " + faccionAB + " " + seccion.nombre, miembros: [], seccion: seccion)
+				faccion.save(flush: true)
+				seccion.facciones.add(faccion)
+				ret.add(faccion)
+			}
+			seccion.save(flush:true)
+		}
+
+		return(ret)
 	}
 
 }
