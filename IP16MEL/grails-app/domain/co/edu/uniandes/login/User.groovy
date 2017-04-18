@@ -14,6 +14,7 @@ class User {
 	/**
 	 * Adicionados al modelo
 	 */
+	String nombre
 	int medallas=0;
 	int gemas=0;
 	int puntos=0;

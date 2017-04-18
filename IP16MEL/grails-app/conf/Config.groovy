@@ -88,12 +88,12 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-		co.edu.uniandes.mel.mode = "_dev"
+		co.edu.uniandes.uploadfolder = "C:\\temp\\"
     }
     production {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
-		co.edu.uniandes.mel.mode = "_prod"
+		co.edu.uniandes.uploadfolder = "/var/lib/tomcat7/datos_MEL/"
     }
 }
 

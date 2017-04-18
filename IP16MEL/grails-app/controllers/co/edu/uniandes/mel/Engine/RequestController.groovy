@@ -1,6 +1,7 @@
 package co.edu.uniandes.mel.Engine
 
 import java.util.ArrayList;
+import org.springframework.web.multipart.MultipartFile
 
 import co.edu.uniandes.login.Faccion
 import co.edu.uniandes.login.Role
@@ -143,7 +144,7 @@ class RequestController {
 		secciones.each { seccion ->
 			users = users + seccion.estudiantes
 		}
-		users = users.sort(false){it.username}
+		users = users.sort(false){it.nombre}
 
 		if(user!=null) {			
 			// Instancia datos del usuario y de su pestaña individual
@@ -190,7 +191,13 @@ class RequestController {
 	}
 
 	def comprarFaccion() {
-		def facciones = Faccion.findAll{}.sort(false){it.nombreFaccion}
+		User userProfesor = springSecurityService.getCurrentUser()
+		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
+		def facciones = []
+		secciones.each { seccion ->
+			facciones = facciones + seccion.facciones
+		}
+		facciones = facciones.sort(false){it.nombreFaccion}
 		[facciones: facciones]
 	}
 	
@@ -209,7 +216,14 @@ class RequestController {
 	}
 
 	def comprarEnGrupo() {
-		def users = User.findAll{}.sort(false){it.username}
+		def users = []
+		User userProfesor = springSecurityService.getCurrentUser()
+		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
+		System.out.println(secciones)
+		secciones.each { seccion ->
+			users = users + seccion.estudiantes
+		}
+		users = users.sort(false){it.nombre}
 		[users: users]
 	}
 
@@ -235,7 +249,14 @@ class RequestController {
 	}
 
 	def comprarEjercicios() {
-		def users = User.findAll{}.sort(false){it.username}
+		def users = []
+		User userProfesor = springSecurityService.getCurrentUser()
+		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
+		System.out.println(secciones)
+		secciones.each { seccion ->
+			users = users + seccion.estudiantes
+		}
+		users = users.sort(false){it.nombre}
 		[users: users]
 	}
 
@@ -253,9 +274,9 @@ class RequestController {
 		[message: message]
 	}
 
-	def upload() {
-		String csvFile = "c:\\tmp\\" + params["archivo"];
-		int semana = params.int('semana')
+	def upload(String csvFile, int semana) {
+//		String csvFile = "c:\\tmp\\" + params["archivo"];
+//		int semana = params.int('semana')
 		System.out.println(csvFile + semana)
 		BufferedReader br = null;
 		String line = "";
@@ -293,7 +314,7 @@ class RequestController {
 	}
 
 	
-	def proceseLinea(String[] linea, int semana,def mecanicasUsuarios) {
+	def proceseLinea(def linea, int semana,def mecanicasUsuarios) {
 		Double totalUser=0.0
 		String userId = linea[0]
 		String prueba = linea[6]
@@ -311,9 +332,8 @@ class RequestController {
 		
 		User user = User.find{username == userId}
 		Faccion faccion = user.faccion
-		
+		System.out.println(sem + " "  + semana)
 		if ((tipoPrueba == 'M' ) && (semana==sem) ) {
-			System.out.println("Tipo prueba: " + tipoPrueba)
 			totalUser = mecanicasUsuarios[userId]
 			if  (totalUser == null) {
 				mecanicasUsuarios[userId] = score
@@ -321,7 +341,7 @@ class RequestController {
 				mecanicasUsuarios[userId] =score + totalUser
 			}
 		} else if ((tipoPrueba == 'C') && (score >= MINSCORECOG) && (sem==semana-1)) {
-			System.out.println("Tipo prueba: " + tipoPrueba + " - " + numPrueba)
+			//System.out.println("Tipo prueba: " + tipoPrueba + " - " + numPrueba)
 		
 				if (numPrueba==1) {
 					// agregar al usuario userId PTOSCOGFACIL puntos  GEMCOGFACIL gemas
@@ -357,6 +377,7 @@ class RequestController {
 			user.save(flush: true)
 			faccion.save(flush: true)
 		}
+		//System.out.println("Tipo prueba: " + tipoPrueba)
 	}
 	
 	def proceseTotalesMecanicos(def mecanicasUsuarios, int semana)	{
@@ -369,8 +390,8 @@ class RequestController {
 			User user = User.find{username == userId}
 			Faccion faccion = user.faccion
 			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
+			System.out.println("Usuario: " + user.username + "Total " + total)
 			if (total == 300) {
-				System.out.println("Total " + total)
 				// Agragar al usuario userId 5 estrella en la semana
 				// Agragar al usuario userId 1 gema
 				// Agregar a la facción 10 monedas
@@ -379,25 +400,21 @@ class RequestController {
 				faccion.monedas += 10
 				
 			} else if (total >= 270) {
-				System.out.println("Total " + total)
  				// Agragar al usuario userId 4 estrella
 				// Agregar a la facción 5 monedas
 				user.estrellasSemanas[semana] = 4
 				faccion.monedas += 5
 			} else if (total >= 240) {
-				System.out.println("Total " + total)
 				// Agragar al usuario userId 3 estrella
 				// Agregar a la facción 4 monedas
 				user.estrellasSemanas[semana] = 3
 				faccion.monedas += 4
 			} else if (total >= 180) {
-				System.out.println("Total " + total)
 				// Agragar al usuario userId 2 estrella
 				// Agregar a la facción 3 monedas
 				user.estrellasSemanas[semana] = 2
 				faccion.monedas += 3
 			} else if (total >= 105) {
-				System.out.println("Total " + total)
 				// Agragar al usuario userId 1 estrella
 				// Agregar a la facción 2 monedas
 				user.estrellasSemanas[semana] = 1
@@ -408,118 +425,6 @@ class RequestController {
 		}
 	}
 
-	/**
-	 * Llamado general a un servicio de playNGage
-	 * @param apiName el nombre del api a llamar
-	 * @param parameters map de parámetros a enviar
-	 * @return restResponse la respuesta del llamado al servicio
-	 */
-	RestResponse callRequest(String apiName, def parameters, int method) {
-		RestResponse restResoponse = null
-		String concatenateSymbol = "?"
-		if(apiName!=null) {
-			if(!apiName.trim().equals("")) {
-				String urlCall = url + apiName
-				String[] paramKeys = parameters.keySet();
-				if(paramKeys!=null) {
-					for(int i=0;i<paramKeys.length;i++) {
-						urlCall += concatenateSymbol + paramKeys[i] + "=" + parameters[paramKeys[i]]
-						concatenateSymbol = "&"
-					}
-				}
-				System.out.println(urlCall)
-				RestBuilder restBuilder = new RestBuilder()
-				if(method==GET) {
-					restResoponse = restBuilder.get(urlCall) {
-						header 'Authorization', 'Token token=' + token
-						header 'Accept', '*/*'
-					}
-				} else {
-					restResoponse = restBuilder.post(urlCall) {
-						header 'Authorization', 'Token token=' + token
-						header 'Accept', '*/*'
-					}
-				}
-			}
-		}
-		return(restResoponse)
-	}
-	
-	FaccionDTO getTeam(String tag) {
-		FaccionDTO faccion = null
-		RestResponse restResponse= callRequest("v2/teams/" + tag, [:], GET)
-		String successMessage = restResponse.json.success
-		if(successMessage!="false") {
-			faccion = new FaccionDTO()
-			faccion.setNombreFaccion(restResponse.json.name)
-			faccion.setMonedas(restResponse.json.currencies.team_currencies.monedas.quantity)
-			if(restResponse.json.members!=null) {
-				ArrayList<UsuarioDTO> usuarios = new ArrayList<UsuarioDTO>();
-				restResponse.json.members.each { member ->
-					UsuarioDTO usuario = new UsuarioDTO();
-					usuario.setNombreUsuario(member)
-					usuarios.add(usuario)
-				}
-			}
-			//System.out.println(restResponse.getBody())
-			System.out.println(faccion.getNombreFaccion())
-		}
-		return(faccion)
-	}
-	
-
-	def getUserData(String userName) {
-		def ret = [] //Arreglo con los datos a retornar del motor a la aplicación
-		RestBuilder rest = new RestBuilder()
-		RestResponse resp = rest.post("http://playngage.io/api/players" +
-				"?id_in_app=" + userName) {
-			header 'Authorization', 'Token token=' + token
-			header 'Accept', '*/*'
-		}
-		
-		ret.add(resp.json.player.id_in_app)
-		ret.add(resp.json.player.email)
-		//System.out.println(resp.getBody())
-		return(ret)
-	}
-
-	//Completar una acción para un jugador
-	def createPlayer() {
-		String mode = "_dev" //grailsApplication.config.co.edu.uniandes.mel.mode //Modo del usuario, _dev en desarrollo y _prod en producción
-		RestBuilder rest = new RestBuilder()
-		RestResponse resp = rest.post("http://playngage.io/api/players" + 
-				"?id_in_app=" + idInApp + "" + mode.toString() + 
-				"&email=" + idInApp + "@uniandes.edu.co" +
-				"&set_currencies=0,0,0,0" +
-				"&team[tag]=" +  testGroup) {
-			header 'Authorization', 'Token token=' + token
-			header 'Accept', '*/*'
-		}
-		
-		def playerStatus = resp.json.status
-		def playerId = resp.json.player.id
-		def playerIdInApp = resp.json.player.id_in_app 
-		def playerEmail = resp.json.player.email 
-		[playerStatus: playerStatus, playerId: playerId, playerIdInApp: playerIdInApp, playerEmail: playerEmail]
-	}
-
-	def getPlayerData() {
-		String mode = "_dev" //grailsApplication.config.co.edu.uniandes.mel.mode //Modo del usuario, _dev en desarrollo y _prod en producción
-		RestBuilder rest = new RestBuilder()
-		RestResponse resp = rest.post("http://playngage.io/api/players" + 
-				"?id_in_app=" + idInApp + "" + mode.toString()) {
-			header 'Authorization', 'Token token=' + token
-			header 'Accept', '*/*'
-		}
-		
-//		def playerStatus = resp.json.status
-//		def playerId = resp.json.player.id
-//		def playerIdInApp = resp.json.player.id_in_app 
-//		def playerEmail = resp.json.player.email 
-//		[playerStatus: playerStatus, playerId: playerId, playerIdInApp: playerIdInApp, playerEmail: playerEmail]
-		render resp.getBody()
-	}
-	
 	def createFactions() {
 		String name = "Faccion"
 		def number = [1,2,3,4,5,6,7,8]
@@ -537,5 +442,50 @@ class RequestController {
 			}
 		}
 		render "ok"
+	}
+	
+	def solicitarArchivo() {
+		String message = params['message']
+		if(message==null) {
+			message=""
+		}
+		[message: message]
+	}
+	
+	def cargarInformacion() {
+		MultipartFile archivo = request.getFile('archivo')
+		int semana = params.int('semana')
+		String message = "Datos cargados correctamente"
+		def split
+		if(archivo&&(split = archivo.getOriginalFilename().split('\\.')).length>1&&split[split.length-1]=='csv') {
+			String nombreArchivo = grailsApplication.config.co.edu.uniandes.uploadfolder + archivo.getOriginalFilename()
+			File archivoLocal = new File(nombreArchivo)
+			archivo.transferTo(archivoLocal)
+//			FileInputStream fis = new FileInputStream(archivoLocal)
+//			archivo.transferTo(archivoLocal)
+			upload(nombreArchivo, semana)
+		} else {
+			message = "Debe cargar un archivo en formato csv"
+		}
+		render message
+		//redirect(action: 'solicitarArchivo', params: [message: message])
+	}
+	
+	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
+	def llenarDatosEjemplo() {
+		def usuarios = User.findAll()
+		Random random = new Random()
+		usuarios.each { usuario ->
+			usuario.medallas = random.nextInt(4)+1
+			usuario.gemas = random.nextInt(9)+1
+			usuario.puntos = random.nextInt(99)+1
+			for(int i=0;i<3;i++) {
+				usuario.estrellasSemanas[i] = random.nextInt(4)+1 
+				usuario.aporteSemanas[i] = random.nextInt(70) + 30
+			}
+			usuario.faccion.puntos += usuario.puntos
+			usuario.faccion.monedas += random.nextInt(50)
+		}
+		redirect uri: "/"
 	}
 }

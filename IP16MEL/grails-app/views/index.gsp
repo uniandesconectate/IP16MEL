@@ -47,10 +47,7 @@
 				<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
 				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
 				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
-				<g:link controller="request" action="upload" params="[semana: '1', archivo: 'ArchivoPrueba1.csv']">Cargar semana 1</g:link><br />
-				<g:link controller="request" action="upload" params="[semana: '2', archivo: 'ArchivoPrueba2.csv']">Cargar semana 2</g:link><br />
-				<g:link controller="request" action="upload" params="[semana: '3', archivo: 'ArchivoPrueba3.csv']">Cargar semana 3</g:link><br />
-			
+				<g:link controller="request" action="solicitarArchivo">Cargar semana</g:link><br />
 		</div>
 	</sec:ifLoggedIn>
 </section>

@@ -12,11 +12,7 @@ class BootStrap {
 		def usuarios=crearUsuarios(roles)
 		def secciones=crearSecciones(usuarios)
 		def facciones=crearFacciones(secciones)
-		User user = new User(username: "pruebamel1", password:'12345', faccion: facciones[0])
-		user.save(flush: true)
-		UserRole.create user, roles[1], true
-		secciones[0].estudiantes.add(user)
-		secciones[0].save(flush:true)
+		def estudiantes=crearEstudiantes(facciones, roles)
     }
     def destroy = {
     }
@@ -42,7 +38,7 @@ class BootStrap {
 		faccion.save(flush:true)
 
 		usuarios.each { usuario ->
-			def usuarioNuevo = new User(username: usuario, password:'ks3d7fcd8$f1', faccion: faccion)
+			def usuarioNuevo = new User(username: usuario, password:'ks3d7fcd8$f1', faccion: faccion, nombre: "Nombre " + usuario)
 			usuarioNuevo.save(flush: true) 
 			UserRole.create usuarioNuevo, roles[0], true
 			ret.add(usuarioNuevo)
@@ -74,6 +70,29 @@ class BootStrap {
 			seccion.save(flush:true)
 		}
 
+		return(ret)
+	}
+	
+	def crearEstudiantes(def facciones, def roles) {
+		def ret=[]
+		int i=1
+		int faccion=0
+		User user
+		for(;i<6;i++) {
+			user = new User(username: "pruebamel" + i, password:'12345', faccion: facciones[faccion], nombre: "pruebaMel " + i)
+			user.save(flush: true)
+			UserRole.create user, roles[1], true
+			facciones[faccion].seccion.estudiantes.add(user)
+			facciones[faccion].seccion.save(flush:true)
+		}
+		faccion++
+		for(;i<11;i++) {
+			user = new User(username: "pruebamel" + i, password:'12345', faccion: facciones[faccion], nombre: "pruebaMel " + i)
+			user.save(flush: true)
+			UserRole.create user, roles[1], true
+			facciones[faccion].seccion.estudiantes.add(user)
+			facciones[faccion].seccion.save(flush:true)
+		}
 		return(ret)
 	}
 
