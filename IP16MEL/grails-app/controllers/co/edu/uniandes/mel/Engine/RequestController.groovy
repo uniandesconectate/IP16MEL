@@ -488,4 +488,27 @@ class RequestController {
 		}
 		redirect uri: "/"
 	}
+	
+	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
+	def llenarDatosPrueabMel() {
+		for(int i=1;i<=5;i++) {
+			User usuario = new User(nombre: "pruebamel" + i, username: "pruebamel" + i, password: "12345")
+			usuario.faccion = Faccion.findAll{}.sort(false){it.id}[0]
+			usuario.faccion.miembros.add(usuario)
+			usuario.save(flush: true)
+			usuario.faccion.save(flush: true)
+			usuario.faccion.seccion.estudiantes.add(usuario)
+			//usuario.faccion.seccion.save(flush: true) 
+		}
+		for(int i=6;i<=10;i++) {
+			User usuario = new User(nombre: "pruebamel" + i, username: "pruebamel" + i, password: "12345")
+			usuario.faccion = Faccion.findAll{}.sort(false){it.id}[1]
+			usuario.faccion.miembros.add(usuario)
+			usuario.save(flush: true)
+			usuario.faccion.save(flush: true)
+			usuario.faccion.seccion.estudiantes.add(usuario)
+		}
+		redirect uri: "/"
+	}
+
 }
