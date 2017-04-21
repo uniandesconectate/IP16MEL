@@ -41,13 +41,13 @@ class RequestController {
 	public static final int TOTALPRUEBASMEC = 300
 
 	def grailsApplication //Permite utilizar las constantes del config
-	def springSecurityService //Permite acceder a la información del usuario de la sesión
+	def springSecurityService //Permite acceder a la informaciï¿½n del usuario de la sesiï¿½n
 	int numeroSemanas = 3
 	
 	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
 	String url = "http://playngage.io/api/" //Token de API en PlayNGage
 	String idInApp = 'rca1' //Este es el id_in_app de un jugador <-- Puede ser el username Uniandes o el ID de una plataforma
-	String action_tag = 'intercept_test' //Este es el tag de una acción
+	String action_tag = 'intercept_test' //Este es el tag de una acciï¿½n
 	String testGroup = "First"
 
 	@Secured(['ROLE_STUDENT','ROLE_ADMIN'])
@@ -66,7 +66,7 @@ class RequestController {
 	def dashboard() {
 		User user = springSecurityService.getCurrentUser()
 		
-		// Instancia datos del usuario y de su pestaña individual
+		// Instancia datos del usuario y de su pestaï¿½a individual
 		String userName = user.username
 		def semanas = []
 		def estrellas = []
@@ -81,7 +81,7 @@ class RequestController {
 		
 		Faccion faccion1 = user.faccion
 		faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
-		// Instancia datos de la primera facción
+		// Instancia datos de la primera facciï¿½n
 		String faccion1Copas = faccion1.puntos
 		String faccion1Monedas = faccion1.monedas
 		def faccion1Nombres = []
@@ -93,7 +93,7 @@ class RequestController {
 			faccion1Puntos.add(miembro.puntos)
 		}
 
-		// Instancia datos de la segunda facción
+		// Instancia datos de la segunda facciï¿½n
 		Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
 		faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
 		def faccion2Nombres = []
@@ -115,7 +115,7 @@ class RequestController {
 	}
 	
 	def dashboardEstudiante() {
-		//Ejemplo de llamado a un método para retornar el usuario
+		//Ejemplo de llamado a un mï¿½todo para retornar el usuario
 		User user = User.find{username==params['username']}
 		//System.out.println(params['username'])
 		def users = [] // User.findAll()
@@ -147,7 +147,7 @@ class RequestController {
 		users = users.sort(false){it.nombre}
 
 		if(user!=null) {			
-			// Instancia datos del usuario y de su pestaña individual
+			// Instancia datos del usuario y de su pestaÃ±a individual
 			userName = user.username
 			for(int i=0;i<numeroSemanas;i++) {
 				semanas.add(i+1)
@@ -159,7 +159,7 @@ class RequestController {
 			
 			Faccion faccion1 = user.faccion
 			faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
-			// Instancia datos de la primera facción
+			// Instancia datos de la primera facciï¿½n
 			faccion1Copas = faccion1.puntos
 			faccion1Monedas = faccion1.monedas
 			faccion1.miembros.each { miembro ->
@@ -168,7 +168,7 @@ class RequestController {
 				faccion1Puntos.add(miembro.puntos)
 			}
 	
-			// Instancia datos de la segunda facción
+			// Instancia datos de la segunda facciï¿½n
 			Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
 			faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
 			faccion2Copas = faccion2.puntos
@@ -394,29 +394,29 @@ class RequestController {
 			if (total == 300) {
 				// Agragar al usuario userId 5 estrella en la semana
 				// Agragar al usuario userId 1 gema
-				// Agregar a la facción 10 monedas
+				// Agregar a la facciï¿½n 10 monedas
 				user.estrellasSemanas[semana] = 5
 				user.gemas++
 				faccion.monedas += 10
 				
 			} else if (total >= 270) {
  				// Agragar al usuario userId 4 estrella
-				// Agregar a la facción 5 monedas
+				// Agregar a la facciï¿½n 5 monedas
 				user.estrellasSemanas[semana] = 4
 				faccion.monedas += 5
 			} else if (total >= 240) {
 				// Agragar al usuario userId 3 estrella
-				// Agregar a la facción 4 monedas
+				// Agregar a la facciï¿½n 4 monedas
 				user.estrellasSemanas[semana] = 3
 				faccion.monedas += 4
 			} else if (total >= 180) {
 				// Agragar al usuario userId 2 estrella
-				// Agregar a la facción 3 monedas
+				// Agregar a la facciï¿½n 3 monedas
 				user.estrellasSemanas[semana] = 2
 				faccion.monedas += 3
 			} else if (total >= 105) {
 				// Agragar al usuario userId 1 estrella
-				// Agregar a la facción 2 monedas
+				// Agregar a la facciï¿½n 2 monedas
 				user.estrellasSemanas[semana] = 1
 				faccion.monedas += 2
 			}
