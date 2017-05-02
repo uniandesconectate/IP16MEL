@@ -39,10 +39,12 @@ class RequestController {
 	public static final int HONORPUNTOS = 30
 	
 	public static final int TOTALPRUEBASMEC = 300
+	
+	public static final int SEMANAINICIAL = 13
 
 	def grailsApplication //Permite utilizar las constantes del config
 	def springSecurityService //Permite acceder a la informaci�n del usuario de la sesi�n
-	int numeroSemanas = 3
+	int numeroSemanas = 2
 	
 	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
 	String url = "http://playngage.io/api/" //Token de API en PlayNGage
@@ -295,7 +297,7 @@ class RequestController {
 					proceseLinea(linea,semana,mecanicasUsuarios);
 				}
 			}
-			proceseTotalesMecanicos(mecanicasUsuarios, semana-1)
+			proceseTotalesMecanicos(mecanicasUsuarios, semana - SEMANAINICIAL)
 	
 		} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -383,46 +385,74 @@ class RequestController {
 	def proceseTotalesMecanicos(def mecanicasUsuarios, int semana)	{
 
 		def keys = mecanicasUsuarios.keySet();
+		def totalMonedasSemanaFacciones= [:]
+		int monedasFaccion=0;
+		Integer totalMonedasSemanaFaccion;
 		
-		
+		// Calcula y agraga modenas para cada usuario y calcula el total obetnido por cada faccion
 		
 		mecanicasUsuarios.each { userId, total ->
 			User user = User.find{username == userId}
 			Faccion faccion = user.faccion
+			
+			
+			
 			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
 			System.out.println("Usuario: " + user.username + "Total " + total)
 			if (total == 300) {
 				// Agragar al usuario userId 5 estrella en la semana
 				// Agragar al usuario userId 1 gema
-				// Agregar a la facci�n 10 monedas
+				// Agregar a la facci�n 5 monedas
 				user.estrellasSemanas[semana] = 5
 				user.gemas++
-				faccion.monedas += 10
+				monedasFaccion = 5
 				
 			} else if (total >= 270) {
  				// Agragar al usuario userId 4 estrella
-				// Agregar a la facci�n 5 monedas
+				// Agregar a la facci�n 4 monedas
 				user.estrellasSemanas[semana] = 4
-				faccion.monedas += 5
+				monedasFaccion =  4
 			} else if (total >= 240) {
 				// Agragar al usuario userId 3 estrella
-				// Agregar a la facci�n 4 monedas
+				// Agregar a la facci�n 3 monedas
 				user.estrellasSemanas[semana] = 3
-				faccion.monedas += 4
+				monedasFaccion =  3
 			} else if (total >= 180) {
 				// Agragar al usuario userId 2 estrella
-				// Agregar a la facci�n 3 monedas
+				// Agregar a la facci�n 2 monedas
 				user.estrellasSemanas[semana] = 2
-				faccion.monedas += 3
+				monedasFaccion =  2
 			} else if (total >= 105) {
 				// Agragar al usuario userId 1 estrella
-				// Agregar a la facci�n 2 monedas
+				// Agregar a la facci�n 1 monedas
 				user.estrellasSemanas[semana] = 1
-				faccion.monedas += 2
+				monedasFaccion =  1
 			}
+			faccion.monedas += monedasFaccion;
+			
+			totalMonedasSemanaFaccion = totalMonedasSemanaFacciones[faccion.nombreFaccion]
+			if  (totalMonedasSemanaFaccion == null) {
+				totalMonedasSemanaFacciones[faccion.nombreFaccion] = monedasFaccion
+			} else {
+				totalMonedasSemanaFacciones[faccion.nombreFaccion] = monedasFaccion + totalMonedasSemanaFaccion
+			}
+			
 			user.save(flush: true)
 			faccion.save(flush: true)
 		}
+		
+		mecanicasUsuarios.each { userId, total ->
+			User user = User.find{username == userId}
+			Faccion faccion = user.faccion
+			totalMonedasSemanaFaccion = totalMonedasSemanaFacciones[faccion.nombreFaccion]
+			if  (totalMonedasSemanaFaccion != null) {
+				user.aporteSemanas[semana] = (double)( user.estrellasSemanas[semana]/totalMonedasSemanaFaccion)
+			}
+			
+			user.save(flush: true)
+		}
+		
+		
 	}
 
 	def createFactions() {
