@@ -17,8 +17,9 @@
 		</g:form>
 
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#individual">Individual</a></li>
   <li><a data-toggle="tab" href="#faccion">Facción</a></li>
+  <li class="active"><a data-toggle="tab" href="#individual">Individual</a></li>
+
 </ul>
 
 <div class="tab-content">

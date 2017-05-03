@@ -398,7 +398,7 @@ class RequestController {
 			User user = User.find{username == userId}
 			Faccion faccion = user.faccion
 			
-			
+			monedasFaccion = 0
 			
 			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
 			System.out.println("Usuario: " + user.username + "Total " + total)
