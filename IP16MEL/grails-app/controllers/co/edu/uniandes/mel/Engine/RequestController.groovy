@@ -56,7 +56,7 @@ class RequestController {
 	def index() {
 		User currentUser = springSecurityService.getCurrentUser()
 		UserRole role = UserRole.find{user.id == currentUser.id && role.authority == "ROLE_STUDENT"}
-		System.out.println(currentUser.username + "-" + role)
+		//System.out.println(currentUser.username + "-" + role)
 		if(role!=null) {
 			redirect action: 'dashboard'
 		}
@@ -142,7 +142,7 @@ class RequestController {
 
 		User userProfesor = springSecurityService.getCurrentUser()
 		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
-		System.out.println(secciones)
+		//System.out.println(secciones)
 		secciones.each { seccion ->
 			users = users + seccion.estudiantes
 		}
@@ -221,7 +221,7 @@ class RequestController {
 		def users = []
 		User userProfesor = springSecurityService.getCurrentUser()
 		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
-		System.out.println(secciones)
+		//System.out.println(secciones)
 		secciones.each { seccion ->
 			users = users + seccion.estudiantes
 		}
@@ -235,7 +235,7 @@ class RequestController {
 		User user2 = User.find{id == params.int('userId2')}
 		Integer value1 = params.int('value1')
 		Integer value2 = params.int('value2')
-		System.out.println(value1 + " " + value2 + " " + params['userId1'])
+		//System.out.println(value1 + " " + value2 + " " + params['userId1'])
 		if(value1>user1.gemas) {
 			message = user1.username + " no tiene suficientes gemas"
 		} else if(value2>user2.gemas) {
@@ -254,7 +254,7 @@ class RequestController {
 		def users = []
 		User userProfesor = springSecurityService.getCurrentUser()
 		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
-		System.out.println(secciones)
+		//System.out.println(secciones)
 		secciones.each { seccion ->
 			users = users + seccion.estudiantes
 		}
@@ -276,13 +276,13 @@ class RequestController {
 		[message: message]
 	}
 
-	def upload(String csvFile, int semana) {
+	def upload(String csvFile, int semana, String separador) {
 //		String csvFile = "c:\\tmp\\" + params["archivo"];
 //		int semana = params.int('semana')
-		System.out.println(csvFile + semana)
+		//System.out.println(csvFile + semana)
 		BufferedReader br = null;
 		String line = "";
-		String cvsSplitBy = ";";
+		String cvsSplitBy = "\\|";
 		
 	
 		try {
@@ -291,9 +291,11 @@ class RequestController {
 			br = new BufferedReader(new FileReader(csvFile));
 			while ((line = br.readLine()) != null) {
 				// use comma as separator
-				String[] linea = line.split(cvsSplitBy);
+				line = line.replaceAll("\"", "")
 				System.out.println(line + " -- " + cvsSplitBy)
-				if(!linea[6].contains("Total")) {
+				String[] linea = line.split(cvsSplitBy);
+				//System.out.println("Linea[6]" + linea[6].startsWith("MS"))
+				if(linea[6].startsWith("MS") || linea[6].startsWith("HS") || linea[6].startsWith("CS")) {
 					proceseLinea(linea,semana,mecanicasUsuarios);
 				}
 			}
@@ -321,6 +323,7 @@ class RequestController {
 		String userId = linea[0]
 		String prueba = linea[6]
 		String  tipoPrueba = prueba.subSequence(0,1)
+		//System.out.println("prueba" + prueba)
 		int numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
 		int sem = Integer.parseInt(prueba.subSequence(2,4))
 		String scoreTxt = "0"
@@ -329,12 +332,12 @@ class RequestController {
 				scoreTxt = linea[7]
 			}
 		}
-		//System.out.println("Prueba:" + prueba + " sub: " + prueba.substring(prueba.length() - 2) + " num: " + prueba.subSequence(2,4) + "scoreTxt: " + scoreTxt)
-		double score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", ""));
+		//System.out.println("Prueba:" + prueba + " sub: " + prueba.substring(prueba.length() - 2) + " num: " + prueba.subSequence(2,4) + " scoreTxt: " + scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
+		double score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."));
 		
 		User user = User.find{username == userId}
 		Faccion faccion = user.faccion
-		System.out.println(sem + " "  + semana)
+		//System.out.println(sem + " "  + semana)
 		if ((tipoPrueba == 'M' ) && (semana==sem) ) {
 			totalUser = mecanicasUsuarios[userId]
 			if  (totalUser == null) {
@@ -445,8 +448,8 @@ class RequestController {
 			User user = User.find{username == userId}
 			Faccion faccion = user.faccion
 			totalMonedasSemanaFaccion = totalMonedasSemanaFacciones[faccion.nombreFaccion]
-			if  (totalMonedasSemanaFaccion != null) {
-				user.aporteSemanas[semana] = (double)( user.estrellasSemanas[semana]/totalMonedasSemanaFaccion)
+			if  (totalMonedasSemanaFaccion != null && totalMonedasSemanaFaccion>0) {
+				user.aporteSemanas[semana] = (double)(100*(user.estrellasSemanas[semana]/totalMonedasSemanaFaccion))
 			}
 			
 			user.save(flush: true)
@@ -485,6 +488,7 @@ class RequestController {
 	def cargarInformacion() {
 		MultipartFile archivo = request.getFile('archivo')
 		int semana = params.int('semana')
+		String separador = params["separado"]
 		String message = "Datos cargados correctamente"
 		def split
 		if(archivo&&(split = archivo.getOriginalFilename().split('\\.')).length>1&&split[split.length-1]=='csv') {
@@ -493,7 +497,7 @@ class RequestController {
 			archivo.transferTo(archivoLocal)
 //			FileInputStream fis = new FileInputStream(archivoLocal)
 //			archivo.transferTo(archivoLocal)
-			upload(nombreArchivo, semana)
+			upload(nombreArchivo, semana, separador)
 		} else {
 			message = "Debe cargar un archivo en formato csv"
 		}
@@ -520,24 +524,15 @@ class RequestController {
 	}
 	
 	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
+	//http://localhost:8080/IP16MEL/request/llenarDatosPrueabMel
 	def llenarDatosPrueabMel() {
-		for(int i=1;i<=5;i++) {
-			User usuario = new User(nombre: "pruebamel" + i, username: "pruebamel" + i, password: "12345")
-			usuario.faccion = Faccion.findAll{}.sort(false){it.id}[0]
-			usuario.faccion.miembros.add(usuario)
-			usuario.save(flush: true)
-			usuario.faccion.save(flush: true)
-			usuario.faccion.seccion.estudiantes.add(usuario)
-			//usuario.faccion.seccion.save(flush: true) 
-		}
-		for(int i=6;i<=10;i++) {
-			User usuario = new User(nombre: "pruebamel" + i, username: "pruebamel" + i, password: "12345")
-			usuario.faccion = Faccion.findAll{}.sort(false){it.id}[1]
-			usuario.faccion.miembros.add(usuario)
-			usuario.save(flush: true)
-			usuario.faccion.save(flush: true)
-			usuario.faccion.seccion.estudiantes.add(usuario)
-		}
+		User user
+		def ret=[]
+		def facciones = Faccion.findAll{}.sort(false){it.id}
+		def roles = Role.findAll{}.sort(false){it.id}
+		//usuario.faccion = Faccion.findAll{}.sort(false){it.id}[0]
+      
+      
 		redirect uri: "/"
 	}
 

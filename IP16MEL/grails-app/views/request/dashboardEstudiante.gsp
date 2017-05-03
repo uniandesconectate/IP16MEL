@@ -10,7 +10,7 @@
 		<g:form url="[action:'stAssesmentCourseGrades']" method="POST" >
 		
 				<strong>Actividad: </strong>
-				<g:select from="${users}" name="username" optionValue="nombre" optionKey="username" noSelection="${['Empty':'Elegir uno']}" />
+				<g:select from="${users}" name="username" optionValue="${{it.nombre +' '+it.faccion.nombreFaccion}}" optionKey="username" noSelection="${['Empty':'Elegir uno']}" />
 				<g:actionSubmit class="btn btn-green" action="dashboardEstudiante" value="Enviar" />
 				<br />
 				<br />

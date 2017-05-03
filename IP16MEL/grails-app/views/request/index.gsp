@@ -8,7 +8,7 @@
 		<section>
 			<div class="container">
 				<h1>Opciones</h1>
-					<g:link controller="request" action="dashboardEstudiante">Dashboard</g:link><br />
+					<g:link controller="request" action="dashboardEstudiante">Ver dashboard de un estudiante</g:link><br />
 					<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
 					<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
 					<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
