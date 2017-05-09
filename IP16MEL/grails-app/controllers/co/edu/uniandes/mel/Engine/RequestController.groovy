@@ -298,7 +298,7 @@ class RequestController {
 			while ((line = br.readLine()) != null) {
 				// use comma as separator
 				line = line.replaceAll("\"", "")
-				System.out.println(line + " -- " + cvsSplitBy)
+				//System.out.println(line + " -- " + cvsSplitBy)
 				String[] linea = line.split(cvsSplitBy);
 				//System.out.println("Linea[6]" + linea[6].startsWith("MS"))
 				if(linea[6].startsWith("MS") || linea[6].startsWith("HS") || linea[6].startsWith("CS")) {
