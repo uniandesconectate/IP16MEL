@@ -86,6 +86,7 @@ class RequestController {
 		// Instancia datos de la primera facci�n
 		String faccion1Copas = faccion1.puntos
 		String faccion1Monedas = faccion1.monedas
+		String faccion1NombreFaccion = faccion1.nombreFaccion
 		def faccion1Nombres = []
 		def faccion1Medallas = []
 		def faccion1Puntos = []
@@ -98,6 +99,7 @@ class RequestController {
 		// Instancia datos de la segunda facci�n
 		Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
 		faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
+		String faccion2NombreFaccion = faccion2.nombreFaccion
 		def faccion2Nombres = []
 		def faccion2Medallas = []
 		def faccion2Puntos = []
@@ -111,9 +113,9 @@ class RequestController {
 		
 		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
 			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas, faccion1NombreFaccion: faccion1NombreFaccion,
 			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas]
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, faccion2NombreFaccion: faccion2NombreFaccion]
 	}
 	
 	def dashboardEstudiante() {
@@ -139,7 +141,9 @@ class RequestController {
 		def faccion2Puntos = []
 		String faccion2Copas = ""
 		String faccion2Monedas = ""
-
+		String faccion1NombreFaccion
+		String faccion2NombreFaccion
+		
 		User userProfesor = springSecurityService.getCurrentUser()
 		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
 		//System.out.println(secciones)
@@ -164,6 +168,7 @@ class RequestController {
 			// Instancia datos de la primera facci�n
 			faccion1Copas = faccion1.puntos
 			faccion1Monedas = faccion1.monedas
+			faccion1NombreFaccion = faccion1.nombreFaccion
 			faccion1.miembros.each { miembro ->
 				faccion1Nombres.add(miembro.username)
 				faccion1Medallas.add(miembro.medallas)
@@ -175,6 +180,7 @@ class RequestController {
 			faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
 			faccion2Copas = faccion2.puntos
 			faccion2Monedas = faccion2.monedas
+			faccion2NombreFaccion = faccion2.nombreFaccion
 			faccion2.miembros.each { miembro ->
 				faccion2Nombres.add(miembro.username)
 				faccion2Medallas.add(miembro.medallas)
@@ -187,9 +193,9 @@ class RequestController {
 		
 		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
 			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,  faccion1NombreFaccion: faccion1NombreFaccion,
 			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, users: users]
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas,  faccion2NombreFaccion: faccion2NombreFaccion, users: users]
 	}
 
 	def comprarFaccion() {
@@ -336,6 +342,7 @@ class RequestController {
 		double score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."));
 		
 		User user = User.find{username == userId}
+		System.out.println("Usuario: " + userId + "  - " + user)
 		Faccion faccion = user.faccion
 		//System.out.println(sem + " "  + semana)
 		if ((tipoPrueba == 'M' ) && (semana==sem) ) {
@@ -401,7 +408,7 @@ class RequestController {
 			monedasFaccion = 0
 			
 			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
-			System.out.println("Usuario: " + user.username + "Total " + total)
+			//System.out.println("Usuario: " + user.username + "Total " + total)
 			if (total == 300) {
 				// Agragar al usuario userId 5 estrella en la semana
 				// Agragar al usuario userId 1 gema

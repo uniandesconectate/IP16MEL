@@ -8,11 +8,11 @@ class BootStrap {
 	def GrailsApplication
 	
     def init = { servletContext ->
-		def roles=crearRoles()
-		def usuarios=crearUsuarios(roles)
-		def secciones=crearSecciones(usuarios)
-		def facciones=crearFacciones(secciones)
-		def estudiantes=crearEstudiantes(facciones, roles)
+//		def roles=crearRoles()
+//		def usuarios=crearUsuarios(roles)
+//		def secciones=crearSecciones(usuarios)
+//		def facciones=crearFacciones(secciones)
+//		def estudiantes=crearEstudiantes(facciones, roles)
     }
     def destroy = {
     }

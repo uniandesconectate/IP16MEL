@@ -17,13 +17,13 @@
 		</g:form>
 
 <ul class="nav nav-tabs">
-  <li><a data-toggle="tab" href="#faccion">Facción</a></li>
-  <li class="active"><a data-toggle="tab" href="#individual">Individual</a></li>
+  <li class="active"><a data-toggle="tab" href="#faccion">Facción</a></li>
+  <li><a data-toggle="tab" href="#individual">Individual</a></li>
 
 </ul>
 
 <div class="tab-content">
-  <div id="individual" class="tab-pane fade in active">
+  <div id="individual" class="tab-pane fade">
    <div class="container">
     <div class="col-xs-12 col-sm-4">
       <div class="boxSem">
@@ -81,7 +81,7 @@
 
 
     
-<div id="faccion" class="tab-pane fade">
+<div id="faccion" class="tab-pane fade in active">
 <br />
   <div class="container">
     <div class="col-xs-12 col-sm-8">
@@ -92,7 +92,7 @@
             <thead>
               <tr>
                 <th colspan="3">
-                  <i class="fa fa-users" aria-hidden="true"></i> Facción 1
+                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion1NombreFaccion}
                 </th>
               </tr>
               <tr>
@@ -128,7 +128,7 @@
             <thead>
               <tr>
                 <th colspan="3">
-                  <i class="fa fa-users" aria-hidden="true"></i> Facción 2
+                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion2NombreFaccion}
                 </th>
               </tr>
               <tr>

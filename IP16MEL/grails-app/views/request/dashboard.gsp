@@ -80,7 +80,7 @@
 		            <thead>
 		              <tr>
 		                <th colspan="3">
-		                  <i class="fa fa-users" aria-hidden="true"></i> Facción 1
+		                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion1NombreFaccion}
 		                </th>
 		              </tr>
 		              <tr>
@@ -116,7 +116,7 @@
 		            <thead>
 		              <tr>
 		                <th colspan="3">
-		                  <i class="fa fa-users" aria-hidden="true"></i> Facción 2
+		                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion2NombreFaccion}
 		                </th>
 		              </tr>
 		              <tr>

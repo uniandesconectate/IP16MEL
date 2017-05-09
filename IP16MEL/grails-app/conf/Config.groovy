@@ -93,7 +93,7 @@ environments {
     production {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
-		co.edu.uniandes.uploadfolder = "/var/lib/tomcat7/datos_MEL/"
+		co.edu.uniandes.uploadfolder = "/datos/datos_IP16MEL/"
     }
 }
 
