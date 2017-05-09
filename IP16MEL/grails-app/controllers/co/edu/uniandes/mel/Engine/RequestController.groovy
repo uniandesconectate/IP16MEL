@@ -27,8 +27,8 @@ class RequestController {
 	public static final double MINSCORECOG = 80.0
 	public static final double MINSCOREHON = 80.0
 	
-	public static final int PTOSCOGFACIL = 5
-	public static final int PTOSCOGMEDIO = 12
+	public static final int PTOSCOGFACIL = 3
+	public static final int PTOSCOGMEDIO = 8
 	public static final int PTOSCOGDIFICIL = 20
 	
 	public static final int GEMCOGFACIL = 1
