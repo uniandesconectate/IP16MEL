@@ -90,12 +90,21 @@ class RequestController {
 		def faccion1Nombres = []
 		def faccion1Medallas = []
 		def faccion1Puntos = []
+
 		faccion1.miembros.each { miembro ->
 			faccion1Nombres.add(miembro.username)
 			faccion1Medallas.add(miembro.medallas)
 			faccion1Puntos.add(miembro.puntos)
 		}
+		int faccion1PromedioPuntos =0
+		int faccion1PromedioMonedas=0
+		int totalMiembros1 = faccion1.miembros.size()
+		if (totalMiembros1 != 0) {
+			faccion1PromedioPuntos=faccion1.puntos/totalMiembros1
+			faccion1PromedioMonedas=faccion1.monedas/totalMiembros1
+		}
 
+		System.out.println(" Faccion 1  Puntos:"+faccion1PromedioPuntos + " Monedas:"+ faccion1PromedioMonedas)
 		// Instancia datos de la segunda facci�n
 		Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
 		faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
@@ -105,17 +114,28 @@ class RequestController {
 		def faccion2Puntos = []
 		String faccion2Copas = faccion2.puntos
 		String faccion2Monedas = faccion2.monedas
+
 		faccion2.miembros.each { miembro ->
 			faccion2Nombres.add(miembro.username)
 			faccion2Medallas.add(miembro.medallas)
 			faccion2Puntos.add(miembro.puntos)
+	
 		}
+		int totalMiembros2 = faccion2.miembros.size()
+		int faccion2PromedioPuntos =0
+		int faccion2PromedioMonedas =0
+
+		if (totalMiembros2 != 0) {
+			faccion2PromedioPuntos=faccion2.puntos/totalMiembros2
+			faccion2PromedioMonedas=faccion2.monedas/totalMiembros2
+		}
+		System.out.println(" Faccion 2  Puntos:"+faccion2PromedioPuntos + " Monedas:"+ faccion2PromedioMonedas)
 		
 		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
 			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas, faccion1NombreFaccion: faccion1NombreFaccion,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas, faccion1NombreFaccion: faccion1NombreFaccion,faccion1PromedioPuntos: faccion1PromedioPuntos,faccion1PromedioMonedas: faccion1PromedioMonedas,
 			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, faccion2NombreFaccion: faccion2NombreFaccion]
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, faccion2NombreFaccion: faccion2NombreFaccion, faccion2PromedioPuntos: faccion2PromedioPuntos,faccion2PromedioMonedas: faccion2PromedioMonedas]
 	}
 	
 	def dashboardEstudiante() {
@@ -143,6 +163,10 @@ class RequestController {
 		String faccion2Monedas = ""
 		String faccion1NombreFaccion
 		String faccion2NombreFaccion
+		int faccion1PromedioPuntos =0
+		int faccion1PromedioMonedas =0
+		int faccion2PromedioPuntos =0
+		int faccion2PromedioMonedas =0
 		
 		User userProfesor = springSecurityService.getCurrentUser()
 		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
@@ -186,16 +210,32 @@ class RequestController {
 				faccion2Medallas.add(miembro.medallas)
 				faccion2Puntos.add(miembro.puntos)
 			}
+			int totalMiembros1 = faccion1.miembros.size()
+			
+			if (totalMiembros1 != 0) {
+						faccion1PromedioPuntos=faccion1.puntos/totalMiembros1
+						faccion1PromedioMonedas=faccion1.monedas/totalMiembros1
+			}
+			System.out.println(" Faccion 1  Puntos:"+faccion1PromedioPuntos + " Monedas:"+ faccion1PromedioMonedas)
+			int totalMiembros2 = faccion2.miembros.size()
+	
+			if (totalMiembros2 != 0) {
+				faccion2PromedioPuntos=faccion2.puntos/totalMiembros2
+				faccion2PromedioMonedas=faccion2.monedas/totalMiembros2
+			}
+			System.out.println(" Faccion 2  Puntos:"+faccion2PromedioPuntos + " Monedas:"+ faccion2PromedioMonedas)
 	
 		} else {
 			user = springSecurityService.getCurrentUser()
 		}
+
 		
+
 		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
 			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,  faccion1NombreFaccion: faccion1NombreFaccion,
+			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,  faccion1NombreFaccion: faccion1NombreFaccion,,faccion1PromedioPuntos: faccion1PromedioPuntos,faccion1PromedioMonedas: faccion1PromedioMonedas,
 			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas,  faccion2NombreFaccion: faccion2NombreFaccion, users: users]
+			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas,  faccion2NombreFaccion: faccion2NombreFaccion,faccion2PromedioPuntos: faccion2PromedioPuntos,faccion2PromedioMonedas: faccion2PromedioMonedas, users: users]
 	}
 
 	def comprarFaccion() {

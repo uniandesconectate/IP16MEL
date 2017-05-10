@@ -85,10 +85,10 @@
 		              </tr>
 		              <tr>
 		                <th>
-		                  <span class="cop"> X ${faccion1Copas}</span>
+		                  <span class="cop"> X ${faccion1Copas} - Promedio ${faccion1PromedioPuntos}</span>
 		                </th>
 		                <th colspan="2">
-		                  <span class="mon"> X ${faccion1Monedas}</span>
+		                  <span class="mon"> X ${faccion1Monedas}  - Prom ${faccion1PromedioMonedas}</span>
 		                </th>
 		              </tr>
 		            </thead>
@@ -121,10 +121,10 @@
 		              </tr>
 		              <tr>
 		                <th>
-		                  <span class="cop"> X ${faccion2Copas}</span>
+		                  <span class="cop"> X ${faccion2Copas} - Promedio ${faccion2PromedioPuntos}</span>
 		                </th>
 		                <th colspan="2">
-		                  <span class="mon"> X ${faccion2Monedas}</span>
+		                  <span class="mon"> X ${faccion2Monedas}  - Prom ${faccion2PromedioMonedas}</span>
 		                </th>
 		              </tr>
 		            </thead>
