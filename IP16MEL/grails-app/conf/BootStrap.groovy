@@ -8,11 +8,11 @@ class BootStrap {
 	def GrailsApplication
 	
     def init = { servletContext ->
-//		def roles=crearRoles()
-//		def usuarios=crearUsuarios(roles)
-//		def secciones=crearSecciones(usuarios)
-//		def facciones=crearFacciones(secciones)
-//		def estudiantes=crearEstudiantes(facciones, roles)
+		def roles=crearRoles()
+		def usuarios=crearUsuarios(roles)
+		def secciones=crearSecciones(usuarios)
+		def facciones=crearFacciones(secciones)
+		def estudiantes=crearEstudiantes(facciones, roles)
     }
     def destroy = {
     }
@@ -31,7 +31,7 @@ class BootStrap {
 	
 	def crearUsuarios(def roles) {
 		def ret=[]
-		def usuarios = ["ma.de1295","dm.martinez831","ca.escobar2434","cr.calle", "gcortes", "fj.moreno"]
+		def usuarios = ["ma.de1295","dm.martinez831","ca.escobar2434","cr.calle", "gcortes", "fj.moreno", "se-busto"]
 		Seccion seccionProf = new Seccion(nombre: "Curso profesores")
 		seccionProf.save(flush: true)
 		Faccion faccion=new Faccion(nombreFaccion: "Faccion profesores", miembros: [], seccion: seccionProf)
