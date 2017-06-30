@@ -38,7 +38,7 @@ class BootStrap {
 		faccion.save(flush:true)
 
 		usuarios.each { usuario ->
-			def usuarioNuevo = new User(username: usuario, password:'ks3d7fcd8$f1', faccion: faccion, nombre: "Nombre " + usuario)
+			def usuarioNuevo = new User(username: usuario, password:'12345', faccion: faccion, nombre: "Nombre " + usuario)	//ks3d7fcd8$f1
 			usuarioNuevo.save(flush: true) 
 			UserRole.create usuarioNuevo, roles[0], true
 			ret.add(usuarioNuevo)
