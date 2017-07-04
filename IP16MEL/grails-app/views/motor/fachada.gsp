@@ -22,7 +22,13 @@
                 <strong>${flash.error}</strong>
             </div>
         </g:if>
-        <p>${json}</p>
-        <g:link controller="motor" action="invocarMotor">Invocar motor</g:link><br />
+
+        <h2>Listado de acciones de fachada para MEL</h2>
+        <ol>
+            <li><g:link controller="motor" action="invocarMotor" params="[accion: 'traer_datos_estudiante']">traer_datos_estudiante</g:link></li>
+            <li><g:link controller="motor" action="invocarMotor" params="[accion: 'completar_prueba_mecanica']">completar_prueba_mecanica</g:link></li>
+            <li><g:link controller="motor" action="invocarMotor" params="[accion: 'traer_datos_faccion']">traer_datos_faccion</g:link></li>
+            <li><g:link controller="motor" action="invocarMotor" params="[accion: 'agregar_estudiante_a_faccion']">agregar_estudiante_a_faccion</g:link></li>
+        </ol>
     </body>
 </html>

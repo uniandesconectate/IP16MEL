@@ -12,28 +12,10 @@ class MotorController
 
     def motorService
 
-    @Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
-    def inicio()
+    @Secured(['ROLE_ADMIN'])
+    def fachada()
     {
-        flash.message = ''
-        flash.error = ''
-        RestResponse resp
 
-        try
-        {
-            resp = motorService.getDashboardEstudiante(TOKEN, 'serg')
-            flash.message = 'OK'
-            ['json': resp.json.toString()]
-        }
-        catch(ServicioException ex)
-        {
-            flash.error = ex.getMessage()
-            ['json': ex.resp.json.toString()]
-        }
-        catch(Exception ex)
-        {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
-        }
     }
 
     @Secured(['ROLE_ADMIN'])
@@ -42,11 +24,16 @@ class MotorController
         flash.message = ''
         flash.error = ''
         RestResponse resp
-        String accion = 'tarea'
+        String accion
 
         try
         {
-            if(accion == 'tarea') resp = motorService.completarMision(TOKEN, 'serg', 'semana_1', '4,3,5,5')
+            accion = params.accion
+
+            if(accion == 'traer_datos_estudiante') resp = motorService.getPlayerData(TOKEN, 'serg')
+            else if(accion == 'completar_ejercicio_mecanico') resp = motorService.completeMission(TOKEN, 'semana_1', 'serg', '4,3,5,5', '')
+            else if(accion == 'traer_datos_faccion') resp = motorService.getTeamData(TOKEN, 'prueba')
+            else if(accion == 'agregar_estudiante_a_faccion') resp = motorService.joinTeam(TOKEN, 'prueba', 'serg')
 
             render(resp.json.toString())
         }
