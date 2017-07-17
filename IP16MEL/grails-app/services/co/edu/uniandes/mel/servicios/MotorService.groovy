@@ -133,7 +133,7 @@ class MotorService
      * Permite a un jugador rechazar una misión.
      * @param app - Token de la aplicación.
      * @param mission - Id de la misión que el jugador va a rechazar.
-     * @param player - Id del jugador.
+     * @param player - Id del jugador
      * @return
      */
     RestResponse rejectMission(String app, String mission, String player)
