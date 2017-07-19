@@ -3,7 +3,6 @@ package co.edu.uniandes.mel.servicios
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.transaction.Transactional
-import org.codehaus.groovy.grails.web.json.JSONElement
 
 /***
  * Servicio de comunicación con el motor de gamificación.
@@ -26,8 +25,9 @@ class MotorService
     {
         RestBuilder rest
         RestResponse resp
+
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/players/" + player + "?include=missions&exclude[missions]=actions,prerequisites,quests,accepted_players&filter[missions]=available,achieved&options[mission]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/players/" + player + "?include=missions&exclude[missions]=actions,prerequisites,quests,accepted_players&filters[missions]=available,achieved&options[missions]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -82,18 +82,19 @@ class MotorService
 
     /***
      * Crea un jugador dentro de una aplicación.
-     * @param app - Token de la aplicación.
-     * @param player - Id del jugador a crear.
-     * @param email - Correo del jugador a crear.
-     * @param team - Id del equipo al cual se agregará el jugador. Si el equipo no existe entonces es creado.
+     * @param app
+     * @param player
+     * @param name
+     * @param email
+     * @param team
      * @return
      */
-    RestResponse createPlayer(String app, String player, String email, String team)
+    RestResponse createPlayer(String app, String player, String name, String email, String team)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/players?id_in_app=" + player + "&email=" + email + "&team[tag]=" + team) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/players?id_in_app=" + player + "&email=" + email + "&name=" + name + "&team[tag]=" + team) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -150,7 +151,7 @@ class MotorService
      * @param app - Token de la aplicación.
      * @param mission - Id de la misión que el jugador va a completar.
      * @param player - Id del jugador.
-     * @param scores - Puntajes obtenido por el jugador al completar la misión, separados por comas.
+     * @param scores - Puntajes obtenidos por el jugador al completar la misión, separados por comas.
      * @param rewards - Premios obtenidos por el jugador al completar la misión, separados por comas.
      * @return
      */
@@ -229,6 +230,25 @@ class MotorService
         RestResponse resp
         rest = new RestBuilder()
         resp = rest.put("http://playngage.io/api/v2/teams/" + team + "/players/" + player + "?exclude=members,pending") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------
+    // MÉTODOS DELETE
+    // ---------------------------------------------------------------------------------------------------------------------------
+
+    /***
+     * Elimina un jugador de una aplicación.
+     * @param app
+     * @param player
+     * @return
+     */
+    RestResponse deletePlayer(String app, String player)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.delete("http://playngage.io/api/players/" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 }

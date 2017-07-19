@@ -48,7 +48,6 @@
 				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
 				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
 				<g:link controller="request" action="solicitarArchivo">Cargar semana</g:link><br />
-                <g:link controller="motor" action="fachada">Fachada</g:link><br />
 		</div>
 	</sec:ifLoggedIn>
 </section>
