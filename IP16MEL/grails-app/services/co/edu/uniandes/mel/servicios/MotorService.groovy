@@ -17,38 +17,38 @@ class MotorService
 
     /***
      * Retorna los datos de estado y desempeño general de un jugador.
-     * @param app - Token de la aplicación a consultar.
-     * @param player - Id del jugador a consultar.
+     * @param app
+     * @param idPlayer
      * @return
      */
-    RestResponse getPlayerData(String app, String player)
+    RestResponse getPlayerData(String app, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
 
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/players/" + player + "?include=missions&exclude[missions]=actions,prerequisites,quests,accepted_players&filters[missions]=available,achieved&options[missions]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/players/" + idPlayer + "?include=missions&exclude[missions]=actions,prerequisites,quests,accepted_players&filters[missions]=available,achieved&options[missions]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Retorna los datos de estado y desempeño general de un equipo.
-     * @param app - Token de la aplicación a consultar.
-     * @param team - Id del equipo a consultar.
+     * @param app
+     * @param idTeam
      * @return
      */
-    RestResponse getTeamData(String app, String team)
+    RestResponse getTeamData(String app, String idTeam)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/v2/team/" + team + "?exclude=pending&members_leaderboard=puntos") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/v2/team/" + idTeam + "?exclude=pending&members_leaderboard=puntos") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
-     * Retorna los mercados disponibles en una aplicación.
-     * @param app - Token de la aplicación a consultar.
+     * Retorna los mercados disponibles.
+     * @param app
      * @return
      */
     RestResponse getMarkets(String app)
@@ -62,17 +62,17 @@ class MotorService
 
     /***
      * Retorna los datos de un mercado específico para un jugador.
-     * @param app - Token de la aplicación a consultar.
-     * @param market - Id del mercado a consultar.
-     * @param player - Id del jugador a consultar.
+     * @param app
+     * @param idMarket
+     * @param idPlayer
      * @return
      */
-    RestResponse getMarketForPlayer(String app, String market, String player)
+    RestResponse getMarketForPlayer(String app, String idMarket, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/virtualmarket/" + market + "?id_in_app=" + player + "&include_items=true") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/virtualmarket/" + idMarket + "?id_in_app=" + idPlayer + "&include_items=true") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -81,135 +81,150 @@ class MotorService
     // ---------------------------------------------------------------------------------------------------------------------------
 
     /***
-     * Crea un jugador dentro de una aplicación.
+     * Crea un jugador.
      * @param app
-     * @param player
+     * @param idPlayer
      * @param name
      * @param email
-     * @param team
+     * @param idTeam
      * @return
      */
-    RestResponse createPlayer(String app, String player, String name, String email, String team)
+    RestResponse createPlayer(String app, String idPlayer, String name, String email, String idTeam)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/players?id_in_app=" + player + "&email=" + email + "&name=" + name + "&team[tag]=" + team) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/players?id_in_app=" + idPlayer + "&email=" + email + "&name=" + name + "&team[tag]=" + idTeam) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Permite agregar un jugador a un equipo.
-     * @param app - Token de la aplicación.
-     * @param team - Id del equipo al cual se agregará el jugador.
-     * @param player - Id del jugador a agregar.
+     * @param app
+     * @param idTeam
+     * @param idPlayer
      * @return
      */
-    RestResponse joinTeam(String app, String team, String player)
+    RestResponse joinTeam(String app, String idTeam, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/v2/teams/" + team + "/players/" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/v2/teams/" + idTeam + "/players/" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Permite a un jugador aceptar una misión.
-     * @param app - Token de la aplicación.
-     * @param mission - Id de la misión que el jugador va a aceptar.
-     * @param player - Id del jugador.
+     * @param app
+     * @param idMission
+     * @param idPlayer
      * @return
      */
-    RestResponse acceptMission(String app, String mission, String player)
+    RestResponse acceptMission(String app, String idMission, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/missions/" + mission + "/players/" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/players/" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Permite a un jugador rechazar una misión.
-     * @param app - Token de la aplicación.
-     * @param mission - Id de la misión que el jugador va a rechazar.
-     * @param player - Id del jugador
+     * @param app
+     * @param idMission
+     * @param idPlayer
      * @return
      */
-    RestResponse rejectMission(String app, String mission, String player)
+    RestResponse rejectMission(String app, String idMission, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/missions/" + mission + "/players/" + player + "/reject") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/players/" + idPlayer + "/reject") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
-     * Permite a un jugador completar una misión.
-     * @param app - Token de la aplicación.
-     * @param mission - Id de la misión que el jugador va a completar.
-     * @param player - Id del jugador.
-     * @param scores - Puntajes obtenidos por el jugador al completar la misión, separados por comas.
-     * @param rewards - Premios obtenidos por el jugador al completar la misión, separados por comas.
+     * Permite a un jugador completar una misión con una serie de puntajes.
+     * @param app
+     * @param idMission
+     * @param idPlayer
+     * @param scores
      * @return
      */
-    RestResponse completeMission(String app, String mission, String player, String scores, String rewards)
+    RestResponse completeMission(String app, String idMission, String idPlayer, String scores)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/missions/" + mission + "/complete?id_in_app=" + player + "&scores=" + scores + "&reward_tags=" + rewards) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/complete?id_in_app=" + idPlayer + "&scores=" + scores) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Permite a un jugador efectuar una compra.
-     * @param app - Token de la aplicación.
-     * @param payment - Id de la forma de pago.
-     * @param player - Id del jugador.
+     * @param app
+     * @param idPayment
+     * @param idPlayer
      * @return
      */
-    RestResponse buyItemForPlayer(String app, String payment, String player)
+    RestResponse buyItemForPlayer(String app, String idPayment, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/payments/" + payment + "?id_in_app=" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/payments/" + idPayment + "?id_in_app=" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
      * Permite a un equipo efectuar una compra.
-     * @param app - Token de la aplicación.
-     * @param payment - Id de la forma de pago.
-     * @param team - Id del equipo.
+     * @param app
+     * @param idPayment
+     * @param idTeam
      * @return
      */
-    RestResponse buyItemForTeam(String app, String payment, String team)
+    RestResponse buyItemForTeam(String app, String idPayment, String idTeam)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/payments/" + payment + "?team=" + team) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/payments/" + idPayment + "?team=" + idTeam) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
     /***
-     * Permite restar monedas a un jugador.
-     * @param app - Token de la aplicación.
-     * @param currency - Id de la moneda que se restará.
-     * @param quantity - Cantidad que se restará.
-     * @param player - Id del jugador.
+     * Permite restar una cantidad de un tipo de moneda a un jugador.
+     * @param app
+     * @param idCurrency
+     * @param quantity
+     * @param idPlayer
      * @return
      */
-    RestResponse removeCurrenciesFromPlayer(String app, String currency, String quantity, String player)
+    RestResponse removeCurrenciesFromPlayer(String app, String idCurrency, String quantity, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/currencies/remove?currencies[" + currency + "]=" + quantity + "&id_in_app=" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/currencies/remove?currencies[" + idCurrency + "]=" + quantity + "&id_in_app=" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    /***
+     * Crea un equipo.
+     * @param app
+     * @param name
+     * @param idTeam
+     * @return
+     */
+    RestResponse createTeam(String app, String name, String idTeam)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.post("http://playngage.io/api/v2/teams?name=" + name + "&tag=" + idTeam) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -219,17 +234,17 @@ class MotorService
 
     /***
      * Permite a un jugador cambiar de equipo.
-     * @param app - Token de la aplicación.
-     * @param team - Id del equipo al cual se agregará el jugador.
-     * @param player - Id del jugador.
+     * @param app
+     * @param idTeam
+     * @param idPlayer
      * @return
      */
-    RestResponse changeTeam(String app, String team, String player)
+    RestResponse changeTeam(String app, String idTeam, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.put("http://playngage.io/api/v2/teams/" + team + "/players/" + player + "?exclude=members,pending") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.put("http://playngage.io/api/v2/teams/" + idTeam + "/players/" + idPlayer + "?exclude=members,pending") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -238,17 +253,32 @@ class MotorService
     // ---------------------------------------------------------------------------------------------------------------------------
 
     /***
-     * Elimina un jugador de una aplicación.
+     * Elimina un jugador.
      * @param app
-     * @param player
+     * @param idPlayer
      * @return
      */
-    RestResponse deletePlayer(String app, String player)
+    RestResponse deletePlayer(String app, String idPlayer)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.delete("http://playngage.io/api/players/" + player) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.delete("http://playngage.io/api/players/" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    /***
+     * Elimina un equipo.
+     * @param app
+     * @param idTeam
+     * @return
+     */
+    RestResponse deleteTeam(String app, String idTeam)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.delete("http://playngage.io/api/teams/" + idTeam) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 }

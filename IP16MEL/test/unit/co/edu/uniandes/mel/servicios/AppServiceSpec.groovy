@@ -11,13 +11,9 @@ import spock.lang.Specification
 @Mock([MotorService])
 class AppServiceSpec extends Specification
 {
-    String idEstudiante
-    String seccion
-
     def setup()
     {
-        idEstudiante = '13'         // Debe cambiarse para correr las pruebas cada vez, porque no está disponible la eliminación de estudiantes.
-        seccion = 'faccion1a'
+
     }
 
     def cleanup()
@@ -25,47 +21,65 @@ class AppServiceSpec extends Specification
 
     }
 
-    void "test crear estudiante"()
+    void "test crear sección"()
     {
         when:
-        Object[] respuesta = service.crearEstudiante(idEstudiante, idEstudiante, idEstudiante + '@uniandes.edu.co', seccion)
+        service.crearSeccion('test faccion')
 
         then:
-        respuesta[0] == 'ok'
+        true
+    }
+
+    void "test crear estudiantes"()
+    {
+        when:
+        (1..5).each{service.crearEstudiante(it.toString(), it.toString(), it.toString() + '@uniandes.edu.co', 'test faccion') }
+
+        then:
+        true
     }
 
     void "test traer dashboard del estudiante"()
     {
         when:
-        Object[] dashboard = service.getDashboardEstudiante(idEstudiante)
+        Map dashboard = service.traerDashboardEstudiante('1')
 
         then:
-        dashboard[0] == idEstudiante                            // id estudiante
-        dashboard[1] == idEstudiante                            // Nombre estudiante
-        dashboard[2] == idEstudiante + '@uniandes.edu.co'       // Correo estudiante
-        dashboard[3] == 0                                       // Cantidad de puntos
-        dashboard[4] == 0                                       // Cantidad de gemas
-        dashboard[5] == [0, 0, 0, 0, 0, 0, 0, 0]                // Cantidad de estrellas por ciclos.
+        dashboard['idEstudiante'] == '1'
+        dashboard['nombreEstudiante'] == '1'
+        dashboard['correoEstudiante'] == '1@uniandes.edu.co'
+        dashboard['puntosEstudiante'] == 0
+        dashboard['gemasEstudiante'] == 0
     }
 
-    void "test registrar ciclos mecánicos"()
+    void "test registrar ciclo mecánico"()
     {
         when:
-        Object[] respuesta = service.registrarCicloMecanico('semana_1', idEstudiante, 300)
-        respuesta = service.registrarCicloMecanico('semana_2', idEstudiante, 270)
-        respuesta = service.registrarCicloMecanico('semana_3', idEstudiante, 240)
-        respuesta = service.registrarCicloMecanico('semana_4', idEstudiante, 180)
+        service.registrarCicloMecanico('semana_1', '1', [100] as int[])
+        service.registrarCicloMecanico('semana_1', '2', [90] as int[])
+        service.registrarCicloMecanico('semana_1', '3', [80] as int[])
+        service.registrarCicloMecanico('semana_1', '4', [60] as int[])
+        service.registrarCicloMecanico('semana_1', '5', [35] as int[])
 
         then:
-        respuesta[0] == null
+        true
     }
 
-    void "test eliminar estudiante"()
+    void "test eliminar estudiantes"()
     {
         when:
-        Object[] respuesta = service.eliminarEstudiante(idEstudiante)
+        (1..5).each {service.eliminarEstudiante(it.toString())}
 
         then:
-        respuesta[0] == null    // WS no funciona.
+        true
+    }
+
+    void "test eliminar sección"()
+    {
+        when:
+        service.eliminarSeccion('test faccion')
+
+        then:
+        true
     }
 }

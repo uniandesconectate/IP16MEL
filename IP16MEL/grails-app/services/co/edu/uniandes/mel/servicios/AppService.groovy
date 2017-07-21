@@ -9,101 +9,109 @@ class AppService
     // Token de app MEL en el motor.
     final static String APP_TOKEN = '210fd18fe01d086fe1f6ed60f789137b'
 
-    final static int[] puntajesMecanicos = [105, 180, 240, 270, 300]
-
     // Servicio para comunicarse con el motor de gamificación.
     def motorService
 
     /***
-     * Agrega un estudiante a la aplicación.
-     * @param id
-     * @param nombre
-     * @param correo
-     * @param seccionLaboratorio
-     * @return
-     */
-    Object[] crearEstudiante(String id, String nombre, String correo, String seccionLaboratorio)
-    {
-        JSONElement json
-
-        json = motorService.createPlayer(APP_TOKEN, id, nombre, correo, seccionLaboratorio).json
-
-        [json.status]
-    }
-
-    /***
-     * Retorna los datos para desplegar en el dashboard del estudiante:
-     * 1. id in app
+     * Retorna los datos para desplegar el dashboard de un estudiante:
+     * 1. id
      * 2. nombre
      * 3. correo
      * 4. puntos
      * 5. gemas
-     * 6. Estrellas por semana
-     * @param estudiante
+     * @param idEstudiante
      * @return
      */
-    Object[] getDashboardEstudiante(String estudiante)
+    Map traerDashboardEstudiante(String idEstudiante)
     {
-        int[] estrellas
         JSONElement json
+        Map respuesta = [:]
 
-        estrellas = [0, 0, 0, 0, 0, 0, 0, 0]
-        json = motorService.getPlayerData(APP_TOKEN, estudiante).json
+        json = motorService.getPlayerData(APP_TOKEN, idEstudiante).json
+        respuesta['idEstudiante'] = json.id_in_app
+        respuesta['nombreEstudiante'] = json.name
+        respuesta['correoEstudiante'] = json.email
+        respuesta['puntosEstudiante'] = json.currencies.puntos.quantity
+        respuesta['gemasEstudiante'] = json.currencies.gemas.quantity
 
-        json.missions.available.semana_1.rewards.each{
-            if(it.title == 'Una estrella' && it.given_count > 0)
-                estrellas[1] = it.given_count
-            else if(it.title == 'Dos estrellas' && it.given_count > 0)
-                estrellas[1] = it.given_count * 2
-            else if(it.title == 'Tres estrellas' && it.given_count > 0)
-                estrellas[1] = it.given_count * 3
-            else if(it.title == 'Cuatro estrellas' && it.given_count > 0)
-                estrellas[1] = it.given_count * 4
-            else if(it.title == 'Cinco estrellas' && it.given_count > 0)
-                estrellas[1] = it.given_count * 5
-        }
-
-        [json.id_in_app, json.name, json.email, json.currencies.puntos.quantity, json.currencies.gemas.quantity, estrellas]
+        return respuesta
     }
 
     /***
-     * Permite registrar el puntaje de un ciclo mecánico de un estudiante.
-     * @param ciclo
-     * @param estudiante
-     * @param puntaje
+     * Crea un estudiante y lo asigna a una sección.
+     * @param idEstudiante
+     * @param nombreEstudiante
+     * @param correoEstudiante
+     * @param nombreSeccion
      * @return
      */
-    Object[] registrarCicloMecanico(String ciclo, String estudiante, int puntaje)
+    Object[] crearEstudiante(String idEstudiante, String nombreEstudiante, String correoEstudiante, String nombreSeccion)
     {
         JSONElement json
-        String premios
 
-        premios = ''
-        if(puntaje == puntajesMecanicos[4])
-            premios = 'estrella_5,estrellas_todas'
-        else if(puntaje >= puntajesMecanicos[3])
-            premios = 'estrella_4'
-        else if(puntaje >= puntajesMecanicos[2])
-            premios = 'estrella_3'
-        else if(puntaje >= puntajesMecanicos[1])
-            premios = 'estrella_2'
-        else if(puntaje >= puntajesMecanicos[0])
-            premios = 'estrella_1'
-        json = motorService.completeMission(APP_TOKEN, ciclo, estudiante, puntaje.toString(), premios).json
+        json = motorService.createPlayer(APP_TOKEN, idEstudiante, nombreEstudiante, correoEstudiante, nombreSeccion.replaceAll(' ', '')).json
 
         [json.status]
     }
 
     /***
-     * Elimina un estudiante de la aplicación.
-     * @param estudiante
+     * Elimina un estudiante.
+     * @param idEstudiante
      * @return
      */
-    Object[] eliminarEstudiante(String estudiante)
+    Object[] eliminarEstudiante(String idEstudiante)
     {
         JSONElement json
 
-        json = motorService.deletePlayer(APP_TOKEN, estudiante).json
+        json = motorService.deletePlayer(APP_TOKEN, idEstudiante).json
+
+        [json.status]
+    }
+
+    /***
+     * Crea una sección de laboratorio.
+     * @param nombreSeccion
+     * @return
+     */
+    Object[] crearSeccion(String nombreSeccion)
+    {
+        JSONElement json
+
+        json = motorService.createTeam(APP_TOKEN, nombreSeccion, nombreSeccion.replaceAll(' ', '')).json
+
+        [json.status]
+    }
+
+    /***
+     * Elimina una sección de laboratorio.
+     * @param nombreSeccion
+     * @return
+     */
+    Object[] eliminarSeccion(String nombreSeccion)
+    {
+        JSONElement json
+
+        json = motorService.deleteTeam(APP_TOKEN, nombreSeccion.replaceAll(' ', '')).json
+
+        [json.status]
+    }
+
+    /***
+     * Registra los puntajes de un ciclo mecánico del estudiante.
+     * @param ciclo
+     * @param idEstudiante
+     * @param puntajes
+     * @return
+     */
+    Object[] registrarCicloMecanico(String ciclo, String idEstudiante, int[] puntajes)
+    {
+        JSONElement json
+        String pjs
+
+        pjs = ''
+        puntajes.each {pjs = pjs + ',' + it.toString()}
+        pjs = pjs.substring(1)
+        json = motorService.completeMission(APP_TOKEN, ciclo, idEstudiante, pjs).json
 
         [json.status]
     }
