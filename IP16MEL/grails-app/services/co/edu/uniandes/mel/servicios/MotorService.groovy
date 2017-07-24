@@ -42,7 +42,7 @@ class MotorService
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/v2/team/" + idTeam + "?exclude=pending&members_leaderboard=puntos") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/v2/teams/" + idTeam + "?exclude=pending&members_leaderboard=puntos") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -147,19 +147,20 @@ class MotorService
     }
 
     /***
-     * Permite a un jugador completar una misión con una serie de puntajes.
+     * Permite a un jugador completar una misión.
      * @param app
      * @param idMission
      * @param idPlayer
      * @param scores
+     * @param rewards
      * @return
      */
-    RestResponse completeMission(String app, String idMission, String idPlayer, String scores)
+    RestResponse completeMission(String app, String idMission, String idPlayer, String scores, String rewards)
     {
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/complete?id_in_app=" + idPlayer + "&scores=" + scores) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/complete?id_in_app=" + idPlayer + "&scores=" + scores + "&reward_tags=" + rewards) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
