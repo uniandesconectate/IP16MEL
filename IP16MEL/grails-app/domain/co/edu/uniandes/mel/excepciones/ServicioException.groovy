@@ -1,15 +1,13 @@
 package co.edu.uniandes.mel.excepciones
 
-import grails.plugins.rest.client.RestResponse
-
-class ServicioException extends Exception
+/**
+ * Permite hacer rollback de la transacción cuando ocurre algún error en la capa de servicios.
+ */
+class ServicioException extends RuntimeException
 {
-    public RestResponse resp
-
-    ServicioException(String mensaje, RestResponse resp)
+    ServicioException(String mensaje)
     {
         super(mensaje)
-        this.resp = resp
     }
 
     static constraints = {

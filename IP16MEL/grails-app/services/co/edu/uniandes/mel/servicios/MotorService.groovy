@@ -126,7 +126,7 @@ class MotorService
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/players/" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.post("http://playngage.io/api/missions/" + idMission + "/players/" + idPlayer + "/accept") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
