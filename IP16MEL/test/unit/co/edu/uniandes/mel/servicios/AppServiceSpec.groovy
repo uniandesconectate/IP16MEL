@@ -86,6 +86,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 0
+        dashboard['aporteEstudiante']['ciclo_1'] == 0
     }
 
     void "test traer dashboard de la sección"()
@@ -149,6 +150,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 1
         dashboard['estrellasEstudiante']['ciclo_1'] == 5
+        dashboard['aporteEstudiante']['ciclo_1'] == 25
 
         when:
         dashboard = service.traerDashboardEstudiante('2')
@@ -156,6 +158,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 4
+        dashboard['aporteEstudiante']['ciclo_1'] == 20
 
         when:
         dashboard = service.traerDashboardEstudiante('3')
@@ -163,6 +166,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 3
+        dashboard['aporteEstudiante']['ciclo_1'] == 15
 
         when:
         dashboard = service.traerDashboardEstudiante('4')
@@ -170,6 +174,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 2
+        dashboard['aporteEstudiante']['ciclo_1'] == 10
 
         when:
         dashboard = service.traerDashboardEstudiante('5')
@@ -177,6 +182,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 1
+        dashboard['aporteEstudiante']['ciclo_1'] == 5
 
         when:
         dashboard = service.traerDashboardEstudiante('6')
@@ -184,6 +190,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 0
+        dashboard['aporteEstudiante']['ciclo_1'] == 0
 
         when:
         dashboard = service.traerDashboardEstudiante('7')
@@ -191,6 +198,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 4
+        dashboard['aporteEstudiante']['ciclo_1'] == 20
 
         when:
         dashboard = service.traerDashboardEstudiante('8')
@@ -198,6 +206,7 @@ class AppServiceSpec extends Specification
         dashboard['puntosEstudiante'] == 0
         dashboard['gemasEstudiante'] == 0
         dashboard['estrellasEstudiante']['ciclo_1'] == 1
+        dashboard['aporteEstudiante']['ciclo_1'] == 5
     }
 
     void "test traer dashboard de la sección después de ciclo mecánico"()

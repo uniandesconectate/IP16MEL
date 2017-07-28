@@ -27,7 +27,7 @@ class MotorService
         RestResponse resp
 
         rest = new RestBuilder()
-        resp = rest.get("http://playngage.io/api/players/" + idPlayer + "?include=missions&exclude[missions]=actions,prerequisites,quests,accepted_players&filters[missions]=available,achieved&options[missions]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.get("http://playngage.io/api/players/" + idPlayer + "?include=missions,teams&exclude[missions]=actions,prerequisites,quests,accepted_players&filters[missions]=available,achieved&options[missions]=array,rewards_by_awarded,get_stats") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 
@@ -43,6 +43,20 @@ class MotorService
         RestResponse resp
         rest = new RestBuilder()
         resp = rest.get("http://playngage.io/api/v2/teams/" + idTeam + "?exclude=pending&members_leaderboard=puntos") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    /***
+     * Retorna todos los equipos que existen.
+     * @param app
+     * @return
+     */
+    RestResponse getTeams(String app)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.get("http://playngage.io/api/v2/teams") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 

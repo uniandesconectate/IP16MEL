@@ -24,7 +24,7 @@ class AppService
 
     /***
      * Retorna los datos para desplegar el dashboard de un estudiante: idEstudiante, nombreEstudiante, correoEstudiante, puntosEstudiante, gemasEstudiante,
-     * medallasEstudiante, estrellasEstudiante (desde ciclo_1 hasta ciclo_8).
+     * medallasEstudiante, estrellasEstudiante[<ciclo_1> |...| <ciclo_8>], aporteEstudiante[<ciclo_1> |...| <ciclo_8>].
      * @param idEstudiante
      * @return
      */
@@ -49,12 +49,23 @@ class AppService
         respuesta['estrellasEstudiante']['ciclo_6'] = 0
         respuesta['estrellasEstudiante']['ciclo_7'] = 0
         respuesta['estrellasEstudiante']['ciclo_8'] = 0
+        respuesta['aporteEstudiante'] = [:]
+        respuesta['aporteEstudiante']['ciclo_1'] = 0
+        respuesta['aporteEstudiante']['ciclo_2'] = 0
+        respuesta['aporteEstudiante']['ciclo_3'] = 0
+        respuesta['aporteEstudiante']['ciclo_4'] = 0
+        respuesta['aporteEstudiante']['ciclo_5'] = 0
+        respuesta['aporteEstudiante']['ciclo_6'] = 0
+        respuesta['aporteEstudiante']['ciclo_7'] = 0
+        respuesta['aporteEstudiante']['ciclo_8'] = 0
         json.missions.each {
-            if (respuesta['estrellasEstudiante'][it.tag] != null) {
+            if (respuesta['estrellasEstudiante'][it.tag] != null)
+            {
                 it.rewards.awarded.each { it2 ->
                     if (it2.tag in ['estrella_1', 'estrella_2', 'estrella_3', 'estrella_4', 'estrella_5'])
                         respuesta['estrellasEstudiante'][it.tag] = it2.currencies.monedas.quantity
                 }
+                respuesta['aporteEstudiante'][it.tag] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
             }
         }
 
