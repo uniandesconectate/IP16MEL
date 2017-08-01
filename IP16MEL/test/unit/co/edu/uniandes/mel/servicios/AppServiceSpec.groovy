@@ -12,6 +12,8 @@ import co.edu.uniandes.mel.servicios.AppService.Dificultad
 @Mock([MotorService])
 class AppServiceSpec extends Specification
 {
+    final static String FACCION = 'test Sección 1 Faccion A'
+
     def setup()
     {
 
@@ -22,81 +24,81 @@ class AppServiceSpec extends Specification
 
     }
 
-    void "test crear sección"()
+    void "test crear facción"()
     {
         when:
-        Map respuesta = service.crearSeccion('test faccion')
+        Map respuesta = service.crearFaccion(FACCION)
 
         then:
-        respuesta['mensaje'] == 'La sección ha sido creada.'
+        respuesta['mensaje'] == 'La facción ha sido creada.'
     }
 
     void "test crear estudiantes"()
     {
         when:
-        Map respuesta = service.crearEstudiante('1', '1', '1@uniandes.edu.co', 'test faccion')
+        Map respuesta = service.crearEstudiante('1', '1', '1@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('2', '2', '2@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('2', '2', '2@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('3', '3', '3@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('3', '3', '3@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('4', '4', '4@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('4', '4', '4@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('5', '5', '5@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('5', '5', '5@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('6', '6', '6@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('6', '6', '6@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('7', '7', '7@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('7', '7', '7@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
 
         when:
-        respuesta = service.crearEstudiante('8', '8', '8@uniandes.edu.co', 'test faccion')
+        respuesta = service.crearEstudiante('8', '8', '8@uniandes.edu.co', FACCION)
         then:
-        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la sección.'
+        respuesta['mensaje'] == 'El estudiante ha sido creado y asignado a la facción.'
     }
 
-    void "test traer dashboard del estudiante"()
+    void "test traer datos del estudiante"()
     {
         when:
-        Map dashboard = service.traerDashboardEstudiante('1')
+        Map respuesta = service.traerDatosEstudiante('1')
 
         then:
-        dashboard['idEstudiante'] == '1'
-        dashboard['nombreEstudiante'] == '1'
-        dashboard['correoEstudiante'] == '1@uniandes.edu.co'
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 0
-        dashboard['aporteEstudiante']['ciclo_1'] == 0
+        respuesta['estudiante'].nombre == '1'
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 0
+        respuesta['estudiante'].aporteSemanas[0] == 0
     }
 
-    void "test traer dashboard de la sección"()
+    void "test traer datos de la facción"()
     {
         when:
-        Map respuesta = service.traerDashboardSeccion('test faccion')
+        Map respuesta = service.traerFaccion(FACCION)
 
         then:
-        respuesta['monedasSeccion'] == 0
-        respuesta['puntosSeccion'] == 0
+        respuesta['faccion'].monedas == 0
+        respuesta['faccion'].puntos == 0
+        respuesta['faccion'].promedioPuntos() == 0
+        respuesta['faccion'].promedioMonedas() == 0
     }
 
     void "test registrar ciclo mecánico"()
@@ -142,81 +144,84 @@ class AppServiceSpec extends Specification
         respuesta['mensaje'] == 'El ciclo mecánico ha sido registrado.'
     }
 
-    void "test traer dashboard del estudiante después de ciclo mecánico"()
+    void "test traer datos del estudiante después de ciclo mecánico"()
     {
         when:
-        Map dashboard = service.traerDashboardEstudiante('1')
+        Map respuesta = service.traerDatosEstudiante('1')
+
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 1
-        dashboard['estrellasEstudiante']['ciclo_1'] == 5
-        dashboard['aporteEstudiante']['ciclo_1'] == 25
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 1
+        respuesta['estudiante'].estrellasSemanas[0] == 5
+        respuesta['estudiante'].aporteSemanas[0] == 25
 
         when:
-        dashboard = service.traerDashboardEstudiante('2')
+        respuesta = service.traerDatosEstudiante('2')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 4
-        dashboard['aporteEstudiante']['ciclo_1'] == 20
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 4
+        respuesta['estudiante'].aporteSemanas[0] == 20
 
         when:
-        dashboard = service.traerDashboardEstudiante('3')
+        respuesta = service.traerDatosEstudiante('3')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 3
-        dashboard['aporteEstudiante']['ciclo_1'] == 15
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 3
+        respuesta['estudiante'].aporteSemanas[0] == 15
 
         when:
-        dashboard = service.traerDashboardEstudiante('4')
+        respuesta = service.traerDatosEstudiante('4')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 2
-        dashboard['aporteEstudiante']['ciclo_1'] == 10
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 2
+        respuesta['estudiante'].aporteSemanas[0] == 10
 
         when:
-        dashboard = service.traerDashboardEstudiante('5')
+        respuesta = service.traerDatosEstudiante('5')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 1
-        dashboard['aporteEstudiante']['ciclo_1'] == 5
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 1
+        respuesta['estudiante'].aporteSemanas[0] == 5
 
         when:
-        dashboard = service.traerDashboardEstudiante('6')
+        respuesta = service.traerDatosEstudiante('6')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 0
-        dashboard['aporteEstudiante']['ciclo_1'] == 0
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 0
+        respuesta['estudiante'].aporteSemanas[0] == 0
 
         when:
-        dashboard = service.traerDashboardEstudiante('7')
+        respuesta = service.traerDatosEstudiante('7')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 4
-        dashboard['aporteEstudiante']['ciclo_1'] == 20
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 4
+        respuesta['estudiante'].aporteSemanas[0] == 20
 
         when:
-        dashboard = service.traerDashboardEstudiante('8')
+        respuesta = service.traerDatosEstudiante('8')
         then:
-        dashboard['puntosEstudiante'] == 0
-        dashboard['gemasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 1
-        dashboard['aporteEstudiante']['ciclo_1'] == 5
+        respuesta['estudiante'].puntos == 0
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 1
+        respuesta['estudiante'].aporteSemanas[0] == 5
     }
 
-    void "test traer dashboard de la sección después de ciclo mecánico"()
+    void "test traer datos de la facción después de ciclo mecánico"()
     {
         when:
-        Map respuesta = service.traerDashboardSeccion('test faccion')
+        Map respuesta = service.traerFaccion(FACCION)
 
         then:
-        respuesta['monedasSeccion'] == 20
-        respuesta['puntosSeccion'] == 0
+        respuesta['faccion'].monedas == 20
+        respuesta['faccion'].puntos == 0
+        respuesta['faccion'].promedioMonedas() == 2
+        respuesta['faccion'].promedioPuntos() == 0
     }
 
     void "test registrar ejercicios cognitivos"()
@@ -257,49 +262,51 @@ class AppServiceSpec extends Specification
         respuesta['mensaje'] == 'El estudiante aprobó el ejercicio y fue premiado.'
     }
 
-    void "test traer dashboard del estudiante después de ejercicios cognitivos"()
+    void "test traer datos del estudiante después de ejercicios cognitivos"()
     {
         when:
-        Map dashboard = service.traerDashboardEstudiante('1')
+        Map respuesta = service.traerDatosEstudiante('1')
         then:
-        dashboard['puntosEstudiante'] == 3
-        dashboard['gemasEstudiante'] == 2
-        dashboard['medallasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 5
+        respuesta['estudiante'].puntos == 3
+        respuesta['estudiante'].gemas == 2
+        respuesta['estudiante'].medallas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 5
 
         when:
-        dashboard = service.traerDashboardEstudiante('2')
+        respuesta = service.traerDatosEstudiante('2')
         then:
-        dashboard['puntosEstudiante'] == 8
-        dashboard['gemasEstudiante'] == 2
-        dashboard['medallasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 4
+        respuesta['estudiante'].puntos == 8
+        respuesta['estudiante'].gemas == 2
+        respuesta['estudiante'].medallas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 4
 
         when:
-        dashboard = service.traerDashboardEstudiante('3')
+        respuesta = service.traerDatosEstudiante('3')
         then:
-        dashboard['puntosEstudiante'] == 20
-        dashboard['gemasEstudiante'] == 3
-        dashboard['medallasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 3
+        respuesta['estudiante'].puntos == 20
+        respuesta['estudiante'].gemas == 3
+        respuesta['estudiante'].medallas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 3
 
         when:
-        dashboard = service.traerDashboardEstudiante('6')
+        respuesta = service.traerDatosEstudiante('6')
         then:
-        dashboard['puntosEstudiante'] == 40
-        dashboard['gemasEstudiante'] == 6
-        dashboard['medallasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 0
+        respuesta['estudiante'].puntos == 40
+        respuesta['estudiante'].gemas == 6
+        respuesta['estudiante'].medallas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 0
     }
 
-    void "test traer dashboard de la sección después de ejercicios cognitivos"()
+    void "test traer datos de la facción después de ejercicios cognitivos"()
     {
         when:
-        Map respuesta = service.traerDashboardSeccion('test faccion')
+        Map respuesta = service.traerFaccion(FACCION)
 
         then:
-        respuesta['monedasSeccion'] == 20
-        respuesta['puntosSeccion'] == 71
+        respuesta['faccion'].monedas == 20
+        respuesta['faccion'].puntos == 71
+        respuesta['faccion'].promedioMonedas() == 2
+        respuesta['faccion'].promedioPuntos() == 8
     }
 
     void "test registrar ejercicios honoríficos"()
@@ -325,33 +332,45 @@ class AppServiceSpec extends Specification
         mensaje == 'Hubo un problema al registrar el ejercicio honorífico: This mission is not available for this player or has been already accepted'
     }
 
-    void "test traer dashboard del estudiante después de ejercicios honorificos"()
+    void "test traer datos del estudiante después de ejercicios honorificos"()
     {
         when:
-        Map dashboard = service.traerDashboardEstudiante('3')
+        Map respuesta = service.traerDatosEstudiante('3')
         then:
-        dashboard['puntosEstudiante'] == 50
-        dashboard['gemasEstudiante'] == 0
-        dashboard['medallasEstudiante'] == 1
-        dashboard['estrellasEstudiante']['ciclo_1'] == 3
+        respuesta['estudiante'].puntos == 50
+        respuesta['estudiante'].gemas == 0
+        respuesta['estudiante'].medallas == 1
+        respuesta['estudiante'].estrellasSemanas[0] == 3
 
         when:
-        dashboard = service.traerDashboardEstudiante('6')
+        respuesta = service.traerDatosEstudiante('6')
         then:
-        dashboard['puntosEstudiante'] == 40
-        dashboard['gemasEstudiante'] == 3
-        dashboard['medallasEstudiante'] == 0
-        dashboard['estrellasEstudiante']['ciclo_1'] == 0
+        respuesta['estudiante'].puntos == 40
+        respuesta['estudiante'].gemas == 3
+        respuesta['estudiante'].medallas == 0
+        respuesta['estudiante'].estrellasSemanas[0] == 0
     }
 
-    void "test traer dashboard de la sección después de ejercicios honoríficos"()
+    void "test traer datos de la facción después de ejercicios honoríficos"()
     {
         when:
-        Map respuesta = service.traerDashboardSeccion('test faccion')
+        Map respuesta = service.traerFaccion(FACCION)
 
         then:
-        respuesta['monedasSeccion'] == 20
-        respuesta['puntosSeccion'] == 101
+        respuesta['faccion'].monedas == 20
+        respuesta['faccion'].puntos == 101
+        respuesta['faccion'].promedioMonedas() == 2
+        respuesta['faccion'].promedioPuntos() == 12
+    }
+
+    void "test traer comparativo de facciones"()
+    {
+        when:
+        Map respuesta = service.traerSeccion(FACCION)
+
+        then:
+        respuesta['seccion'].facciones[0].promedioMonedas() == 2
+        respuesta['seccion'].facciones[0].promedioPuntos() == 12
     }
 
     void "test eliminar estudiantes"()
@@ -397,12 +416,12 @@ class AppServiceSpec extends Specification
         respuesta['mensaje'] == 'El estudiante ha sido eliminado.'
     }
 
-    void "test eliminar sección"()
+    void "test eliminar facción"()
     {
         when:
-        Map respuesta = service.eliminarSeccion('test faccion')
+        Map respuesta = service.eliminarFaccion(FACCION)
 
         then:
-        respuesta['mensaje'] == 'La sección ha sido eliminada.'
+        respuesta['mensaje'] == 'La facción ha sido eliminada.'
     }
 }

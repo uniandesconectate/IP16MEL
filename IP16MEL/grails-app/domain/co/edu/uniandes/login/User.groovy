@@ -15,11 +15,11 @@ class User {
 	 * Adicionados al modelo
 	 */
 	String nombre
-	int medallas=0;
-	int gemas=0;
-	int puntos=0;
-	int[] estrellasSemanas=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-	double[] aporteSemanas=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	int medallas=0
+	int gemas=0
+	int puntos=0
+	int[] estrellasSemanas=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	double[] aporteSemanas=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	static belongsTo = [faccion: Faccion]
 
 
