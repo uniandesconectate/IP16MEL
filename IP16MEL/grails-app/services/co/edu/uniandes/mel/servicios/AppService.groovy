@@ -36,11 +36,10 @@ class AppService
      * @param idEstudiante
      * @return
      */
-    Map traerDatosEstudiante(String idEstudiante)
+    User traerDatosEstudiante(String idEstudiante)
     {
         JSONElement json
         User estudiante
-        Map respuesta = [:]
 
         json = motorService.getPlayerData(APP_TOKEN, idEstudiante).json
         estudiante = new User()
@@ -48,6 +47,8 @@ class AppService
         estudiante.puntos = json.currencies.puntos.quantity
         estudiante.gemas = json.currencies.gemas.quantity
         estudiante.medallas = json.currencies.medallas.quantity
+        estudiante.faccion = new Faccion()
+        estudiante.faccion.nombreFaccion = json.teams[0].name
         json.missions.each {
             if(it.tag in CICLOS_MECANICOS)
             {
@@ -58,9 +59,8 @@ class AppService
                 estudiante.aporteSemanas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
             }
         }
-        respuesta['estudiante'] = estudiante
 
-        return respuesta
+        return estudiante
     }
 
     /***
@@ -68,12 +68,11 @@ class AppService
      * @param nombreFaccion
      * @return
      */
-    Map traerFaccion(String nombreFaccion)
+    Faccion traerFaccion(String nombreFaccion)
     {
         JSONElement json
         Faccion faccion
         User miembro
-        Map respuesta = [:]
 
         json = motorService.getTeamData(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
         faccion = new Faccion()
@@ -84,15 +83,15 @@ class AppService
         json.members.each{ mie ->
             miembro = new User()
             miembro.faccion = faccion
+            miembro.username = mie.id_in_app
             miembro.nombre = mie.name
             miembro.puntos = mie.currencies.puntos.quantity
             miembro.gemas = mie.currencies.gemas.quantity
             miembro.medallas = mie.currencies.medallas.quantity
             faccion.miembros.add(miembro)
         }
-        respuesta['faccion'] = faccion
 
-        return respuesta
+        return faccion
     }
 
     /***
@@ -100,10 +99,9 @@ class AppService
      * @param nombreSeccion
      * @return
      */
-    Map traerSeccion(String nombreSeccion)
+    Seccion traerSeccion(String nombreSeccion)
     {
         JSONElement json
-        Map respuesta = [:]
         Seccion seccion
         Faccion faccion
         User miembro
@@ -127,6 +125,7 @@ class AppService
                         tm.members.each{ mie ->
                             miembro = new User()
                             miembro.faccion = faccion
+                            miembro.username = mie.id_in_app
                             miembro.nombre = mie.name
                             miembro.puntos = mie.currencies.puntos.quantity
                             miembro.gemas = mie.currencies.gemas.quantity
@@ -138,9 +137,8 @@ class AppService
                 }
             }
         }
-        respuesta['seccion'] = seccion
 
-        return respuesta
+        return seccion
     }
 
     /***
@@ -152,16 +150,16 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map crearEstudiante(String idEstudiante, String nombreEstudiante, String correoEstudiante, String nombreFaccion) throws ServicioException
+    String crearEstudiante(String idEstudiante, String nombreEstudiante, String correoEstudiante, String nombreFaccion) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         json = motorService.createPlayer(APP_TOKEN, idEstudiante, nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'ok') respuesta['mensaje'] = 'El estudiante ha sido creado y asignado a la facción.'
+        if(json.status == 'ok') mensaje = 'El estudiante ha sido creado y asignado a la facción.'
         else throw new ServicioException('Hubo un problema al crear el estudiante: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -170,16 +168,16 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map eliminarEstudiante(String idEstudiante) throws ServicioException
+    String eliminarEstudiante(String idEstudiante) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         json = motorService.deletePlayer(APP_TOKEN, idEstudiante).json
-        if(json.success) respuesta['mensaje'] = 'El estudiante ha sido eliminado.'
+        if(json.success) mensaje = 'El estudiante ha sido eliminado.'
         else throw new ServicioException('Hubo un problema al eliminar el estudiante: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -188,16 +186,16 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map crearFaccion(String nombreFaccion) throws ServicioException
+    String crearFaccion(String nombreFaccion) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         json = motorService.createTeam(APP_TOKEN, nombreFaccion, nombreFaccion.replaceAll(' ', '')).json
-        if(json.success) respuesta['mensaje'] = 'La facción ha sido creada.'
+        if(json.success) mensaje = 'La facción ha sido creada.'
         else throw new ServicioException('Hubo un problema al crear la facción: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -206,16 +204,16 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map eliminarFaccion(String nombreFaccion) throws ServicioException
+    String eliminarFaccion(String nombreFaccion) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         json = motorService.deleteTeam(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'This team was destroyed') respuesta['mensaje'] = 'La facción ha sido eliminada.'
+        if(json.status == 'This team was destroyed') mensaje = 'La facción ha sido eliminada.'
         else throw new ServicioException('Hubo un problema al eliminar la facción: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -226,20 +224,20 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map registrarCicloMecanico(String ciclo, String idEstudiante, int[] puntajes) throws ServicioException
+    String registrarCicloMecanico(String ciclo, String idEstudiante, int[] puntajes) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
         String pjs
 
         pjs = ''
         puntajes.each {pjs = pjs + ',' + it.toString()}
         pjs = pjs.substring(1)
         json = motorService.completeMission(APP_TOKEN, ciclo, idEstudiante, pjs, '').json
-        if(json.success) respuesta['mensaje'] = 'El ciclo mecánico ha sido registrado.'
+        if(json.success) mensaje = 'El ciclo mecánico ha sido registrado.'
         else throw new ServicioException('Hubo un problema al registrar el ciclo mecánico: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -250,11 +248,11 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map registrarEjercicioCognitivo(String idEstudiante, Dificultad dificultad, int puntaje) throws ServicioException
+    String registrarEjercicioCognitivo(String idEstudiante, Dificultad dificultad, int puntaje) throws ServicioException
     {
         String idReward
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         if(dificultad == Dificultad.FACIL)
             idReward = 'facil'
@@ -265,12 +263,12 @@ class AppService
         if(puntaje >= PUNTAJE_COGNITIVO)
         {
             json = motorService.completeMission(APP_TOKEN, 'reto', idEstudiante, '', idReward).json
-            if(json.success) respuesta['mensaje'] = 'El estudiante aprobó el ejercicio y fue premiado.'
+            if(json.success) mensaje = 'El estudiante aprobó el ejercicio y fue premiado.'
             else throw new ServicioException('Hubo un problema al registrar el ejercicio cognitivo: ' + json.status.toString())
         }
-        else respuesta['mensaje'] = 'El estudiante reprobó el ejercicio.'
+        else mensaje = 'El estudiante reprobó el ejercicio.'
 
-        return respuesta
+        return mensaje
     }
 
     /***
@@ -280,10 +278,10 @@ class AppService
      * @return
      * @throws ServicioException
      */
-    Map registrarEjercicioHonorifico(String idEstudiante, int puntaje) throws ServicioException
+    String registrarEjercicioHonorifico(String idEstudiante, int puntaje) throws ServicioException
     {
         JSONElement json
-        Map respuesta = [:]
+        String mensaje
 
         json = motorService.acceptMission(APP_TOKEN, 'honores', idEstudiante).json
         if(json.success)
@@ -291,13 +289,13 @@ class AppService
             if (puntaje >= PUNTAJE_HONORIFICO)
             {
                 json = motorService.completeMission(APP_TOKEN, 'honores', idEstudiante, '', 'honores').json
-                if(json.success) respuesta['mensaje'] = 'El estudiante aprobó el ejercicio y fue premiado.'
+                if(json.success) mensaje = 'El estudiante aprobó el ejercicio y fue premiado.'
                 else throw new ServicioException('Hubo un problema al registrar el ejercicio honorífico: ' + json.status.toString())
             }
-            else respuesta['mensaje'] = 'El estudiante reprobó el ejercicio.'
+            else mensaje = 'El estudiante reprobó el ejercicio.'
         }
         else throw new ServicioException('Hubo un problema al registrar el ejercicio honorífico: ' + json.status.toString())
 
-        return respuesta
+        return mensaje
     }
 }

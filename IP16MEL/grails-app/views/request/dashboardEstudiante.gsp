@@ -65,10 +65,10 @@
           <tfoot>
             <tr>
               <td colspan="2">
-                <span class="gem">${gemas} - Puntos: ${user.puntos}</span>
+                <span class="gem">${user.gemas} - Puntos: ${user.puntos}</span>
               </td>
               <td>
-                <span class="med">${medallas}</span>
+                <span class="med">${user.medallas}</span>
               </td>
             </tr>
           </tfoot>
@@ -87,78 +87,44 @@
     <div class="col-xs-12 col-sm-8">
       <div class="boxFacciones">
 		<br />
-        <div class="fac1">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <thead>
-              <tr>
-                <th colspan="3">
-                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion1NombreFaccion}
-                </th>
-              </tr>
-              <tr>
-                <th>
-                  <span class="cop"> X ${faccion1Copas} - Promedio ${faccion1PromedioPuntos}</span>
-                </th>
-                <th colspan="2">
-                  <span class="mon"> X ${faccion1Monedas} - Prom ${faccion1PromedioMonedas}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            	<g:each in="${faccion1Nombres}" var="faccionNombre" status="i">
-	              <tr>
-	                <td>${faccionNombre}</td>
-	                <td>
-		            	<g:set var="counter" value="${0}"/>
-		            	<g:while test="${counter < faccion1Medallas[i]}">
-	                  		<asset:image src="med.png" alt="Medalla" />
-	                  		<g:set var="counter" value="${counter+1}"/>
-	                  	</g:while>
-	                </td>
-	                <td>
-	                  ${faccion1Puntos[i]}
-	                </td>
-	              </tr>
-	            </g:each>
-            </tbody>
-          </table>
-        </div>
-        <div class="fac2">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <thead>
-              <tr>
-                <th colspan="3">
-                  <i class="fa fa-users" aria-hidden="true"></i> ${faccion2NombreFaccion}
-                </th>
-              </tr>
-              <tr>
-                <th>
-                  <span class="cop"> X ${faccion2Copas}  - Promedio ${faccion2PromedioPuntos}</span>
-                </th>
-                <th colspan="2">
-                  <span class="mon"> X ${faccion2Monedas}- P ${faccion2PromedioMonedas}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            	<g:each in="${faccion2Nombres}" var="faccionNombre" status="i">
-	              <tr>
-	                <td>${faccionNombre}</td>
-	                <td>
-		            	<g:set var="counter" value="${0}"/>
-		            	<g:while test="${counter < faccion2Medallas[i]}">
-	                  		<asset:image src="med.png" alt="Medalla" />
-	                  		<g:set var="counter" value="${counter+1}"/>
-	                  	</g:while>
-	                </td>
-	                <td>
-	                  ${faccion2Puntos[i]} 
-	                </td>
-	              </tr>
-	            </g:each>
-            </tbody>
-          </table>
-        </div>
+          <g:each in="${facciones}" status="i" var="faccion">
+              <div class="fac${i+1}">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                      <thead>
+                      <tr>
+                          <th colspan="3">
+                              <i class="fa fa-users" aria-hidden="true"></i> ${faccion.nombreFaccion}
+                          </th>
+                      </tr>
+                      <tr>
+                          <th>
+                              <span class="cop"> X ${faccion.puntos} - Promedio ${faccion.promedioPuntos()}</span>
+                          </th>
+                          <th colspan="2">
+                              <span class="mon"> X ${faccion.monedas} - Prom ${faccion.promedioMonedas()}</span>
+                          </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <g:each in="${faccion.miembros}" var="miembro" status="k">
+                          <tr>
+                              <td>${miembro.username}</td>
+                              <td>
+                                  <g:set var="counter" value="${0}"/>
+                                  <g:while test="${counter < miembro.medallas}">
+                                      <asset:image src="med.png" alt="Medalla" />
+                                      <g:set var="counter" value="${counter+1}"/>
+                                  </g:while>
+                              </td>
+                              <td>
+                                  ${miembro.puntos}
+                              </td>
+                          </tr>
+                      </g:each>
+                      </tbody>
+                  </table>
+              </div>
+          </g:each>
       </div>
     </div>
   </div>

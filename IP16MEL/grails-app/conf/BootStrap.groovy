@@ -6,6 +6,7 @@ import co.edu.uniandes.login.UserRole;
 
 class BootStrap {
 	def GrailsApplication
+	def appService
 	
     def init = { servletContext ->
 		def roles=crearRoles()
@@ -63,7 +64,7 @@ class BootStrap {
 		def faccionesAB = ["A", "B"]
 		secciones.each { seccion ->
 			faccionesAB.each { faccionAB -> 
-				Faccion faccion = new Faccion(nombreFaccion: "Faccion " + faccionAB + " " + seccion.nombre, miembros: [], seccion: seccion)
+				Faccion faccion = new Faccion(nombreFaccion: seccion.nombre + ' ' + "Facción " + faccionAB, miembros: [], seccion: seccion)
 				faccion.save(flush: true)
 				seccion.facciones.add(faccion)
 				ret.add(faccion)
@@ -85,6 +86,7 @@ class BootStrap {
 		user.faccion.seccion.save(flush:true)
 		UserRole.create user, roles[1], true
 		ret.add(user)
+        //appService.crearEstudiante(user.username.replace(".","-"), user.nombre, user.username + '@uniandes.edu.co', facciones[0].nombreFaccion)
 		
 		user = new User(username: 'la.ruiz967', password:'L4m3nt0B0l', faccion: facciones[1], nombre: 'la.ruiz967')
 		user.faccion.miembros.add(user)

@@ -1,6 +1,5 @@
 package co.edu.uniandes.mel.Engine
 
-import java.util.ArrayList;
 import org.springframework.web.multipart.MultipartFile
 
 import co.edu.uniandes.login.Faccion
@@ -8,14 +7,10 @@ import co.edu.uniandes.login.Role
 import co.edu.uniandes.login.User
 import co.edu.uniandes.login.UserRole
 import co.edu.uniandes.login.Seccion
-import co.edu.uniandes.mel.dto.FaccionDTO
-import co.edu.uniandes.mel.dto.UsuarioDTO;
-import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.transaction.Transactional
 import grails.plugin.springsecurity.annotation.Secured
-import grails.plugin.springsecurity.SpringSecurityService
 
 @Secured(['ROLE_ADMIN'])
 @Transactional
@@ -44,7 +39,10 @@ class RequestController {
 
 	def grailsApplication //Permite utilizar las constantes del config
 	def springSecurityService //Permite acceder a la informaci�n del usuario de la sesi�n
-	int numeroSemanas = 2
+	int numeroCiclos = 8
+
+    // Servicio de aplicación MEL gamificada.
+    def appService
 	
 	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
 	String url = "http://playngage.io/api/" //Token de API en PlayNGage
@@ -73,7 +71,7 @@ class RequestController {
 		def semanas = []
 		def estrellas = []
 		def porcentajes = []
-		for(int i=0;i<numeroSemanas;i++) {
+		for(int i=0; i<numeroCiclos; i++) {
 			semanas.add(i+1)
 			estrellas.add(user.estrellasSemanas[i])
 			porcentajes.add(user.aporteSemanas[i])
@@ -138,104 +136,34 @@ class RequestController {
 			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas, faccion2NombreFaccion: faccion2NombreFaccion, faccion2PromedioPuntos: faccion2PromedioPuntos,faccion2PromedioMonedas: faccion2PromedioMonedas]
 	}
 	
-	def dashboardEstudiante() {
-		//Ejemplo de llamado a un m�todo para retornar el usuario
-		User user = User.find{username==params['username']}
-		//System.out.println(params['username'])
-		def users = [] // User.findAll()
-		String userName = ""
+	def dashboardEstudiante()
+	{
+		User user
+		User[] users = []
 		def semanas = []
 		def estrellas = []
 		def porcentajes = []
-		String gemas = ""
-		String medallas = ""
+        Faccion[] facciones = []
 
-		String faccion1Copas = ""
-		String faccion1Monedas = ""
-		def faccion1Nombres = []
-		def faccion1Medallas = []
-		def faccion1Puntos = []
-
-		def faccion2Nombres = []
-		def faccion2Medallas = []
-		def faccion2Puntos = []
-		String faccion2Copas = ""
-		String faccion2Monedas = ""
-		String faccion1NombreFaccion
-		String faccion2NombreFaccion
-		int faccion1PromedioPuntos =0
-		int faccion1PromedioMonedas =0
-		int faccion2PromedioPuntos =0
-		int faccion2PromedioMonedas =0
-		
-		User userProfesor = springSecurityService.getCurrentUser()
-		def secciones = Seccion.findAll{profesor.username == userProfesor.username}
-		//System.out.println(secciones)
-		secciones.each { seccion ->
-			users = users + seccion.estudiantes
-		}
-		users = users.sort(false){it.nombre}
-
-		if(user!=null) {			
+        Seccion.findAll{profesor.username == springSecurityService.getCurrentUser().username}.each{ appService.traerSeccion(it.nombre).facciones.each{ fac -> users += fac.miembros } }
+        if(params['username'] != null) user = appService.traerDatosEstudiante(params['username'])
+        if(user!=null)
+        {
 			// Instancia datos del usuario y de su pestaña individual
-			userName = user.username
-			for(int i=0;i<numeroSemanas;i++) {
+			for(int i=0; i<numeroCiclos; i++)
+            {
 				semanas.add(i+1)
 				estrellas.add(user.estrellasSemanas[i])
 				porcentajes.add(user.aporteSemanas[i])
 			}
-			gemas = user.gemas
-			medallas = user.medallas
-			
-			Faccion faccion1 = user.faccion
-			faccion1.miembros = faccion1.miembros.sort(false){-it.puntos}
-			// Instancia datos de la primera facci�n
-			faccion1Copas = faccion1.puntos
-			faccion1Monedas = faccion1.monedas
-			faccion1NombreFaccion = faccion1.nombreFaccion
-			faccion1.miembros.each { miembro ->
-				faccion1Nombres.add(miembro.username)
-				faccion1Medallas.add(miembro.medallas)
-				faccion1Puntos.add(miembro.puntos)
-			}
-	
-			// Instancia datos de la segunda facci�n
-			Faccion faccion2 = Faccion.find{id != faccion1.id && seccion.id == faccion1.seccion.id}
-			faccion2.miembros = faccion2.miembros.sort(false){-it.puntos}
-			faccion2Copas = faccion2.puntos
-			faccion2Monedas = faccion2.monedas
-			faccion2NombreFaccion = faccion2.nombreFaccion
-			faccion2.miembros.each { miembro ->
-				faccion2Nombres.add(miembro.username)
-				faccion2Medallas.add(miembro.medallas)
-				faccion2Puntos.add(miembro.puntos)
-			}
-			int totalMiembros1 = faccion1.miembros.size()
-			
-			if (totalMiembros1 != 0) {
-						faccion1PromedioPuntos=faccion1.puntos/totalMiembros1
-						faccion1PromedioMonedas=faccion1.monedas/totalMiembros1
-			}
-			System.out.println(" Faccion 1  Puntos:"+faccion1PromedioPuntos + " Monedas:"+ faccion1PromedioMonedas)
-			int totalMiembros2 = faccion2.miembros.size()
-	
-			if (totalMiembros2 != 0) {
-				faccion2PromedioPuntos=faccion2.puntos/totalMiembros2
-				faccion2PromedioMonedas=faccion2.monedas/totalMiembros2
-			}
-			System.out.println(" Faccion 2  Puntos:"+faccion2PromedioPuntos + " Monedas:"+ faccion2PromedioMonedas)
-	
-		} else {
-			user = springSecurityService.getCurrentUser()
+            facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
 		}
+        else
+        {
+            user = springSecurityService.getCurrentUser()
+        }
 
-		
-
-		[userName: userName, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, gemas: gemas, medallas: medallas,
-			faccion1Nombres: faccion1Nombres, faccion1Medallas: faccion1Medallas, faccion1Puntos: faccion1Puntos,
-			faccion1Copas: faccion1Copas, faccion1Monedas: faccion1Monedas,  faccion1NombreFaccion: faccion1NombreFaccion,,faccion1PromedioPuntos: faccion1PromedioPuntos,faccion1PromedioMonedas: faccion1PromedioMonedas,
-			faccion2Nombres: faccion2Nombres, faccion2Medallas: faccion2Medallas, faccion2Puntos: faccion2Puntos,
-			faccion2Copas: faccion2Copas, faccion2Monedas: faccion2Monedas,  faccion2NombreFaccion: faccion2NombreFaccion,faccion2PromedioPuntos: faccion2PromedioPuntos,faccion2PromedioMonedas: faccion2PromedioMonedas, users: users]
+        [user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, users: users, facciones: facciones]
 	}
 
 	def comprarFaccion() {
