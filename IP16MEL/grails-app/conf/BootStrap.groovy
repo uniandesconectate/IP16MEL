@@ -49,7 +49,7 @@ class BootStrap {
 
 	def crearSecciones(def usuarios) {
 		def ret=[]
-		def secciones = ["Secci\u00F3n 1","Secci\u00F3n 2","Secci\u00F3n 3","Secci\u00F3n 4","Secci\u00F3n 5","Secci\u00F3n 6","Secci\u00F3n 7 y 8"]
+		def secciones = ["Seccion 1","Seccion 2","Seccion 3","Seccion 4","Seccion 5","Seccion 6","Seccion 7 y 8"]
 		def profesores = [0,0,1,1,0,0,2,2]
 		for(int i=0;i<secciones.size();i++) {
 			Seccion seccion=new Seccion(nombre: secciones[i], profesor: usuarios[profesores[i]], facciones: [], estudiantes: [])
@@ -64,7 +64,7 @@ class BootStrap {
 		def faccionesAB = ["A", "B"]
 		secciones.each { seccion ->
 			faccionesAB.each { faccionAB -> 
-				Faccion faccion = new Faccion(nombreFaccion: seccion.nombre + ' ' + "Facción " + faccionAB, miembros: [], seccion: seccion)
+				Faccion faccion = new Faccion(nombreFaccion: seccion.nombre + ' ' + "Faccion " + faccionAB, miembros: [], seccion: seccion)
 				faccion.save(flush: true)
 				seccion.facciones.add(faccion)
 				ret.add(faccion)

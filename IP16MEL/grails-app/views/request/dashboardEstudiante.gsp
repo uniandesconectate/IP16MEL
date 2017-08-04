@@ -87,44 +87,61 @@
     <div class="col-xs-12 col-sm-8">
       <div class="boxFacciones">
 		<br />
-          <g:each in="${facciones}" status="i" var="faccion">
-              <div class="fac${i+1}">
-                  <table width="100%" cellpadding="0" cellspacing="0">
-                      <thead>
-                      <tr>
-                          <th colspan="3">
-                              <i class="fa fa-users" aria-hidden="true"></i> ${faccion.nombreFaccion}
-                          </th>
-                      </tr>
-                      <tr>
-                          <th>
-                              <span class="cop"> X ${faccion.puntos} - Promedio ${faccion.promedioPuntos()}</span>
-                          </th>
-                          <th colspan="2">
-                              <span class="mon"> X ${faccion.monedas} - Prom ${faccion.promedioMonedas()}</span>
-                          </th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <g:each in="${faccion.miembros}" var="miembro" status="k">
-                          <tr>
-                              <td>${miembro.username}</td>
-                              <td>
-                                  <g:set var="counter" value="${0}"/>
-                                  <g:while test="${counter < miembro.medallas}">
-                                      <asset:image src="med.png" alt="Medalla" />
-                                      <g:set var="counter" value="${counter+1}"/>
-                                  </g:while>
-                              </td>
-                              <td>
-                                  ${miembro.puntos}
-                              </td>
-                          </tr>
-                      </g:each>
-                      </tbody>
-                  </table>
-              </div>
-          </g:each>
+
+          <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#faccion1">A</a></li>
+              <li><a data-toggle="tab" href="#faccion2">B</a></li>
+              <li><a data-toggle="tab" href="#faccion3">C</a></li>
+              <li><a data-toggle="tab" href="#faccion4">D</a></li>
+          </ul>
+          <div class="tab-content">
+              <g:each in="${facciones}" status="i" var="faccion">
+                  <g:if test="${i == 0}">
+                      <div id="faccion${i+1}" class="tab-pane fade in active">
+                  </g:if>
+                  <g:else>
+                      <div id="faccion${i+1}" class="tab-pane fade">
+                  </g:else>
+                      <div class="fac1">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                              <thead>
+                              <tr>
+                                  <th colspan="3">
+                                      <i class="fa fa-users" aria-hidden="true"></i> ${faccion.nombreFaccion}
+                                  </th>
+                              </tr>
+                              <tr>
+                                  <th>
+                                      <span class="cop"> X ${faccion.puntos} - Promedio ${faccion.promedioPuntos()}</span>
+                                  </th>
+                                  <th colspan="2">
+                                      <span class="mon"> X ${faccion.monedas} - Prom ${faccion.promedioMonedas()}</span>
+                                  </th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <g:each in="${faccion.miembros}" var="miembro" status="k">
+                                  <tr>
+                                      <td>${miembro.username}</td>
+                                      <td>
+                                          <g:set var="counter" value="${0}"/>
+                                          <g:while test="${counter < miembro.medallas}">
+                                              <asset:image src="med.png" alt="Medalla" />
+                                              <g:set var="counter" value="${counter+1}"/>
+                                          </g:while>
+                                      </td>
+                                      <td>
+                                          ${miembro.puntos}
+                                      </td>
+                                  </tr>
+                              </g:each>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </g:each>
+          </div>
+          </div>
       </div>
     </div>
   </div>

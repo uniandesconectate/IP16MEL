@@ -47,7 +47,8 @@
 				<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
 				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
 				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
-				<g:link controller="request" action="solicitarArchivo">Cargar semana</g:link><br />
+				<g:link controller="request" action="solicitarArchivo">Cargar quincena</g:link><br />
+                <g:link controller="request" action="editarEstudiantes">Cargar estudiantes</g:link><br />
 		</div>
 	</sec:ifLoggedIn>
 </section>

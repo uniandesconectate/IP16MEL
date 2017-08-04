@@ -1,5 +1,6 @@
 package co.edu.uniandes.mel.Engine
 
+import co.edu.uniandes.mel.excepciones.ServicioException
 import org.springframework.web.multipart.MultipartFile
 
 import co.edu.uniandes.login.Faccion
@@ -7,48 +8,22 @@ import co.edu.uniandes.login.Role
 import co.edu.uniandes.login.User
 import co.edu.uniandes.login.UserRole
 import co.edu.uniandes.login.Seccion
-import grails.plugins.rest.client.RestBuilder
-import grails.plugins.rest.client.RestResponse
 import grails.transaction.Transactional
 import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(['ROLE_ADMIN'])
 @Transactional
-class RequestController {
-	public static final int GET = 1
-	public static final int POST = 2
+class RequestController
+{
 
-	// Configuracion puntajes,gemas,monedas
-	public static final double MINSCORECOG = 80.0
-	public static final double MINSCOREHON = 80.0
-	
-	public static final int PTOSCOGFACIL = 3
-	public static final int PTOSCOGMEDIO = 8
-	public static final int PTOSCOGDIFICIL = 20
-	
-	public static final int GEMCOGFACIL = 1
-	public static final int GEMCOGMEDIO = 2
-	public static final int GEMCOGDIFICIL = 3
-	
-	public static final int HONORMEDALLAS = 1
-	public static final int HONORPUNTOS = 30
-	
-	public static final int TOTALPRUEBASMEC = 300
-	
-	public static final int SEMANAINICIAL = 13
+    // Permite utilizar las constantes del config
+	def grailsApplication
 
-	def grailsApplication //Permite utilizar las constantes del config
-	def springSecurityService //Permite acceder a la informaci�n del usuario de la sesi�n
-	int numeroCiclos = 8
+    // Permite acceder a la información del usuario de la sesión
+	def springSecurityService
 
     // Servicio de aplicación MEL gamificada.
     def appService
-	
-	String token = "210fd18fe01d086fe1f6ed60f789137b" //Token de API en PlayNGage
-	String url = "http://playngage.io/api/" //Token de API en PlayNGage
-	String idInApp = 'rca1' //Este es el id_in_app de un jugador <-- Puede ser el username Uniandes o el ID de una plataforma
-	String action_tag = 'intercept_test' //Este es el tag de una acci�n
-	String testGroup = "First"
 
 	@Secured(['ROLE_STUDENT','ROLE_ADMIN'])
 	def index() {
@@ -71,7 +46,7 @@ class RequestController {
 		def semanas = []
 		def estrellas = []
 		def porcentajes = []
-		for(int i=0; i<numeroCiclos; i++) {
+		for(int i=0; i<appService.numeroQuincenas; i++) {
 			semanas.add(i+1)
 			estrellas.add(user.estrellasSemanas[i])
 			porcentajes.add(user.aporteSemanas[i])
@@ -146,11 +121,11 @@ class RequestController {
         Faccion[] facciones = []
 
         Seccion.findAll{profesor.username == springSecurityService.getCurrentUser().username}.each{ appService.traerSeccion(it.nombre).facciones.each{ fac -> users += fac.miembros } }
-        if(params['username'] != null) user = appService.traerDatosEstudiante(params['username'])
+        if(params['username'] != null) user = appService.traerDatosEstudiante(params['username'].toString())
         if(user!=null)
         {
 			// Instancia datos del usuario y de su pestaña individual
-			for(int i=0; i<numeroCiclos; i++)
+			for(int i=0; i < appService.numeroQuincenas; i++)
             {
 				semanas.add(i+1)
 				estrellas.add(user.estrellasSemanas[i])
@@ -158,10 +133,7 @@ class RequestController {
 			}
             facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
 		}
-        else
-        {
-            user = springSecurityService.getCurrentUser()
-        }
+        else user = springSecurityService.getCurrentUser()
 
         [user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, users: users, facciones: facciones]
 	}
@@ -250,206 +222,101 @@ class RequestController {
 		[message: message]
 	}
 
-	def upload(String csvFile, int semana, String separador) {
-//		String csvFile = "c:\\tmp\\" + params["archivo"];
-//		int semana = params.int('semana')
-		//System.out.println(csvFile + semana)
-		BufferedReader br = null;
-		String line = "";
-		String cvsSplitBy = "\\|";
-		
+	def upload(String csvFile)
+    {
+		BufferedReader br = null
+		String line
+		String cvsSplitBy = "\\|"
+        String[] linea
 	
-		try {
-			def mecanicasUsuarios= [:]
-			
-			br = new BufferedReader(new FileReader(csvFile));
-			while ((line = br.readLine()) != null) {
-				// use comma as separator
+		try
+        {
+			br = new BufferedReader(new FileReader(csvFile))
+			while ((line = br.readLine()) != null)
+            {
 				line = line.replaceAll("\"", "")
-				//System.out.println(line + " -- " + cvsSplitBy)
-				String[] linea = line.split(cvsSplitBy);
-				//System.out.println("Linea[6]" + linea[6].startsWith("MS"))
-				if(linea[6].startsWith("MS") || linea[6].startsWith("HS") || linea[6].startsWith("CS")) {
-					proceseLinea(linea,semana,mecanicasUsuarios);
-				}
+				linea = line.split(cvsSplitBy)
+				if(linea[6].startsWith("MQ") || linea[6].startsWith("HQ") || linea[6].startsWith("CQ")) proceseLinea(linea)
 			}
-			proceseTotalesMecanicos(mecanicasUsuarios, semana - SEMANAINICIAL)
-	
-		} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally { 
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+		}
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace()
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace()
+        }
+        finally
+        {
+            if (br != null)
+            {
+                try
+                {
+                    br.close()
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace()
+                }
+            }
+        }
 		redirect(uri: "/")
 	}
-
 	
-	def proceseLinea(def linea, int semana,def mecanicasUsuarios) {
-		Double totalUser=0.0
+	def proceseLinea(def linea)
+    {
 		String userId = linea[0]
 		String prueba = linea[6]
-		String  tipoPrueba = prueba.subSequence(0,1)
-		//System.out.println("prueba" + prueba)
-		int numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
-		int sem = Integer.parseInt(prueba.subSequence(2,4))
+		String tipoPrueba = prueba.subSequence(0,1)
+		int numPrueba
+		int quincena = Integer.parseInt(prueba.subSequence(2,4))
 		String scoreTxt = "0"
-		if(linea[7]!=null) {
-			if(!linea[7].trim().equals("")) {
-				scoreTxt = linea[7]
-			}
-		}
-		//System.out.println("Prueba:" + prueba + " sub: " + prueba.substring(prueba.length() - 2) + " num: " + prueba.subSequence(2,4) + " scoreTxt: " + scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
-		double score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."));
-		
-		User user = User.find{username == userId}
-		System.out.println("Usuario: " + userId + "  - " + user)
-		Faccion faccion = user.faccion
-		//System.out.println(sem + " "  + semana)
-		if ((tipoPrueba == 'M' ) && (semana==sem) ) {
-			totalUser = mecanicasUsuarios[userId]
-			if  (totalUser == null) {
-				mecanicasUsuarios[userId] = score
-			} else {
-				mecanicasUsuarios[userId] =score + totalUser
-			}
-		} else if ((tipoPrueba == 'C') && (score >= MINSCORECOG) && (sem==semana-1)) {
-			//System.out.println("Tipo prueba: " + tipoPrueba + " - " + numPrueba)
-		
-				if (numPrueba==1) {
-					// agregar al usuario userId PTOSCOGFACIL puntos  GEMCOGFACIL gemas
-					// agragar a la faccion del usuario PTOSCOGFACIL puntos
-					user.puntos += PTOSCOGFACIL
-					user.gemas += GEMCOGFACIL
-					faccion.puntos += PTOSCOGFACIL
-					
-				} else if (numPrueba==2) {
-					// agregar al usuario userId PTOSCOGMEDIO puntos  GEMCOGMEDIO gemas
-					// agragar a la faccion del usuario PTOSCOGMEDIO puntos
-					user.puntos += PTOSCOGMEDIO
-					user.gemas += GEMCOGMEDIO
-					faccion.puntos += PTOSCOGMEDIO
-				
-				} else if (numPrueba==3) {
-				
-					// agregar al usuario userId PTOSCOGDIFICIL puntos  GEMCOGDIFICIL gemas
-					// agragar a la faccion del usuario PTOSCOGDIFICIL puntos
-					user.puntos += PTOSCOGDIFICIL
-					user.gemas += GEMCOGDIFICIL
-					faccion.puntos += PTOSCOGDIFICIL
+        String mensaje
+        double score
 
-				}
-				user.save(flush: true)
-				faccion.save(flush: true)
-		} else if ((tipoPrueba == 'H') && (score > MINSCOREHON)) {
-			// Agragar al usuario userId HONORPUNTOS y HONORMEDALLAS
-			// Agregar a la faccion de usuario HONORPUNTOS
-			user.puntos += HONORPUNTOS
-			user.medallas += HONORMEDALLAS
-			faccion.puntos += HONORPUNTOS
-			user.save(flush: true)
-			faccion.save(flush: true)
-		}
-		//System.out.println("Tipo prueba: " + tipoPrueba)
-	}
-	
-	def proceseTotalesMecanicos(def mecanicasUsuarios, int semana)	{
+		if(linea[7] != null) if(!linea[7].trim().equals("")) scoreTxt = linea[7]
+        score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."));
 
-		def keys = mecanicasUsuarios.keySet();
-		def totalMonedasSemanaFacciones= [:]
-		int monedasFaccion=0;
-		Integer totalMonedasSemanaFaccion;
-		
-		// Calcula y agraga modenas para cada usuario y calcula el total obetnido por cada faccion
-		
-		mecanicasUsuarios.each { userId, total ->
-			User user = User.find{username == userId}
-			Faccion faccion = user.faccion
-			
-			monedasFaccion = 0
-			
-			//System.out.println("Usuario: " + user.username + " faccion " + faccion.nombreFaccion + " Total " + total)
-			//System.out.println("Usuario: " + user.username + "Total " + total)
-			if (total == 300) {
-				// Agragar al usuario userId 5 estrella en la semana
-				// Agragar al usuario userId 1 gema
-				// Agregar a la facci�n 5 monedas
-				user.estrellasSemanas[semana] = 5
-				user.gemas++
-				monedasFaccion = 5
-				
-			} else if (total >= 270) {
- 				// Agragar al usuario userId 4 estrella
-				// Agregar a la facci�n 4 monedas
-				user.estrellasSemanas[semana] = 4
-				monedasFaccion =  4
-			} else if (total >= 240) {
-				// Agragar al usuario userId 3 estrella
-				// Agregar a la facci�n 3 monedas
-				user.estrellasSemanas[semana] = 3
-				monedasFaccion =  3
-			} else if (total >= 180) {
-				// Agragar al usuario userId 2 estrella
-				// Agregar a la facci�n 2 monedas
-				user.estrellasSemanas[semana] = 2
-				monedasFaccion =  2
-			} else if (total >= 105) {
-				// Agragar al usuario userId 1 estrella
-				// Agregar a la facci�n 1 monedas
-				user.estrellasSemanas[semana] = 1
-				monedasFaccion =  1
-			}
-			faccion.monedas += monedasFaccion;
-			
-			totalMonedasSemanaFaccion = totalMonedasSemanaFacciones[faccion.nombreFaccion]
-			if  (totalMonedasSemanaFaccion == null) {
-				totalMonedasSemanaFacciones[faccion.nombreFaccion] = monedasFaccion
-			} else {
-				totalMonedasSemanaFacciones[faccion.nombreFaccion] = monedasFaccion + totalMonedasSemanaFaccion
-			}
-			
-			user.save(flush: true)
-			faccion.save(flush: true)
+		if(tipoPrueba == 'M')
+        {
+            try
+            {
+                mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId.replace('.', '-'), score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+            }
+            catch(Exception ex)
+            {
+                System.out.println("Usuario: " + userId + " - Error: " + ex.message)
+            }
 		}
-		
-		mecanicasUsuarios.each { userId, total ->
-			User user = User.find{username == userId}
-			Faccion faccion = user.faccion
-			totalMonedasSemanaFaccion = totalMonedasSemanaFacciones[faccion.nombreFaccion]
-			if  (totalMonedasSemanaFaccion != null && totalMonedasSemanaFaccion>0) {
-				user.aporteSemanas[semana] = (double)(100*(user.estrellasSemanas[semana]/totalMonedasSemanaFaccion))
-			}
-			
-			user.save(flush: true)
+        else if(tipoPrueba == 'C')
+        {
+            try
+            {
+                numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
+                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId.replace('.', '-'), score.toInteger())
+                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId.replace('.', '-'), score.toInteger())
+                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId.replace('.', '-'), score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+            }
+            catch(Exception ex)
+            {
+                System.out.println("Usuario: " + userId + " - Error: " + ex.message)
+            }
 		}
-		
-		
-	}
-
-	def createFactions() {
-		String name = "Faccion"
-		def number = [1,2,3,4,5,6,7,8]
-		def group = ["A","B"]
-		RestBuilder rest = new RestBuilder()
-		
-		number.each { num->
-			group.each { grp->
-				String nameOfFaction = name + num + grp
-				RestResponse resp = rest.post("http://playngage.io//api/teams" +
-					"?name=" + nameOfFaction + "&tag=" + nameOfFaction.toLowerCase()) {
-				header 'Authorization', 'Token token=' + token
-				header 'Accept', '*/*'
-				}
-			}
+        else if(tipoPrueba == 'H')
+        {
+            try
+            {
+                mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId.replace('.', '-'), score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+            }
+            catch(Exception ex)
+            {
+                System.out.println("Usuario: " + userId + " - Error: " + ex.message)
+            }
 		}
-		render "ok"
 	}
 	
 	def solicitarArchivo() {
@@ -459,26 +326,67 @@ class RequestController {
 		}
 		[message: message]
 	}
+
+    def editarEstudiantes()
+    {
+
+    }
 	
-	def cargarInformacion() {
+	def cargarInformacion()
+    {
 		MultipartFile archivo = request.getFile('archivo')
-		int semana = params.int('semana')
-		String separador = params["separado"]
 		String message = "Datos cargados correctamente"
 		def split
-		if(archivo&&(split = archivo.getOriginalFilename().split('\\.')).length>1&&split[split.length-1]=='csv') {
+		if(archivo&&(split = archivo.getOriginalFilename().split('\\.')).length>1&&split[split.length-1]=='csv')
+        {
 			String nombreArchivo = grailsApplication.config.co.edu.uniandes.uploadfolder + archivo.getOriginalFilename()
 			File archivoLocal = new File(nombreArchivo)
 			archivo.transferTo(archivoLocal)
-//			FileInputStream fis = new FileInputStream(archivoLocal)
-//			archivo.transferTo(archivoLocal)
-			upload(nombreArchivo, semana, separador)
-		} else {
-			message = "Debe cargar un archivo en formato csv"
+			upload(nombreArchivo)
 		}
+        else message = "Debe cargar un archivo en formato csv"
+
 		render message
-		//redirect(action: 'solicitarArchivo', params: [message: message])
 	}
+
+    def cargarEstudiantes()
+    {
+        String nombreArchivo
+        File archivoLocal
+        BufferedReader br
+        String line
+        String cvsSplitBy = ";"
+        MultipartFile archivo = request.getFile('archivo')
+        String message
+        String[] linea
+        ArrayList<String[]> registros = new ArrayList<String[]>()
+
+        try
+        {
+            nombreArchivo = grailsApplication.config.co.edu.uniandes.uploadfolder + archivo.getOriginalFilename()
+            archivoLocal = new File(nombreArchivo)
+            archivo.transferTo(archivoLocal)
+
+            br = new BufferedReader(new FileReader(nombreArchivo))
+            br.readLine()
+            while((line = br.readLine()) != null)
+            {
+                linea = line.split(cvsSplitBy)
+                registros.add(linea)
+            }
+            br.close()
+            registros.each{ try {message = appService.eliminarEstudiante(it[0].replace('.', '-')); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.eliminarFaccion('Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.crearFaccion('Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.crearEstudiante(it[0].replace('.', '-'), it[2] + ' ' + it[1], it[0] + '@uniandes.edu.co', 'Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+        }
+        catch(Exception ex)
+        {
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+
+        redirect(uri: "/")
+    }
 	
 	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
 	def llenarDatosEjemplo() {

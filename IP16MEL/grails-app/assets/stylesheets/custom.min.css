@@ -47,7 +47,7 @@ section {
 .boxFacciones::after {
 	content:"";display:block;clear:both}
 .boxFacciones .fac1,.boxFacciones .fac2 {
-	display:block;width:50%;float:left;vertical-align:top}
+	display:block;width:100%;float:left;vertical-align:top}
 .boxFacciones table thead th {
 	color:#fff}
 .boxFacciones table thead th i {

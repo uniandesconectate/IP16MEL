@@ -13,20 +13,21 @@ class AppService
     // Token de app MEL en el motor.
     final static String APP_TOKEN = '210fd18fe01d086fe1f6ed60f789137b'
 
-    // Puntaje mínimo para otorgar el reward de un ejercicio cognitivo.
-    final static int PUNTAJE_COGNITIVO = 80
-
-    // Puntaje mínimo para otorgar el reward de un ejercicio honorífico.
-    final static int PUNTAJE_HONORIFICO = 80
-
-    // Niveles de dificultad posibles para los ejercicios cognitivos.
-    enum Dificultad {FACIL, INTERMEDIA, DIFICIL}
-
-    // Tags de los ciclos mecánicos en el motor.
-    final static String[] CICLOS_MECANICOS = ['ciclo_1', 'ciclo_2', 'ciclo_3', 'ciclo_4', 'ciclo_5', 'ciclo_6', 'ciclo_7', 'ciclo_8']
+    // Tags de las pruebas mecánicas en el motor.
+    final static String[] CICLOS_MECANICOS = ['mq1', 'mq2', 'mq3', 'mq4', 'mq5', 'mq6', 'mq7', 'mq8']
 
     // Tags de los rewards que otorgan estrellas en el motor.
     final static String[] REWARDS_ESTRELLAS = ['estrella_1', 'estrella_2', 'estrella_3', 'estrella_4', 'estrella_5']
+
+    // Prefijos de las pruebas en el motor.
+    final static String MECANICA = 'mq'
+    final static String HONORIFICA = 'hq'
+    final static String COGNITIVA_FACIL = 'cfq'
+    final static String COGNITIVA_MEDIA = 'cmq'
+    final static String COGNITIVA_DIFICIL = 'cdq'
+
+    // Número de quincenas del semestre.
+    int numeroQuincenas = 8
 
     // Servicio para comunicarse con el motor de gamificación.
     def motorService
@@ -54,7 +55,10 @@ class AppService
             {
                 it.rewards.awarded.each { it2 ->
                     if (it2.tag in REWARDS_ESTRELLAS)
-                        estudiante.estrellasSemanas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it2.currencies.monedas.quantity
+                    {
+                        if(it2.tag != REWARDS_ESTRELLAS[4]) estudiante.estrellasSemanas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity - 1
+                        else estudiante.estrellasSemanas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity / 2
+                    }
                 }
                 estudiante.aporteSemanas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
             }
@@ -217,84 +221,21 @@ class AppService
     }
 
     /***
-     * Registra los puntajes de un ciclo mecánico del estudiante.
-     * @param ciclo
-     * @param idEstudiante
-     * @param puntajes
-     * @return
-     * @throws ServicioException
-     */
-    String registrarCicloMecanico(String ciclo, String idEstudiante, int[] puntajes) throws ServicioException
-    {
-        JSONElement json
-        String mensaje
-        String pjs
-
-        pjs = ''
-        puntajes.each {pjs = pjs + ',' + it.toString()}
-        pjs = pjs.substring(1)
-        json = motorService.completeMission(APP_TOKEN, ciclo, idEstudiante, pjs, '').json
-        if(json.success) mensaje = 'El ciclo mecánico ha sido registrado.'
-        else throw new ServicioException('Hubo un problema al registrar el ciclo mecánico: ' + json.status.toString())
-
-        return mensaje
-    }
-
-    /***
-     * Registra un ejercicio cognitivo del estudiante.
-     * @param idEstudiante
-     * @param dificultad
-     * @param puntaje
-     * @return
-     * @throws ServicioException
-     */
-    String registrarEjercicioCognitivo(String idEstudiante, Dificultad dificultad, int puntaje) throws ServicioException
-    {
-        String idReward
-        JSONElement json
-        String mensaje
-
-        if(dificultad == Dificultad.FACIL)
-            idReward = 'facil'
-        else if(dificultad == Dificultad.INTERMEDIA)
-            idReward = 'medio'
-        else if(dificultad == Dificultad.DIFICIL)
-            idReward = 'dificil'
-        if(puntaje >= PUNTAJE_COGNITIVO)
-        {
-            json = motorService.completeMission(APP_TOKEN, 'reto', idEstudiante, '', idReward).json
-            if(json.success) mensaje = 'El estudiante aprobó el ejercicio y fue premiado.'
-            else throw new ServicioException('Hubo un problema al registrar el ejercicio cognitivo: ' + json.status.toString())
-        }
-        else mensaje = 'El estudiante reprobó el ejercicio.'
-
-        return mensaje
-    }
-
-    /***
-     * Registra un ejercicio honorífico del estudiante.
+     * Registra una prueba mecánica, cognitiva u honorífica del estudiante.
+     * @param prueba
      * @param idEstudiante
      * @param puntaje
      * @return
      * @throws ServicioException
      */
-    String registrarEjercicioHonorifico(String idEstudiante, int puntaje) throws ServicioException
+    String registrarPrueba(String prueba, String idEstudiante, int puntaje) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.acceptMission(APP_TOKEN, 'honores', idEstudiante).json
-        if(json.success)
-        {
-            if (puntaje >= PUNTAJE_HONORIFICO)
-            {
-                json = motorService.completeMission(APP_TOKEN, 'honores', idEstudiante, '', 'honores').json
-                if(json.success) mensaje = 'El estudiante aprobó el ejercicio y fue premiado.'
-                else throw new ServicioException('Hubo un problema al registrar el ejercicio honorífico: ' + json.status.toString())
-            }
-            else mensaje = 'El estudiante reprobó el ejercicio.'
-        }
-        else throw new ServicioException('Hubo un problema al registrar el ejercicio honorífico: ' + json.status.toString())
+        json = motorService.completeMission(APP_TOKEN, prueba, idEstudiante, puntaje.toString(), '').json
+        if(json.success) mensaje = 'La prueba ' + prueba + ' ha sido registrada para el estudiante ' + idEstudiante
+        else throw new ServicioException('Hubo un problema al registrar la prueba ' + prueba + ' para el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
         return mensaje
     }

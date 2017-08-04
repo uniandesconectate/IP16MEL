@@ -16,6 +16,11 @@ import co.edu.uniandes.mel.servicios.AppService.Dificultad
 class AppServiceSpec extends Specification
 {
     final static String FACCION = 'test Sección 1 Faccion A'
+    final static String MECANICA = 'mq1'
+    final static String COGNITIVA_FACIL = 'cfq1'
+    final static String COGNITIVA_INTERMEDIA = 'cmq1'
+    final static String COGNITIVA_DIFICIL = 'cdq1'
+    final static String HONORIFICA = 'hq1'
 
     def setup()
     {
@@ -104,50 +109,50 @@ class AppServiceSpec extends Specification
         faccion.promedioMonedas() == 0
     }
 
-    void "test registrar ciclo mecánico"()
+    void "test registrar pruebas mecánicas"()
     {
         when:
-        String mensaje = service.registrarCicloMecanico('ciclo_1', '1', [100] as int[])
+        String mensaje = service.registrarPrueba(MECANICA, '1', 100)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 1'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '2', [90] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '2', 90)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 2'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '3', [80] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '3', 80)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 3'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '4', [60] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '4', 60)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 4'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '5', [35] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '5', 35)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 5'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '6', [10, 20, 30, 5, 15] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '6', 16)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 6'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '7', [99] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '7', 99)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 7'
 
         when:
-        mensaje = service.registrarCicloMecanico('ciclo_1', '8', [50,25,60,90,100,30] as int[])
+        mensaje = service.registrarPrueba(MECANICA, '8', 59)
         then:
-        mensaje == 'El ciclo mecánico ha sido registrado.'
+        mensaje == 'La prueba ' + MECANICA + ' ha sido registrada para el estudiante 8'
     }
 
-    void "test traer datos del estudiante después de ciclo mecánico"()
+    void "test traer datos del estudiante después de pruebas mecánicas"()
     {
         when:
         User estudiante = service.traerDatosEstudiante('1')
@@ -156,7 +161,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 1
         estudiante.estrellasSemanas[0] == 5
-        estudiante.aporteSemanas[0] == 25
+        estudiante.aporteSemanas[0] == 32
 
         when:
         estudiante = service.traerDatosEstudiante('2')
@@ -164,7 +169,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 4
-        estudiante.aporteSemanas[0] == 20
+        estudiante.aporteSemanas[0] == 16
 
         when:
         estudiante = service.traerDatosEstudiante('3')
@@ -172,7 +177,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 3
-        estudiante.aporteSemanas[0] == 15
+        estudiante.aporteSemanas[0] == 12
 
         when:
         estudiante = service.traerDatosEstudiante('4')
@@ -180,7 +185,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 2
-        estudiante.aporteSemanas[0] == 10
+        estudiante.aporteSemanas[0] == 9
 
         when:
         estudiante = service.traerDatosEstudiante('5')
@@ -188,7 +193,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 1
-        estudiante.aporteSemanas[0] == 5
+        estudiante.aporteSemanas[0] == 6
 
         when:
         estudiante = service.traerDatosEstudiante('6')
@@ -204,7 +209,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 4
-        estudiante.aporteSemanas[0] == 20
+        estudiante.aporteSemanas[0] == 16
 
         when:
         estudiante = service.traerDatosEstudiante('8')
@@ -212,60 +217,60 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 0
         estudiante.gemas == 0
         estudiante.estrellasSemanas[0] == 1
-        estudiante.aporteSemanas[0] == 5
+        estudiante.aporteSemanas[0] == 6
     }
 
-    void "test traer datos de la facción después de ciclo mecánico"()
+    void "test traer datos de la facción después de pruebas mecánicas"()
     {
         when:
         Faccion faccion = service.traerFaccion(FACCION)
 
         then:
-        faccion.monedas == 20
+        faccion.monedas == 31
         faccion.puntos == 0
-        faccion.promedioMonedas() == 2
+        faccion.promedioMonedas() == 3
         faccion.promedioPuntos() == 0
     }
 
-    void "test registrar ejercicios cognitivos"()
+    void "test registrar pruebas cognitivas"()
     {
         when:
-        String mensaje = service.registrarEjercicioCognitivo('1', Dificultad.FACIL, 85)
+        String mensaje = service.registrarPrueba(COGNITIVA_FACIL, '1', 85)
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'La prueba ' + COGNITIVA_FACIL + ' ha sido registrada para el estudiante 1'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('2', Dificultad.INTERMEDIA, 99)
+        mensaje = service.registrarPrueba(COGNITIVA_INTERMEDIA, '2', 99)
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'La prueba ' + COGNITIVA_INTERMEDIA + ' ha sido registrada para el estudiante 2'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('3', Dificultad.DIFICIL, 80)
+        mensaje = service.registrarPrueba(COGNITIVA_DIFICIL, '3', 80)
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'La prueba ' + COGNITIVA_DIFICIL + ' ha sido registrada para el estudiante 3'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('4', Dificultad.DIFICIL, 0)
+        mensaje = service.registrarPrueba(COGNITIVA_DIFICIL, '4', 0)
         then:
-        mensaje == 'El estudiante reprobó el ejercicio.'
+        mensaje == 'La prueba ' + COGNITIVA_DIFICIL + ' ha sido registrada para el estudiante 4'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('5', Dificultad.DIFICIL, 79)
+        mensaje = service.registrarPrueba(COGNITIVA_DIFICIL, '5', 79)
         then:
-        mensaje == 'El estudiante reprobó el ejercicio.'
+        mensaje == 'La prueba ' + COGNITIVA_DIFICIL + ' ha sido registrada para el estudiante 5'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('6', Dificultad.DIFICIL, 100)
+        mensaje = service.registrarPrueba(COGNITIVA_DIFICIL, '6', 100)
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'La prueba ' + COGNITIVA_DIFICIL + ' ha sido registrada para el estudiante 6'
 
         when:
-        mensaje = service.registrarEjercicioCognitivo('6', Dificultad.DIFICIL, 99)
+        mensaje = shouldFail{service.registrarPrueba(COGNITIVA_DIFICIL, '6', 99)}
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'Hubo un problema al registrar la prueba ' + COGNITIVA_DIFICIL + ' para el estudiante 6: This mission is not available for this player'
     }
 
-    void "test traer datos del estudiante después de ejercicios cognitivos"()
+    void "test traer datos del estudiante después de pruebas cognitivas"()
     {
         when:
         User estudiante = service.traerDatosEstudiante('1')
@@ -294,76 +299,76 @@ class AppServiceSpec extends Specification
         when:
         estudiante = service.traerDatosEstudiante('6')
         then:
-        estudiante.puntos == 40
-        estudiante.gemas == 6
+        estudiante.puntos == 20
+        estudiante.gemas == 3
         estudiante.medallas == 0
         estudiante.estrellasSemanas[0] == 0
     }
 
-    void "test traer datos de la facción después de ejercicios cognitivos"()
+    void "test traer datos de la facción después de pruebas cognitivas"()
     {
         when:
         Faccion faccion = service.traerFaccion(FACCION)
 
         then:
-        faccion.monedas == 20
-        faccion.puntos == 71
-        faccion.promedioMonedas() == 2
-        faccion.promedioPuntos() == 8
+        faccion.monedas == 31
+        faccion.puntos == 51
+        faccion.promedioMonedas() == 3
+        faccion.promedioPuntos() == 6
     }
 
-    void "test registrar ejercicios honoríficos"()
+    void "test registrar pruebas honoríficas"()
     {
         when:
-        String mensaje = service.registrarEjercicioHonorifico('3', 80)
+        String mensaje = service.registrarPrueba(HONORIFICA, '3', 80)
         then:
-        mensaje == 'El estudiante aprobó el ejercicio y fue premiado.'
+        mensaje == 'La prueba ' + HONORIFICA + ' ha sido registrada para el estudiante 3'
 
         when:
-        mensaje = shouldFail{service.registrarEjercicioHonorifico('4', 80)}
+        mensaje = service.registrarPrueba(HONORIFICA, '4', 80)
         then:
-        mensaje == 'Hubo un problema al registrar el ejercicio honorífico: Not enough currencies to pay mission fee'
+        mensaje == 'La prueba ' + HONORIFICA + ' ha sido registrada para el estudiante 4'
 
         when:
-        mensaje = service.registrarEjercicioHonorifico('6', 79)
+        mensaje = service.registrarPrueba(HONORIFICA, '6', 79)
         then:
-        mensaje == 'El estudiante reprobó el ejercicio.'
+        mensaje == 'La prueba ' + HONORIFICA + ' ha sido registrada para el estudiante 6'
 
         when:
-        mensaje = shouldFail{service.registrarEjercicioHonorifico('6', 80)}
+        mensaje = shouldFail{service.registrarPrueba(HONORIFICA, '6', 80)}
         then:
-        mensaje == 'Hubo un problema al registrar el ejercicio honorífico: This mission is not available for this player or has been already accepted'
+        mensaje == 'Hubo un problema al registrar la prueba ' + HONORIFICA + ' para el estudiante 6: This mission is not available for this player'
     }
 
-    void "test traer datos del estudiante después de ejercicios honorificos"()
+    void "test traer datos del estudiante después de pruebas honorificas"()
     {
         when:
         User estudiante = service.traerDatosEstudiante('3')
         then:
         estudiante.puntos == 50
-        estudiante.gemas == 0
+        estudiante.gemas == 3
         estudiante.medallas == 1
         estudiante.estrellasSemanas[0] == 3
 
         when:
         estudiante = service.traerDatosEstudiante('6')
         then:
-        estudiante.puntos == 40
+        estudiante.puntos == 20
         estudiante.gemas == 3
         estudiante.medallas == 0
         estudiante.estrellasSemanas[0] == 0
     }
 
-    void "test traer datos de la facción después de ejercicios honoríficos"()
+    void "test traer datos de la facción después de pruebas honoríficas"()
     {
         when:
         Faccion faccion = service.traerFaccion(FACCION)
 
         then:
-        faccion.monedas == 20
-        faccion.puntos == 101
-        faccion.promedioMonedas() == 2
-        faccion.promedioPuntos() == 12
+        faccion.monedas == 31
+        faccion.puntos == 111
+        faccion.promedioMonedas() == 3
+        faccion.promedioPuntos() == 13
     }
 
     void "test traer comparativo de facciones"()
@@ -372,8 +377,8 @@ class AppServiceSpec extends Specification
         Seccion seccion = service.traerSeccion(FACCION)
 
         then:
-        seccion.facciones[0].promedioMonedas() == 2
-        seccion.facciones[0].promedioPuntos() == 12
+        seccion.facciones[0].promedioMonedas() == 3
+        seccion.facciones[0].promedioPuntos() == 13
     }
 
     void "test eliminar estudiantes"()
