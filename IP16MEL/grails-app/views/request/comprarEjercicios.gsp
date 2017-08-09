@@ -9,7 +9,7 @@
 				<h1>Compra de ejercicio</h1>
 				<g:form url="[action:'comprarEjerciciosSave']" method="POST" >
 					<strong>Elija el usuario del estudiante: </strong>
-					<g:select from="${users}" name="userId1" id="userId1"  optionKey="id" optionValue="username"/>
+					<g:select from="${users}" name="userId1" id="userId1" optionKey="username" optionValue="${{it.username + ' (' + it.gemas + ' gemas)'}}" />
 					<br />
 					<strong>Cantidad de gemas: </strong>
 					<g:field name="value1" maxlength="10" required="true" type="number" value="0" min="1" />

@@ -78,7 +78,7 @@ class BootStrap {
 	def crearEstudiantes(def facciones, def roles) {
 		def ret=[]
 		User user
-		user = new User(username: 'js.torres1', password:'L4m3nt0B0l', faccion: facciones[0], nombre: 'js.torres1')
+		user = new User(username: 'u.1', password:'12345', faccion: facciones[0], nombre: 'u.1')
 		user.faccion.miembros.add(user)
 		user.save(flush: true)
 		user.faccion.save(flush:true)

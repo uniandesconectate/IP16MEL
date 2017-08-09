@@ -42,8 +42,9 @@ class AppService
         JSONElement json
         User estudiante
 
-        json = motorService.getPlayerData(APP_TOKEN, idEstudiante).json
+        json = motorService.getPlayerData(APP_TOKEN, idEstudiante.replace('.', '-')).json
         estudiante = new User()
+        estudiante.username = idEstudiante
         estudiante.nombre = json.name
         estudiante.puntos = json.currencies.puntos.quantity
         estudiante.gemas = json.currencies.gemas.quantity
@@ -87,7 +88,7 @@ class AppService
         json.members.each{ mie ->
             miembro = new User()
             miembro.faccion = faccion
-            miembro.username = mie.id_in_app
+            miembro.username = mie.id_in_app.replace('-', '.')
             miembro.nombre = mie.name
             miembro.puntos = mie.currencies.puntos.quantity
             miembro.gemas = mie.currencies.gemas.quantity
@@ -129,7 +130,7 @@ class AppService
                         tm.members.each{ mie ->
                             miembro = new User()
                             miembro.faccion = faccion
-                            miembro.username = mie.id_in_app
+                            miembro.username = mie.id_in_app.replace('-', '.')
                             miembro.nombre = mie.name
                             miembro.puntos = mie.currencies.puntos.quantity
                             miembro.gemas = mie.currencies.gemas.quantity
@@ -159,9 +160,9 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.createPlayer(APP_TOKEN, idEstudiante, nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'ok') mensaje = 'El estudiante ha sido creado y asignado a la facción.'
-        else throw new ServicioException('Hubo un problema al crear el estudiante: ' + json.status.toString())
+        json = motorService.createPlayer(APP_TOKEN, idEstudiante.replace('.', '-'), nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
+        if(json.status == 'ok') mensaje = 'El estudiante ' + idEstudiante + ' ha sido creado y asignado a la facción ' + nombreFaccion
+        else throw new ServicioException('Hubo un problema al crear el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
         return mensaje
     }
@@ -177,9 +178,9 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.deletePlayer(APP_TOKEN, idEstudiante).json
-        if(json.success) mensaje = 'El estudiante ha sido eliminado.'
-        else throw new ServicioException('Hubo un problema al eliminar el estudiante: ' + json.status.toString())
+        json = motorService.deletePlayer(APP_TOKEN, idEstudiante.replace('.', '-')).json
+        if(json.success) mensaje = 'El estudiante ' + idEstudiante + ' ha sido eliminado.'
+        else throw new ServicioException('Hubo un problema al eliminar el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
         return mensaje
     }
@@ -196,8 +197,8 @@ class AppService
         String mensaje
 
         json = motorService.createTeam(APP_TOKEN, nombreFaccion, nombreFaccion.replaceAll(' ', '')).json
-        if(json.success) mensaje = 'La facción ha sido creada.'
-        else throw new ServicioException('Hubo un problema al crear la facción: ' + json.status.toString())
+        if(json.success) mensaje = 'La facción ' + nombreFaccion + ' ha sido creada.'
+        else throw new ServicioException('Hubo un problema al crear la facción ' + nombreFaccion + ': ' + json.status.toString())
 
         return mensaje
     }
@@ -214,28 +215,108 @@ class AppService
         String mensaje
 
         json = motorService.deleteTeam(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'This team was destroyed') mensaje = 'La facción ha sido eliminada.'
-        else throw new ServicioException('Hubo un problema al eliminar la facción: ' + json.status.toString())
+        if(json.status == 'This team was destroyed') mensaje = 'La facción ' + nombreFaccion + ' ha sido eliminada.'
+        else throw new ServicioException('Hubo un problema al eliminar la facción ' + nombreFaccion + ': ' + json.status.toString())
 
         return mensaje
     }
 
     /***
      * Registra una prueba mecánica, cognitiva u honorífica del estudiante.
-     * @param prueba
+     * @param idPrueba
      * @param idEstudiante
      * @param puntaje
      * @return
      * @throws ServicioException
      */
-    String registrarPrueba(String prueba, String idEstudiante, int puntaje) throws ServicioException
+    String registrarPrueba(String idPrueba, String idEstudiante, int puntaje) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.completeMission(APP_TOKEN, prueba, idEstudiante, puntaje.toString(), '').json
-        if(json.success) mensaje = 'La prueba ' + prueba + ' ha sido registrada para el estudiante ' + idEstudiante
-        else throw new ServicioException('Hubo un problema al registrar la prueba ' + prueba + ' para el estudiante ' + idEstudiante + ': ' + json.status.toString())
+        if(puntaje > 0)
+        {
+            json = motorService.completeMission(APP_TOKEN, idPrueba, idEstudiante.replace('.', '-'), puntaje.toString(), '').json
+            if (json.success) mensaje = 'La prueba ' + idPrueba + ' ha sido registrada para el estudiante ' + idEstudiante
+            else throw new ServicioException('Hubo un problema al registrar la prueba ' + idPrueba + ' para el estudiante ' + idEstudiante + ': ' + json.status.toString())
+        }
+        else mensaje = 'La prueba ' + idPrueba + ' no se registró para el estudiante ' + idEstudiante + ' porque el puntaje es menor o igual a cero.'
+
+        return mensaje
+    }
+
+    /***
+     * Permite gastar gemas de un estudiante.
+     * @param idEstudiante
+     * @param cantidad
+     * @return
+     * @throws ServicioException
+     */
+    String gastarGemasEstudiante(String idEstudiante, int cantidad) throws ServicioException
+    {
+        JSONElement json
+        String mensaje
+
+        json = motorService.spendPlayerCurrencies(APP_TOKEN, 'gemas', cantidad.toString(), idEstudiante.replace('.', '-')).json
+        if(json.success) mensaje = 'Se han gastado ' + cantidad + ' gemas del estudiante ' + idEstudiante
+        else if(json.status == 'Not enough currencies to spend') throw new ServicioException('El estudiante ' + idEstudiante + ' no tiene ' + cantidad + ' gemas para gastar.')
+        else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' gemas del estudiante ' + idEstudiante + ': ' + json.status.toString())
+
+        return mensaje
+    }
+
+    /***
+     * Permite gastar gemas de un grupo de estudiantes.
+     * @param idEstudiantes
+     * @param cantidades
+     * @return
+     * @throws ServicioException
+     */
+    String gastarGemasGrupo(ArrayList<String> idEstudiantes, ArrayList<Integer> cantidades) throws ServicioException
+    {
+        String mensaje
+        boolean comprar
+
+        if(idEstudiantes.size() != idEstudiantes.unique().size()) throw new ServicioException('El grupo tiene integrantes repetidos.')
+        comprar = true
+        for(int i = 0; i < idEstudiantes.size() && comprar; i++)
+        {
+            if(traerDatosEstudiante(idEstudiantes.get(i).replace('.', '-')).gemas < cantidades.get(i)) comprar = false
+        }
+        if(comprar)
+        {
+            mensaje = 'Se han gastado las gemas del grupo de la siguiente manera:'
+            System.out.println('gastarGemasGrupo:')
+            System.out.println(idEstudiantes.toString())
+            System.out.println(cantidades.toString())
+            for(int i = 0; i < idEstudiantes.size(); i++)
+            {
+                System.out.println(gastarGemasEstudiante(idEstudiantes.get(i), cantidades.get(i)) + ' (' + (i + 1).toString() + ' de ' + idEstudiantes.size().toString() + ')')
+                mensaje += ' ' + idEstudiantes.get(i) + ' gastó ' + cantidades.get(i) + ' gemas,'
+            }
+            mensaje = mensaje.substring(0, mensaje.length()-1) + '.'
+        }
+        else throw new ServicioException('El grupo no tiene las gemas suficientes.')
+
+        return mensaje
+    }
+
+    /***
+     * Permite gastar monedas de una facción.
+     * @param nombreFaccion
+     * @param cantidad
+     * @return
+     * @throws ServicioException
+     */
+    String gastarMonedasFaccion(String nombreFaccion, int cantidad) throws ServicioException
+    {
+        JSONElement json
+        String mensaje
+
+        json = motorService.spendTeamCurrencies(APP_TOKEN, 'monedas', cantidad.toString(), nombreFaccion.replaceAll(' ', '')).json
+        if(json.success) mensaje = 'Se han gastado ' + cantidad + ' monedas de la facción ' + nombreFaccion
+        else if(json.status == 'Not enough currencies') throw new ServicioException('La facción ' + nombreFaccion + ' no tiene ' + cantidad + ' monedas para gastar.')
+        else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' monedas de la facción ' + nombreFaccion + ': ' + json.status.toString())
 
         return mensaje
     }

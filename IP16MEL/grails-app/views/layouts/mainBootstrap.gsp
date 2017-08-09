@@ -16,7 +16,7 @@
 		<header>
 			<div class="container">
 				<div class="col-xs-12 col-md-8">
-					<h1><g:link uri="/">Matématica Estructural y Lógica</g:link></h1>
+					<h1><g:link controller="request" action="index">Matématica Estructural y Lógica</g:link></h1>
 				</div>
 				<sec:ifLoggedIn>
 					<div class="col-xs-12 col-md-4">

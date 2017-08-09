@@ -86,8 +86,7 @@
   <div class="container">
     <div class="col-xs-12 col-sm-8">
       <div class="boxFacciones">
-		<br />
-
+          <br />
           <ul class="nav nav-tabs">
               <li class="active"><a data-toggle="tab" href="#faccion1">A</a></li>
               <li><a data-toggle="tab" href="#faccion2">B</a></li>
@@ -120,7 +119,7 @@
                               </tr>
                               </thead>
                               <tbody>
-                              <g:each in="${faccion.miembros}" var="miembro" status="k">
+                              <g:each in="${faccion.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
                                   <tr>
                                       <td>${miembro.username}</td>
                                       <td>
