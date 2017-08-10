@@ -14,7 +14,7 @@ class AppService
     final static String APP_TOKEN = '210fd18fe01d086fe1f6ed60f789137b'
 
     // Tags de las pruebas mecánicas en el motor.
-    final static String[] CICLOS_MECANICOS = ['mq1', 'mq2', 'mq3', 'mq4', 'mq5', 'mq6', 'mq7', 'mq8']
+    final static String[] CICLOS_MECANICOS = ['mq1', 'mq2', 'mq3', 'mq4', 'mq5', 'mq6']
 
     // Tags de los rewards que otorgan estrellas en el motor.
     final static String[] REWARDS_ESTRELLAS = ['estrella_1', 'estrella_2', 'estrella_3', 'estrella_4', 'estrella_5']
@@ -27,7 +27,14 @@ class AppService
     final static String COGNITIVA_DIFICIL = 'cdq'
 
     // Número de quincenas del semestre.
-    int numeroQuincenas = 8
+    final static int NUM_QUINCENAS = 6
+
+    // Nombres de las currencies en el motor.
+    final static String GEMAS = 'gemas'
+    final static String MONEDAS = 'monedas'
+
+    // Parámetro para reinicio en cero de monedas de las facciones.
+    final static String PARM_MONEDAS = '1000000000'
 
     // Servicio para comunicarse con el motor de gamificación.
     def motorService
@@ -57,11 +64,11 @@ class AppService
                 it.rewards.awarded.each { it2 ->
                     if (it2.tag in REWARDS_ESTRELLAS)
                     {
-                        if(it2.tag != REWARDS_ESTRELLAS[4]) estudiante.estrellasSemanas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity - 1
-                        else estudiante.estrellasSemanas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity / 2
+                        if(it2.tag != REWARDS_ESTRELLAS[4]) estudiante.estrellasQuincenas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity - 1
+                        else estudiante.estrellasQuincenas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity / 2
                     }
                 }
-                estudiante.aporteSemanas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
+                estudiante.aporteQuincenas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
             }
         }
 
@@ -257,7 +264,7 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.spendPlayerCurrencies(APP_TOKEN, 'gemas', cantidad.toString(), idEstudiante.replace('.', '-')).json
+        json = motorService.spendPlayerCurrencies(APP_TOKEN, GEMAS, cantidad.toString(), idEstudiante.replace('.', '-')).json
         if(json.success) mensaje = 'Se han gastado ' + cantidad + ' gemas del estudiante ' + idEstudiante
         else if(json.status == 'Not enough currencies to spend') throw new ServicioException('El estudiante ' + idEstudiante + ' no tiene ' + cantidad + ' gemas para gastar.')
         else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' gemas del estudiante ' + idEstudiante + ': ' + json.status.toString())
@@ -313,10 +320,47 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.spendTeamCurrencies(APP_TOKEN, 'monedas', cantidad.toString(), nombreFaccion.replaceAll(' ', '')).json
+        json = motorService.spendTeamCurrencies(APP_TOKEN, MONEDAS, cantidad.toString(), nombreFaccion.replaceAll(' ', '')).json
         if(json.success) mensaje = 'Se han gastado ' + cantidad + ' monedas de la facción ' + nombreFaccion
         else if(json.status == 'Not enough currencies') throw new ServicioException('La facción ' + nombreFaccion + ' no tiene ' + cantidad + ' monedas para gastar.')
         else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' monedas de la facción ' + nombreFaccion + ': ' + json.status.toString())
+
+        return mensaje
+    }
+
+    /***
+     * Permite reiniciar en cero las monedas de una facción.
+     * @param nombreFaccion
+     * @return
+     * @throws ServicioException
+     */
+    String reiniciarMonedasFaccion(String nombreFaccion) throws ServicioException
+    {
+        String mensaje
+        JSONElement json
+
+        json = motorService.removeCurrenciesFromTeam(APP_TOKEN, MONEDAS, PARM_MONEDAS, nombreFaccion.replaceAll(' ', '')).json
+        if(json.success) mensaje = 'Se han reiniciado en cero las monedas de la facción ' + nombreFaccion
+        else throw new ServicioException('Hubo un problema al reiniciar las monedas de la facción ' + nombreFaccion + ': ' + json.status.toString())
+    }
+
+    /***
+     * Permite reiniciar en cero las monedas de todas las facciones de una sección.
+     * @param nombreSeccion
+     * @return
+     */
+    String reiniciarMonedasSeccion(String nombreSeccion)
+    {
+        String mensaje
+        Seccion seccion
+
+        seccion = traerSeccion(nombreSeccion)
+        mensaje = 'Se han reiniciado en cero las monedas de las siguientes facciones: '
+        seccion.facciones.each{
+            System.out.println(reiniciarMonedasFaccion(it.nombreFaccion))
+            mensaje += ' ' + it.nombreFaccion + ','
+        }
+        mensaje = mensaje.substring(0, mensaje.length()-1) + '.'
 
         return mensaje
     }

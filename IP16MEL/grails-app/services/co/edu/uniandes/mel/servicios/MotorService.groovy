@@ -211,23 +211,6 @@ class MotorService
     }
 
     /***
-     * Permite restar una cantidad de un tipo de moneda a un jugador.
-     * @param app
-     * @param idCurrency
-     * @param quantity
-     * @param idPlayer
-     * @return
-     */
-    RestResponse removeCurrenciesFromPlayer(String app, String idCurrency, String quantity, String idPlayer)
-    {
-        RestBuilder rest
-        RestResponse resp
-        rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/currencies/remove?currencies[" + idCurrency + "]=" + quantity + "&id_in_app=" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
-        return resp
-    }
-
-    /***
      * Permite gastar una cantidad de un tipo de moneda de un jugador.
      * @param app
      * @param idCurrency
@@ -274,6 +257,40 @@ class MotorService
         RestResponse resp
         rest = new RestBuilder()
         resp = rest.post("http://playngage.io/api/v2/teams?name=" + name + "&tag=" + idTeam) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    /***
+     * Permite restar una cantidad de un tipo de moneda a un jugador.
+     * @param app
+     * @param idCurrency
+     * @param quantity
+     * @param idPlayer
+     * @return
+     */
+    RestResponse removeCurrenciesFromPlayer(String app, String idCurrency, String quantity, String idPlayer)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.post("http://playngage.io/api/currencies/remove?currencies[" + idCurrency + "]=-" + quantity + "&id_in_app=" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        return resp
+    }
+
+    /***
+     * Permite restar una cantidad de un tipo de moneda a un equipo.
+     * @param app
+     * @param idCurrency
+     * @param quantity
+     * @param idTeam
+     * @return
+     */
+    RestResponse removeCurrenciesFromTeam(String app, String idCurrency, String quantity, String idTeam)
+    {
+        RestBuilder rest
+        RestResponse resp
+        rest = new RestBuilder()
+        resp = rest.post("http://playngage.io/api/v2/teams/" + idTeam + "/currencies?currencies[" + idCurrency + "]=-" + quantity) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 

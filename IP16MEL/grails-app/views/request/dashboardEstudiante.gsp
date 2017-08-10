@@ -28,7 +28,7 @@
     <div class="col-xs-12 col-sm-4">
       <div class="boxSem">
 		<br />
-        <!--  TABLA SEMANA -->
+        <!--  TABLA QUINCENA -->
         <table width="100%" cellpadding="0" cellspacing="0">
           <thead>
             <tr>
@@ -36,18 +36,18 @@
                 <i class="fa fa-calendar" aria-hidden="true"></i>
               </th>
               <th>
-                Estrellas ganadas por semana
+                Estrellas ganadas por quincena
               </th>
               <th>
-                Aporte a mi facción por semana
+                Aporte a mi facción por quincena
               </th>
             </tr>
           </thead>
           <tbody>
-          	<g:each in="${semanas}" var="semana" status="i">
+          	<g:each in="${quincenas}" var="quincena" status="i">
 	            <!-- item -->
 	            <tr>
-	              <td>${semana}</td>
+	              <td>${quincena}</td>
 	              <td>
 	                <i class="fa fa-star" aria-hidden="true"></i> X ${estrellas[i]}
 	              </td>
@@ -73,7 +73,7 @@
             </tr>
           </tfoot>
         </table>
-        <!--  TABLA SEMANA -->
+        <!--  TABLA QUINCENA -->
       </div>
     </div>
   </div>  

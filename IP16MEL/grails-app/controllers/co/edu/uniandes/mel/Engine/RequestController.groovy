@@ -55,7 +55,7 @@ class RequestController
 	def dashboard()
     {
         User user
-        def semanas = []
+        def quincenas = []
         def estrellas = []
         def porcentajes = []
         Faccion[] facciones = []
@@ -64,14 +64,14 @@ class RequestController
         {
             user = appService.traerDatosEstudiante(springSecurityService.getCurrentUser().nombre.toString())
             // Instancia datos del usuario y de su pestaña individual
-            for (int i = 0; i < appService.numeroQuincenas; i++)
+            for (int i = 0; i < appService.NUM_QUINCENAS; i++)
             {
-                semanas.add(i + 1)
-                estrellas.add(user.estrellasSemanas[i])
-                porcentajes.add(user.aporteSemanas[i])
+                quincenas.add(i + 1)
+                estrellas.add(user.estrellasQuincenas[i])
+                porcentajes.add(user.aporteQuincenas[i])
             }
             facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
-            [userName: user.username, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, facciones: facciones]
+            [userName: user.username, user: user, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, facciones: facciones]
         }
         catch(Exception ex)
         {
@@ -82,7 +82,7 @@ class RequestController
 	def dashboardEstudiante()
 	{
 		User user
-		def semanas = []
+		def quincenas = []
 		def estrellas = []
 		def porcentajes = []
         Faccion[] facciones = []
@@ -93,16 +93,16 @@ class RequestController
             if (user != null)
             {
                 // Instancia datos del usuario y de su pestaña individual
-                for (int i = 0; i < appService.numeroQuincenas; i++)
+                for (int i = 0; i < appService.NUM_QUINCENAS; i++)
                 {
-                    semanas.add(i + 1)
-                    estrellas.add(user.estrellasSemanas[i])
-                    porcentajes.add(user.aporteSemanas[i])
+                    quincenas.add(i + 1)
+                    estrellas.add(user.estrellasQuincenas[i])
+                    porcentajes.add(user.aporteQuincenas[i])
                 }
                 facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
             }
             else user = springSecurityService.getCurrentUser()
-            [userName: springSecurityService.getCurrentUser().username, user: user, semanas: semanas, estrellas: estrellas, porcentajes: porcentajes, users: estudiantesProf, facciones: facciones]
+            [userName: springSecurityService.getCurrentUser().username, user: user, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, users: estudiantesProf, facciones: facciones]
         }
         catch(Exception ex)
         {
@@ -124,23 +124,27 @@ class RequestController
 	
 	def comprarFaccionSave()
     {
-		String message
+		String mensaje
 		Integer value
 
         try
         {
             value = params.int('value1')
-            message = appService.gastarMonedasFaccion(params['faccionId'].toString(), value)
-            message = 'La compra del poder ha sido exitosa. ' + message
-            [userName: springSecurityService.getCurrentUser().username, message: message]
+            mensaje = appService.gastarMonedasFaccion(params['faccionId'].toString(), value)
+            mensaje = 'La compra del poder ha sido exitosa. ' + mensaje
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
-            [userName: springSecurityService.getCurrentUser().username, message: 'No se compró el poder. ' + ex.message]
+            mensaje = 'No se compró el poder. ' + ex.message
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            System.out.println(ex.message)
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.message + "</p>")
         }
         finally
         {
@@ -164,7 +168,7 @@ class RequestController
 
 	def comprarEnGrupoSave()
     {
-		String message
+		String mensaje
 		Integer value1
 		Integer value2
         ArrayList<String> idEstudiantes
@@ -178,16 +182,20 @@ class RequestController
             cantidades = new ArrayList<Integer>()
             idEstudiantes.addAll([params['userId1'], params['userId2']] as String[])
             cantidades.addAll([value1, value2] as Integer[])
-            message = appService.gastarGemasGrupo(idEstudiantes, cantidades)
-            message = 'La compra de la ayuda ha sido exitosa. ' + message
-            [userName: springSecurityService.getCurrentUser().username, message: message]
+            mensaje = appService.gastarGemasGrupo(idEstudiantes, cantidades)
+            mensaje = 'La compra de la ayuda ha sido exitosa. ' + mensaje
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
-            [userName: springSecurityService.getCurrentUser().username, message: 'No se compró la ayuda. ' + ex.message]
+            mensaje = 'No se compró la ayuda. ' + ex.message
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
+            System.out.println(ex.message)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -212,22 +220,26 @@ class RequestController
 
 	def comprarEjerciciosSave()
     {
-		String message
+		String mensaje
 		Integer value
 
         try
         {
             value = params.int('value1')
-            message = appService.gastarGemasEstudiante(params['userId1'].toString(), value)
-            message = 'La compra del ejercicio ha sido exitosa. ' + message
-            [userName: springSecurityService.getCurrentUser().username, message: message]
+            mensaje = appService.gastarGemasEstudiante(params['userId1'].toString(), value)
+            mensaje = 'La compra del ejercicio ha sido exitosa. ' + mensaje
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
-            [userName: springSecurityService.getCurrentUser().username, message: 'No se compró el ejercicio. ' + ex.message]
+            mensaje = 'No se compró el ejercicio. ' + ex.message
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
+            System.out.println(ex.getMessage())
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -290,24 +302,28 @@ class RequestController
             quincena = Integer.parseInt(prueba.subSequence(2,4))
             if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
             score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
-            if (tipoPrueba == 'M')
+            if(quincena >= 1 && quincena <= 6)
             {
-                mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                if (tipoPrueba == 'M')
+                {
+                    mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
+                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                }
+                else if (tipoPrueba == 'C')
+                {
+                    numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
+                    if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId, score.toInteger())
+                    else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId, score.toInteger())
+                    else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId, score.toInteger())
+                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                }
+                else if (tipoPrueba == 'H')
+                {
+                    mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId, score.toInteger())
+                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                }
             }
-            else if (tipoPrueba == 'C')
-            {
-                numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
-                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId, score.toInteger())
-                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId, score.toInteger())
-                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
-            }
-            else if (tipoPrueba == 'H')
-            {
-                mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
-            }
+            else System.out.println("Usuario: " + userId + " (prueba Sicua: " + prueba + ") - Registro ignorado porque no se encuentra entre las quincenas 1 y 6")
         }
         catch(ServicioException ex)
         {
@@ -359,6 +375,7 @@ class RequestController
         }
         catch(Exception ex)
         {
+            System.out.println(ex.getMessage())
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -402,6 +419,43 @@ class RequestController
         }
         catch(Exception ex)
         {
+            System.out.println(ex.getMessage())
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+        finally
+        {
+            estudiantesProf = []
+            faccionesProf = []
+            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+        }
+    }
+
+    def reiniciarMonedas()
+    {
+        try
+        {
+            [userName: springSecurityService.getCurrentUser().username, secciones: Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }]
+        }
+        catch(Exception ex)
+        {
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+    }
+
+    def reiniciarMonedasSave()
+    {
+        String mensaje
+
+        try
+        {
+            mensaje = appService.reiniciarMonedasSeccion(params['nombreSeccion'].toString())
+            mensaje = 'El reinicio de monedas ha sido exitoso. ' + mensaje
+            System.out.println(mensaje)
+            [userName: springSecurityService.getCurrentUser().username, message: mensaje]
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.message)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -421,15 +475,15 @@ class RequestController
 			usuario.gemas = random.nextInt(9)+1
 			usuario.puntos = random.nextInt(99)+1
 			for(int i=0;i<3;i++) {
-				usuario.estrellasSemanas[i] = random.nextInt(4)+1 
-				usuario.aporteSemanas[i] = random.nextInt(70) + 30
+				usuario.estrellasQuincenas[i] = random.nextInt(4)+1
+				usuario.aporteQuincenas[i] = random.nextInt(70) + 30
 			}
 			usuario.faccion.puntos += usuario.puntos
 			usuario.faccion.monedas += random.nextInt(50)
 		}
 		redirect uri: "/"
 	}
-	
+
 	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
 	//http://localhost:8080/IP16MEL/request/llenarDatosPrueabMel
 	def llenarDatosPrueabMel() {
@@ -438,8 +492,8 @@ class RequestController
 		def facciones = Faccion.findAll{}.sort(false){it.id}
 		def roles = Role.findAll{}.sort(false){it.id}
 		//usuario.faccion = Faccion.findAll{}.sort(false){it.id}[0]
-      
-      
+
+
 		redirect uri: "/"
 	}
 }

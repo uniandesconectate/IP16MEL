@@ -7,7 +7,7 @@
 		<section>
 			<div class="container">
 				<h1>${message}</h1>
-				<g:link url="/IP16MEL">Menú principal</g:link>
+				<g:link controller="request" action="index">Menú principal</g:link>
 			</div>
 		</section>
 	</body>
