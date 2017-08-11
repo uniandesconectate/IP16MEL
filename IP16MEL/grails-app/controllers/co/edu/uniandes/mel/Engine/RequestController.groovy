@@ -296,14 +296,14 @@ class RequestController
 
         try
         {
-            userId = linea[0]
             prueba = linea[6]
-            tipoPrueba = prueba.subSequence(0,1)
-            quincena = Integer.parseInt(prueba.subSequence(2,4))
-            if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
-            score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
-            if(quincena >= 1 && quincena <= 6)
+            userId = linea[0]
+            if(prueba in appService.TAGS_SICUA)
             {
+                tipoPrueba = prueba.subSequence(0,1)
+                quincena = Integer.parseInt(prueba.subSequence(2,4))
+                if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
+                score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
                 if (tipoPrueba == 'M')
                 {
                     mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
@@ -323,7 +323,7 @@ class RequestController
                     System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
                 }
             }
-            else System.out.println("Usuario: " + userId + " (prueba Sicua: " + prueba + ") - Registro ignorado porque no se encuentra entre las quincenas 1 y 6")
+            else System.out.println("Usuario: " + userId + " (tag Sicua: " + prueba + ") - Registro ignorado porque no tiene tag de Sicua válido.")
         }
         catch(ServicioException ex)
         {

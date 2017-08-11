@@ -19,6 +19,13 @@ class AppService
     // Tags de los rewards que otorgan estrellas en el motor.
     final static String[] REWARDS_ESTRELLAS = ['estrella_1', 'estrella_2', 'estrella_3', 'estrella_4', 'estrella_5']
 
+    // Tags de las pruebas en Sicua.
+    final static String[] TAGS_SICUA = ['MQ01', 'MQ02', 'MQ03', 'MQ04', 'MQ05', 'MQ06',
+                                        'HQ01', 'HQ02', 'HQ03', 'HQ04', 'HQ05', 'HQ06',
+                                        'CQ01P01', 'CQ02P01', 'CQ03P01', 'CQ04P01', 'CQ05P01', 'CQ06P01',
+                                        'CQ01P02', 'CQ02P02', 'CQ03P02', 'CQ04P02', 'CQ05P02', 'CQ06P02',
+                                        'CQ01P03', 'CQ02P03', 'CQ03P03', 'CQ04P03', 'CQ05P03', 'CQ06P03']
+
     // Prefijos de las pruebas en el motor.
     final static String MECANICA = 'mq'
     final static String HONORIFICA = 'hq'
