@@ -264,7 +264,7 @@ class RequestController
             {
 				line = line.replaceAll("\"", "")
 				linea = line.split(cvsSplitBy)
-				if(linea[6].startsWith("MQ") || linea[6].startsWith("HQ") || linea[6].startsWith("CQ")) proceseLinea(linea)
+				if(linea[6] in appService.TAGS_SICUA) proceseLinea(linea)
 			}
 		}
         finally
@@ -298,32 +298,28 @@ class RequestController
         {
             prueba = linea[6]
             userId = linea[0]
-            if(prueba in appService.TAGS_SICUA)
+            tipoPrueba = prueba.subSequence(0,1)
+            quincena = Integer.parseInt(prueba.subSequence(2,4))
+            if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
+            score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
+            if (tipoPrueba == 'M')
             {
-                tipoPrueba = prueba.subSequence(0,1)
-                quincena = Integer.parseInt(prueba.subSequence(2,4))
-                if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
-                score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
-                if (tipoPrueba == 'M')
-                {
-                    mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
-                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
-                }
-                else if (tipoPrueba == 'C')
-                {
-                    numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
-                    if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId, score.toInteger())
-                    else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId, score.toInteger())
-                    else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId, score.toInteger())
-                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
-                }
-                else if (tipoPrueba == 'H')
-                {
-                    mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId, score.toInteger())
-                    System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
-                }
+                mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
             }
-            else System.out.println("Usuario: " + userId + " (tag Sicua: " + prueba + ") - Registro ignorado porque no tiene tag de Sicua válido.")
+            else if (tipoPrueba == 'C')
+            {
+                numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
+                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId, score.toInteger())
+                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId, score.toInteger())
+                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+            }
+            else if (tipoPrueba == 'H')
+            {
+                mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+            }
         }
         catch(ServicioException ex)
         {
