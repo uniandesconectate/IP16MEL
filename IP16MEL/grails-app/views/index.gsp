@@ -48,7 +48,7 @@
 				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
 				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
 				<g:link controller="request" action="solicitarArchivo">Cargar juego</g:link><br />
-                <g:link controller="request" action="editarEstudiantes">Cargar estudiantes</g:link><br />
+                <g:link controller="request" action="editarUsuarios">Cargar usuarios</g:link><br />
                 <g:link controller="request" action="reiniciarMonedas">Reiniciar monedas de una sección</g:link><br />
 		</div>
 	</sec:ifLoggedIn>

@@ -154,3 +154,4 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 
 co.edu.uniandes.login.role.admin = "ROLE_ADMIN"
 co.edu.uniandes.login.role.student = "ROLE_STUDENT"
+co.edu.uniandes.login.role.superadmin = "ROLE_SUPERADMIN"

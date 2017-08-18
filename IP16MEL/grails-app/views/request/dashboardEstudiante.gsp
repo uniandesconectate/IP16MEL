@@ -10,7 +10,7 @@
 		<g:form url="[action:'stAssesmentCourseGrades']" method="POST" >
 		
 				<strong>Actividad: </strong>
-				<g:select from="${users}" name="username" optionValue="${{it.nombre +' '+it.faccion.nombreFaccion}}" optionKey="username" noSelection="${['Empty':'Elegir uno']}" />
+				<g:select from="${estudiantes.sort{it.user.username}}" name="username" optionValue="${{it.nombre + ' ('+it.faccion.nombreFaccion + ')'}}" optionKey="${{it.user.username}}" noSelection="${['Empty':'Elegir uno']}" />
 				<g:actionSubmit class="btn btn-green" action="dashboardEstudiante" value="Enviar" />
 				<br />
 				<br />
@@ -65,10 +65,10 @@
           <tfoot>
             <tr>
               <td colspan="2">
-                <span class="gem">${user.gemas} - Puntos: ${user.puntos}</span>
+                <span class="gem">${estudiante.gemas} - Puntos: ${estudiante.puntos}</span>
               </td>
               <td>
-                <span class="med">${user.medallas}</span>
+                <span class="med">${estudiante.medallas}</span>
               </td>
             </tr>
           </tfoot>
@@ -121,7 +121,7 @@
                               <tbody>
                               <g:each in="${faccion.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
                                   <tr>
-                                      <td>${miembro.username}</td>
+                                      <td>${miembro.user.username}</td>
                                       <td>
                                           <g:set var="counter" value="${0}"/>
                                           <g:while test="${counter < miembro.medallas}">

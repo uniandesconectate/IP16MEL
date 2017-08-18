@@ -1,15 +1,14 @@
 package co.edu.uniandes.login
 
-class Seccion {
+class Seccion
+{
 	
 	String nombre
-	User profesor
 	
-	static hasMany = [facciones: Faccion, estudiantes: User]
+	static hasMany = [facciones: Faccion, estudiantes: Estudiante]
 
     static constraints = {
 		nombre size: 1..200, blank: false
-		profesor nullable: true
 		facciones()
 		estudiantes()
     }

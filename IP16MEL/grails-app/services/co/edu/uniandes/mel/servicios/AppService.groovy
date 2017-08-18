@@ -1,5 +1,6 @@
 package co.edu.uniandes.mel.servicios
 
+import co.edu.uniandes.login.Estudiante
 import co.edu.uniandes.login.Faccion
 import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.login.User
@@ -51,14 +52,15 @@ class AppService
      * @param idEstudiante
      * @return
      */
-    User traerDatosEstudiante(String idEstudiante)
+    Estudiante traerDatosEstudiante(String idEstudiante)
     {
         JSONElement json
-        User estudiante
+        Estudiante estudiante
 
-        json = motorService.getPlayerData(APP_TOKEN, idEstudiante.replace('.', '-')).json
-        estudiante = new User()
-        estudiante.username = idEstudiante
+        json = motorService.getPlayerData(APP_TOKEN, idEstudiante.replace('.', '*')).json
+        estudiante = new Estudiante()
+        estudiante.user = new User()
+        estudiante.user.username = idEstudiante
         estudiante.nombre = json.name
         estudiante.puntos = json.currencies.puntos.quantity
         estudiante.gemas = json.currencies.gemas.quantity
@@ -91,7 +93,7 @@ class AppService
     {
         JSONElement json
         Faccion faccion
-        User miembro
+        Estudiante miembro
 
         json = motorService.getTeamData(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
         faccion = new Faccion()
@@ -100,9 +102,10 @@ class AppService
         faccion.puntos = json.currencies.player_totals.puntos.quantity
         faccion.miembros = []
         json.members.each{ mie ->
-            miembro = new User()
+            miembro = new Estudiante()
+            miembro.user = new User()
             miembro.faccion = faccion
-            miembro.username = mie.id_in_app.replace('-', '.')
+            miembro.user.username = mie.id_in_app.replace('*', '.')
             miembro.nombre = mie.name
             miembro.puntos = mie.currencies.puntos.quantity
             miembro.gemas = mie.currencies.gemas.quantity
@@ -123,7 +126,7 @@ class AppService
         JSONElement json
         Seccion seccion
         Faccion faccion
-        User miembro
+        Estudiante miembro
 
         json = motorService.getTeams(APP_TOKEN).json
         seccion = new Seccion()
@@ -142,9 +145,10 @@ class AppService
                         faccion.monedas = tm.currencies.team_currencies.monedas.quantity
                         faccion.miembros = []
                         tm.members.each{ mie ->
-                            miembro = new User()
+                            miembro = new Estudiante()
+                            miembro.user = new User()
                             miembro.faccion = faccion
-                            miembro.username = mie.id_in_app.replace('-', '.')
+                            miembro.user.username = mie.id_in_app.replace('*', '.')
                             miembro.nombre = mie.name
                             miembro.puntos = mie.currencies.puntos.quantity
                             miembro.gemas = mie.currencies.gemas.quantity
@@ -174,7 +178,7 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.createPlayer(APP_TOKEN, idEstudiante.replace('.', '-'), nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
+        json = motorService.createPlayer(APP_TOKEN, idEstudiante.replace('.', '*'), nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
         if(json.status == 'ok') mensaje = 'El estudiante ' + idEstudiante + ' ha sido creado y asignado a la facción ' + nombreFaccion
         else throw new ServicioException('Hubo un problema al crear el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
@@ -192,7 +196,7 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.deletePlayer(APP_TOKEN, idEstudiante.replace('.', '-')).json
+        json = motorService.deletePlayer(APP_TOKEN, idEstudiante.replace('.', '*')).json
         if(json.success) mensaje = 'El estudiante ' + idEstudiante + ' ha sido eliminado.'
         else throw new ServicioException('Hubo un problema al eliminar el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
@@ -250,7 +254,7 @@ class AppService
 
         if(puntaje > 0)
         {
-            json = motorService.completeMission(APP_TOKEN, idPrueba, idEstudiante.replace('.', '-'), puntaje.toString(), '').json
+            json = motorService.completeMission(APP_TOKEN, idPrueba, idEstudiante.replace('.', '*'), puntaje.toString(), '').json
             if (json.success) mensaje = 'La prueba ' + idPrueba + ' ha sido registrada para el estudiante ' + idEstudiante
             else throw new ServicioException('Hubo un problema al registrar la prueba ' + idPrueba + ' para el estudiante ' + idEstudiante + ': ' + json.status.toString())
         }
@@ -271,7 +275,7 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.spendPlayerCurrencies(APP_TOKEN, GEMAS, cantidad.toString(), idEstudiante.replace('.', '-')).json
+        json = motorService.spendPlayerCurrencies(APP_TOKEN, GEMAS, cantidad.toString(), idEstudiante.replace('.', '*')).json
         if(json.success) mensaje = 'Se han gastado ' + cantidad + ' gemas del estudiante ' + idEstudiante
         else if(json.status == 'Not enough currencies to spend') throw new ServicioException('El estudiante ' + idEstudiante + ' no tiene ' + cantidad + ' gemas para gastar.')
         else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' gemas del estudiante ' + idEstudiante + ': ' + json.status.toString())
@@ -295,7 +299,7 @@ class AppService
         comprar = true
         for(int i = 0; i < idEstudiantes.size() && comprar; i++)
         {
-            if(traerDatosEstudiante(idEstudiantes.get(i).replace('.', '-')).gemas < cantidades.get(i)) comprar = false
+            if(traerDatosEstudiante(idEstudiantes.get(i).replace('.', '*')).gemas < cantidades.get(i)) comprar = false
         }
         if(comprar)
         {

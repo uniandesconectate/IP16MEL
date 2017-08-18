@@ -43,8 +43,8 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="2"><span class="gem">${user.gemas} - Puntos: ${user.puntos}</span></td>
-                                            <td><span class="med">${user.medallas}</span></td>
+                                            <td colspan="2"><span class="gem">${estudiante.gemas} - Puntos: ${estudiante.puntos}</span></td>
+                                            <td><span class="med">${estudiante.medallas}</span></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -88,7 +88,7 @@
                                                     <tbody>
                                                         <g:each in="${faccion.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
                                                             <tr>
-                                                                <td>${miembro.username}</td>
+                                                                <td>${miembro.user.username}</td>
                                                                 <td>
                                                                     <g:set var="counter" value="${0}"/>
                                                                     <g:while test="${counter < miembro.medallas}">

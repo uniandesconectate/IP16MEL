@@ -35,7 +35,7 @@ environments {
     }
     test {
         dataSource {
-            dbCreate = "update"
+            dbCreate = ""
 //            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 		    url = "jdbc:mysql://localhost:3306/dbip16mel?characterEncoding=utf8"
         }
@@ -44,7 +44,7 @@ environments {
         dataSource {
 
 		    //pooled = true
-		    dbCreate = "update"
+		    dbCreate = ""
 		    url = "jdbc:mysql://localhost:3306/dbip16mel?characterEncoding=utf8"
 		    driverClassName = "com.mysql.jdbc.Driver"
 		    username = "usdbip16mel"

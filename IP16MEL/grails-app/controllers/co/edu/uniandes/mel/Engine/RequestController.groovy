@@ -1,5 +1,8 @@
 package co.edu.uniandes.mel.Engine
 
+import co.edu.uniandes.login.Administrador
+import co.edu.uniandes.login.Estudiante
+import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.mel.excepciones.ServicioException
 import org.springframework.web.multipart.MultipartFile
 
@@ -7,12 +10,9 @@ import co.edu.uniandes.login.Faccion
 import co.edu.uniandes.login.Role
 import co.edu.uniandes.login.User
 import co.edu.uniandes.login.UserRole
-import co.edu.uniandes.login.Seccion
-import grails.transaction.Transactional
 import grails.plugin.springsecurity.annotation.Secured
 
-@Secured(['ROLE_ADMIN'])
-@Transactional
+@Secured(['ROLE_ADMIN', 'ROLE_SUPERADMIN'])
 class RequestController
 {
 
@@ -25,13 +25,16 @@ class RequestController
     // Servicio de aplicación MEL gamificada.
     def appService
 
-    // Listado de estudiantes de todas las secciones del profesor.
-    User[] estudiantesProf = []
+    // Listado de estudiantes de todas las secciones del profesores.
+    Estudiante[] estudiantesProf = []
 
-    // Listado de facciones de todas las secciones del profesor.
+    // Listado de facciones de todas las secciones del profesores.
     Faccion[] faccionesProf = []
 
-	@Secured(['ROLE_STUDENT','ROLE_ADMIN'])
+    // Username del último usuario que ingresó a la aplicación.
+    String lstUsuario
+
+	@Secured(['ROLE_STUDENT','ROLE_ADMIN','ROLE_SUPERADMIN'])
 	def index()
     {
         try
@@ -39,7 +42,13 @@ class RequestController
             User currentUser = springSecurityService.getCurrentUser()
             UserRole role = UserRole.find { user.id == currentUser.id && role.authority == "ROLE_STUDENT" }
             if (role != null) redirect action: 'dashboard'
-            if(estudiantesProf.length == 0 || faccionesProf.length == 0) Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            if(estudiantesProf.length == 0 || faccionesProf.length == 0 || lstUsuario != springSecurityService.getCurrentUser().username)
+            {
+                lstUsuario = springSecurityService.getCurrentUser().username
+                estudiantesProf = []
+                faccionesProf = []
+                Administrador.findByUser(currentUser).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            }
             [userName: currentUser.username]
         }
         catch(Exception ex)
@@ -54,7 +63,7 @@ class RequestController
 	@Secured(['ROLE_STUDENT'])
 	def dashboard()
     {
-        User user
+        Estudiante estudiante
         def quincenas = []
         def estrellas = []
         def porcentajes = []
@@ -62,16 +71,16 @@ class RequestController
 
         try
         {
-            user = appService.traerDatosEstudiante(springSecurityService.getCurrentUser().nombre.toString())
+            estudiante = appService.traerDatosEstudiante(springSecurityService.getCurrentUser().username.toString())
             // Instancia datos del usuario y de su pestaña individual
             for (int i = 0; i < appService.NUM_QUINCENAS; i++)
             {
                 quincenas.add(i + 1)
-                estrellas.add(user.estrellasQuincenas[i])
-                porcentajes.add(user.aporteQuincenas[i])
+                estrellas.add(estudiante.estrellasQuincenas[i])
+                porcentajes.add(estudiante.aporteQuincenas[i])
             }
-            facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
-            [userName: user.username, user: user, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, facciones: facciones]
+            facciones = appService.traerSeccion(estudiante.faccion.nombreFaccion.substring(0, 9)).facciones
+            [userName: estudiante.user.username, estudiante: estudiante, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, facciones: facciones]
         }
         catch(Exception ex)
         {
@@ -81,7 +90,7 @@ class RequestController
 	
 	def dashboardEstudiante()
 	{
-		User user
+		Estudiante estudiante
 		def quincenas = []
 		def estrellas = []
 		def porcentajes = []
@@ -89,20 +98,20 @@ class RequestController
 
         try
         {
-            if (params['username'] != null) user = appService.traerDatosEstudiante(params['username'].toString())
-            if (user != null)
+            if (params['username'] != null) estudiante = appService.traerDatosEstudiante(params['username'].toString())
+            if (estudiante != null)
             {
                 // Instancia datos del usuario y de su pestaña individual
                 for (int i = 0; i < appService.NUM_QUINCENAS; i++)
                 {
                     quincenas.add(i + 1)
-                    estrellas.add(user.estrellasQuincenas[i])
-                    porcentajes.add(user.aporteQuincenas[i])
+                    estrellas.add(estudiante.estrellasQuincenas[i])
+                    porcentajes.add(estudiante.aporteQuincenas[i])
                 }
-                facciones = appService.traerSeccion(user.faccion.nombreFaccion.substring(0, 9)).facciones
+                facciones = appService.traerSeccion(estudiante.faccion.nombreFaccion.substring(0, 9)).facciones
             }
-            else user = springSecurityService.getCurrentUser()
-            [userName: springSecurityService.getCurrentUser().username, user: user, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, users: estudiantesProf, facciones: facciones]
+            else estudiante = new Estudiante(user: new User())
+            [userName: springSecurityService.getCurrentUser().username, estudiante: estudiante, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, estudiantes: estudiantesProf, facciones: facciones]
         }
         catch(Exception ex)
         {
@@ -150,7 +159,7 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
 	}
 
@@ -158,7 +167,7 @@ class RequestController
     {
         try
         {
-            [userName: springSecurityService.getCurrentUser().username, users: estudiantesProf.sort(false) { it.nombre }]
+            [userName: springSecurityService.getCurrentUser().username, estudiantes: estudiantesProf.sort(false) { it.nombre }]
         }
         catch(Exception ex)
         {
@@ -202,7 +211,7 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
 	}
 
@@ -210,7 +219,7 @@ class RequestController
 	{
         try
         {
-            [userName: springSecurityService.getCurrentUser().username, users: estudiantesProf.sort(false) { it.nombre }]
+            [userName: springSecurityService.getCurrentUser().username, estudiantes: estudiantesProf.sort(false) { it.nombre }]
         }
         catch(Exception ex)
         {
@@ -246,7 +255,7 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
 	}
 
@@ -326,7 +335,8 @@ class RequestController
             System.out.println("Usuario: " + userId + " - Error: " + ex.message)
         }
 	}
-	
+
+    @Secured(['ROLE_SUPERADMIN'])
 	def solicitarArchivo()
     {
         try
@@ -341,7 +351,8 @@ class RequestController
         }
 	}
 
-    def editarEstudiantes()
+    @Secured(['ROLE_SUPERADMIN'])
+    def editarUsuarios()
     {
         try
         {
@@ -352,7 +363,8 @@ class RequestController
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
     }
-	
+
+    @Secured(['ROLE_SUPERADMIN'])
 	def cargarInformacion()
     {
         try
@@ -378,10 +390,11 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
 	}
 
+    @Secured(['ROLE_SUPERADMIN'])
     def cargarEstudiantes()
     {
         String nombreArchivo
@@ -393,6 +406,8 @@ class RequestController
         String message
         String[] linea
         ArrayList<String[]> registros = new ArrayList<String[]>()
+        User user
+        Estudiante estudiante
 
         try
         {
@@ -408,9 +423,31 @@ class RequestController
             }
             br.close()
             registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
-            registros.each{ try {message = appService.eliminarFaccion('Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
-            registros.each{ try {message = appService.crearFaccion('Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
-            registros.each{ try {message = appService.crearEstudiante(it[0], it[2] + ' ' + it[1], it[0] + '@uniandes.edu.co', 'Seccion ' + it[3] + ' Faccion ' + it[4]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.eliminarFaccion('Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.crearFaccion('Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{
+                try
+                {
+                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)
+                    user = User.findByUsername(it[0])
+                    if(user == null)
+                    {
+                        user = new User(username: it[0], password: 'L4m3nt0B0l')
+                        user.save(flush: true)
+                    }
+                    estudiante = Estudiante.findByUser(user)
+                    if(estudiante != null) estudiante.delete()
+                    estudiante = new Estudiante()
+                    estudiante.nombre = it[0]
+                    estudiante.user = user
+                    estudiante.save(flush: true)
+                    UserRole.create estudiante.user, Role.get(2), true
+                }
+                catch(ServicioException ex)
+                {
+                    System.out.println(ex.message)
+                }
+            }
             redirect(action: 'index')
         }
         catch(Exception ex)
@@ -422,15 +459,80 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
     }
 
+    @Secured(['ROLE_SUPERADMIN'])
+    def cargarProfesores()
+    {
+        String nombreArchivo
+        File archivoLocal
+        BufferedReader br
+        String line
+        String cvsSplitBy = ";"
+        MultipartFile archivo = request.getFile('archivo')
+        String[] linea
+        ArrayList<String[]> registros = new ArrayList<String[]>()
+        User user
+        Administrador profesor
+        Seccion seccion
+
+        try
+        {
+            nombreArchivo = grailsApplication.config.co.edu.uniandes.uploadfolder + archivo.getOriginalFilename()
+            archivoLocal = new File(nombreArchivo)
+            archivo.transferTo(archivoLocal)
+            br = new BufferedReader(new FileReader(nombreArchivo))
+            br.readLine()
+            while((line = br.readLine()) != null)
+            {
+                linea = line.split(cvsSplitBy)
+                registros.add(linea)
+            }
+            br.close()
+            registros.each{
+                user = User.findByUsername(it[0])
+                if(user == null)
+                {
+                    user = new User(username: it[0], password: 'ks3d7fcd8$f1')
+                    user.save(flush: true)
+                }
+                profesor = Administrador.findByUser(user)
+                if(profesor != null) profesor.delete()
+                profesor = new Administrador()
+                profesor.nombre = it[0]
+                profesor.user = user
+                profesor.secciones = []
+                it[1].split('&').each {sec ->
+                    seccion = Seccion.findByNombre('Seccion ' + sec)
+                    if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, facciones: [], estudiantes: [])
+                    profesor.addToSecciones(seccion)
+                }
+                profesor.save(flush: true)
+                UserRole.create profesor.user, Role.get(1), true
+            }
+            redirect(action: 'index')
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage())
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+        finally
+        {
+            estudiantesProf = []
+            faccionesProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+        }
+    }
+
+    @Secured(['ROLE_SUPERADMIN'])
     def reiniciarMonedas()
     {
         try
         {
-            [userName: springSecurityService.getCurrentUser().username, secciones: Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }]
+            [userName: springSecurityService.getCurrentUser().username, secciones: Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones]
         }
         catch(Exception ex)
         {
@@ -438,6 +540,7 @@ class RequestController
         }
     }
 
+    @Secured(['ROLE_SUPERADMIN'])
     def reiniciarMonedasSave()
     {
         String mensaje
@@ -458,38 +561,7 @@ class RequestController
         {
             estudiantesProf = []
             faccionesProf = []
-            Seccion.findAll { profesor.username == springSecurityService.getCurrentUser().username }.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
         }
     }
-	
-	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
-	def llenarDatosEjemplo() {
-		def usuarios = User.findAll()
-		Random random = new Random()
-		usuarios.each { usuario ->
-			usuario.medallas = random.nextInt(4)+1
-			usuario.gemas = random.nextInt(9)+1
-			usuario.puntos = random.nextInt(99)+1
-			for(int i=0;i<3;i++) {
-				usuario.estrellasQuincenas[i] = random.nextInt(4)+1
-				usuario.aporteQuincenas[i] = random.nextInt(70) + 30
-			}
-			usuario.faccion.puntos += usuario.puntos
-			usuario.faccion.monedas += random.nextInt(50)
-		}
-		redirect uri: "/"
-	}
-
-	@Secured(['ROLE_STUDENT', 'ROLE_ADMIN'])
-	//http://localhost:8080/IP16MEL/request/llenarDatosPrueabMel
-	def llenarDatosPrueabMel() {
-		User user
-		def ret=[]
-		def facciones = Faccion.findAll{}.sort(false){it.id}
-		def roles = Role.findAll{}.sort(false){it.id}
-		//usuario.faccion = Faccion.findAll{}.sort(false){it.id}[0]
-
-
-		redirect uri: "/"
-	}
 }

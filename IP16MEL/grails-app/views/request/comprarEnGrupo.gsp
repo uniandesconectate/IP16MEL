@@ -9,14 +9,14 @@
 				<h1>Compra de ayudas</h1>
 				<g:form url="[action:'comprarEnGrupoSave']" method="POST" >
 					<strong>Elija el primer estudiante: </strong>
-					<g:select from="${users}" name="userId1" id="userId1"  optionKey="username" optionValue="${{it.username + ' (' + it.gemas + ' gemas)'}}"/>
+					<g:select from="${estudiantes}" name="userId1" id="userId1"  optionKey="${{it.user.username}}" optionValue="${{it.user.username + ': ' + it.gemas + ' gemas' + ' ('+it.faccion.nombreFaccion + ')'}}"/>
 					<br />
 					<strong>Cantidad de gemas: </strong>
 					<g:field name="value1" maxlength="10" required="true" type="number" value="0" min="1" />
 					<br />
 					<hr />
 					<strong>Elija el segundo estudiante: </strong>
-					<g:select from="${users}" name="userId2" id="userId2"  optionKey="username" optionValue="${{it.username + ' (' + it.gemas + ' gemas)'}}"/>
+					<g:select from="${estudiantes}" name="userId2" id="userId2"  optionKey="${{it.user.username}}" optionValue="${{it.user.username + ': ' + it.gemas + ' gemas' + ' ('+it.faccion.nombreFaccion + ')'}}"/>
 					<br />
 					<strong>Cantidad de gemas: </strong>
 					<g:field name="value2" maxlength="10" required="true" type="number" value="0" min="1" />
