@@ -294,12 +294,17 @@ class AppService
     {
         String mensaje
         boolean comprar
+        Estudiante anterior = null
+        Estudiante actual = null
 
         if(idEstudiantes.size() != idEstudiantes.unique().size()) throw new ServicioException('El grupo tiene integrantes repetidos.')
         comprar = true
         for(int i = 0; i < idEstudiantes.size() && comprar; i++)
         {
-            if(traerDatosEstudiante(idEstudiantes.get(i).replace('.', '*')).gemas < cantidades.get(i)) comprar = false
+            anterior = actual
+            actual = traerDatosEstudiante(idEstudiantes.get(i).replace('.', '*'))
+            if(actual.gemas < cantidades.get(i)) comprar = false
+            if(anterior != null) if(anterior.faccion.nombreFaccion != actual.faccion.nombreFaccion) throw new ServicioException('Los estudiantes no son de la misma facción.')
         }
         if(comprar)
         {
