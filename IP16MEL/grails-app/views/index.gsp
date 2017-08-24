@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Matématica Estructural y Lógica | Universidad de Los Andes</title>
+  <title>Matemática Estructural y Lógica | Universidad de Los Andes</title>
   <link rel="shortcut icon" href="favicon.ico" />
   <asset:stylesheet src="font-awesome.min.css" />
   <asset:stylesheet src="custom.min.css" />
@@ -16,7 +16,7 @@
 <header>
   <div class="container">
     <div class="col-xs-12 col-md-8">
-      <h1>Matématica Estructural y Lógica</h1>
+      <h1>Matemática Estructural y Lógica</h1>
     </div>
 	<sec:ifLoggedIn>
 	    <div class="col-xs-12 col-md-4">
@@ -52,6 +52,9 @@
                 <g:link controller="request" action="reiniciarMonedas">Reiniciar monedas de una sección</g:link><br />
 		</div>
 	</sec:ifLoggedIn>
+    <sec:ifNotLoggedIn>
+        ${response.sendRedirect(createLink(controller: 'request', action: 'index'))}
+    </sec:ifNotLoggedIn>
 </section>
 
 <footer>
