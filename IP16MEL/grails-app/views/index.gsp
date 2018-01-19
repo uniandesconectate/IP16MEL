@@ -39,22 +39,7 @@
 </header>
 
 <section>
-	Bienvenido
-	<sec:ifLoggedIn>
-		<div class="container">
-			<h1>Opciones</h1>
-				<g:link controller="request" action="dashboardEstudiante">Ver Dashboard de un estudiante</g:link><br />
-				<g:link controller="request" action="comprarFaccion">Comprar poderes</g:link><br />
-				<g:link controller="request" action="comprarEnGrupo">Comprar ayudas</g:link><br />
-				<g:link controller="request" action="comprarEjercicios">Comprar ejercicio</g:link><br />
-				<g:link controller="request" action="solicitarArchivo">Cargar juego</g:link><br />
-                <g:link controller="request" action="editarUsuarios">Cargar usuarios</g:link><br />
-                <g:link controller="request" action="reiniciarMonedas">Reiniciar monedas de una sección</g:link><br />
-		</div>
-	</sec:ifLoggedIn>
-    <sec:ifNotLoggedIn>
-        ${response.sendRedirect(createLink(controller: 'request', action: 'index'))}
-    </sec:ifNotLoggedIn>
+    ${response.sendRedirect(createLink(controller: 'request', action: 'index'))}
 </section>
 
 <footer>

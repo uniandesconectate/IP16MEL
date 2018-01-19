@@ -42,6 +42,12 @@ section {
 	display:block;background:url("../images/gem.png") left center no-repeat;background-size:auto 14px;padding-left:25px}
 .boxSem table tfoot td .med {
 	display:block;background:url("../images/med.png") left center no-repeat;background-size:auto 18px;padding-left:20px}
+.boxSem table tfoot td .mon {
+    display:block;background:url("../images/mon.png") left center no-repeat;background-size:auto 18px;padding-left:20px}
+.boxSem table tbody td .mon {
+    display:block;background:url("../images/mon.png") center no-repeat;background-size:auto 18px;padding-left:60px}
+.boxSem table tfoot td .cop {
+    display:block;background:url("../images/cop.png") left center no-repeat;background-size:auto 18px;padding-left:25px}
 .boxFacciones {
 	display:block}
 .boxFacciones::after {
@@ -56,13 +62,21 @@ section {
 	display:block;background:url("../images/cop.png") left center no-repeat;background-size:auto 18px;padding-left:25px;font-weight:400}
 .boxFacciones table thead th .mon {
 	display:block;background:url("../images/mon.png") left center no-repeat;background-size:auto 18px;padding-left:20px;font-weight:400;}
+.boxFacciones table thead th .med {
+    display:block;background:url("../images/med.png") left center no-repeat;background-size:auto 18px;padding-left:20px;font-weight:400;}
+.boxFacciones table thead th .login {
+	display:block;font-weight:400;}
 .boxFacciones table tbody td {
 	background:#eceff1}
 .boxFacciones .fac1 table thead tr:nth-child(1) th {
 	background:#66ac5b}
 .boxFacciones .fac1 table thead tr:nth-child(2) th:nth-child(1) {
-	background:#a1cd9b}
+	background:#82bc79}
 .boxFacciones .fac1 table thead tr:nth-child(2) th:nth-child(2) {
+	background:#82bc79}
+.boxFacciones .fac1 table thead tr:nth-child(2) th:nth-child(3) {
+	background:#82bc79}
+.boxFacciones .fac1 table thead tr:nth-child(2) th:nth-child(4) {
 	background:#82bc79}
 .boxFacciones .fac2 table thead tr:nth-child(1) th {
 	background:#419488}
@@ -70,4 +84,3 @@ section {
 	background:#7cbeb8}
 .boxFacciones .fac2 table thead tr:nth-child(2) th:nth-child(2) {
 	background:#59a9a0}
-

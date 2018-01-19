@@ -38,7 +38,7 @@ public class EngineHelper {
 	
 	/**
 	 * Retorna los datos de la facción en el game engine. Sino existe returna null.
-	 * @param String nombreFaccion
+	 * @param String nombre
 	 * @return TeamDTO the team data or null
 	 */
 	public FaccionDTO getDatosFaccion (String nombfreFaccion) {

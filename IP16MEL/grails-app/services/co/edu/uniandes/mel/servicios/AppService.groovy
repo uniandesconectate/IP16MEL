@@ -1,7 +1,7 @@
 package co.edu.uniandes.mel.servicios
 
 import co.edu.uniandes.login.Estudiante
-import co.edu.uniandes.login.Faccion
+import co.edu.uniandes.login.Equipo
 import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.login.User
 import co.edu.uniandes.mel.excepciones.ServicioException
@@ -15,17 +15,17 @@ class AppService
     final static String APP_TOKEN = '210fd18fe01d086fe1f6ed60f789137b'
 
     // Tags de las pruebas mecánicas en el motor.
-    final static String[] CICLOS_MECANICOS = ['mq1', 'mq2', 'mq3', 'mq4', 'mq5', 'mq6']
+    final static String[] CICLOS_MECANICOS = ['mq1', 'mq2', 'mq3', 'mq4', 'mq5', 'mq6', 'mq7', 'mq8', 'mq9', 'mq10', 'mq11', 'mq12', 'mq13', 'mq14']
 
     // Tags de los rewards que otorgan estrellas en el motor.
     final static String[] REWARDS_ESTRELLAS = ['estrella_1', 'estrella_2', 'estrella_3', 'estrella_4', 'estrella_5']
 
     // Tags de las pruebas en Sicua.
-    final static String[] TAGS_SICUA = ['MQ01', 'MQ02', 'MQ03', 'MQ04', 'MQ05', 'MQ06',
-                                        'HQ01', 'HQ02', 'HQ03', 'HQ04', 'HQ05', 'HQ06',
-                                        'CQ01P01', 'CQ02P01', 'CQ03P01', 'CQ04P01', 'CQ05P01', 'CQ06P01',
-                                        'CQ01P02', 'CQ02P02', 'CQ03P02', 'CQ04P02', 'CQ05P02', 'CQ06P02',
-                                        'CQ01P03', 'CQ02P03', 'CQ03P03', 'CQ04P03', 'CQ05P03', 'CQ06P03']
+    final static String[] TAGS_SICUA = ['MQ01', 'MQ02', 'MQ03', 'MQ04', 'MQ05', 'MQ06', 'MQ07', 'MQ08', 'MQ09', 'MQ10', 'MQ11', 'MQ12', 'MQ13', 'MQ14',
+                                        'HQ01', 'HQ02', 'HQ03', 'HQ04', 'HQ05', 'HQ06', 'HQ07', 'HQ08', 'HQ09', 'HQ10', 'HQ11', 'HQ12', 'HQ13', 'HQ14',
+                                        'CQ01P01', 'CQ02P01', 'CQ03P01', 'CQ04P01', 'CQ05P01', 'CQ06P01', 'CQ07P01', 'CQ08P01', 'CQ09P01', 'CQ10P01', 'CQ11P01', 'CQ12P01', 'CQ13P01', 'CQ14P01',
+                                        'CQ01P02', 'CQ02P02', 'CQ03P02', 'CQ04P02', 'CQ05P02', 'CQ06P02', 'CQ07P02', 'CQ08P02', 'CQ09P02', 'CQ10P02', 'CQ11P02', 'CQ12P02', 'CQ13P02', 'CQ14P02',
+                                        'CQ01P03', 'CQ02P03', 'CQ03P03', 'CQ04P03', 'CQ05P03', 'CQ06P03', 'CQ07P03', 'CQ08P03', 'CQ09P03', 'CQ10P03', 'CQ11P03', 'CQ12P03', 'CQ13P03', 'CQ14P03']
 
     // Prefijos de las pruebas en el motor.
     final static String MECANICA = 'mq'
@@ -34,14 +34,14 @@ class AppService
     final static String COGNITIVA_MEDIA = 'cmq'
     final static String COGNITIVA_DIFICIL = 'cdq'
 
-    // Número de quincenas del semestre.
-    final static int NUM_QUINCENAS = 6
+    // Número de semanas del semestre.
+    final static int NUM_SEMANAS = 14
 
     // Nombres de las currencies en el motor.
     final static String GEMAS = 'gemas'
     final static String MONEDAS = 'monedas'
 
-    // Parámetro para reinicio en cero de monedas de las facciones.
+    // Parámetro para reinicio en cero de monedas de los equipos.
     final static String PARM_MONEDAS = '1000000000'
 
     // Servicio para comunicarse con el motor de gamificación.
@@ -65,19 +65,19 @@ class AppService
         estudiante.puntos = json.currencies.puntos.quantity
         estudiante.gemas = json.currencies.gemas.quantity
         estudiante.medallas = json.currencies.medallas.quantity
-        estudiante.faccion = new Faccion()
-        estudiante.faccion.nombreFaccion = json.teams[0].name
+        estudiante.equipo = new Equipo()
+        estudiante.equipo.nombre = json.teams[0].name
         json.missions.each {
             if(it.tag in CICLOS_MECANICOS)
             {
                 it.rewards.awarded.each { it2 ->
                     if (it2.tag in REWARDS_ESTRELLAS)
                     {
-                        if(it2.tag != REWARDS_ESTRELLAS[4]) estudiante.estrellasQuincenas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity - 1
-                        else estudiante.estrellasQuincenas[it.tag.toString().substring(it.tag.toString().length() - 1).toInteger() - 1] = it2.currencies.monedas.quantity / 2
+                        estudiante.monedasSemanas[it.tag.toString().substring(it.tag.toString().length() - (it.tag.toString().length() == 3 ? 1 : 2)).toInteger() - 1] = it2.currencies.monedas.quantity
+                        estudiante.monedas += it2.currencies.monedas.quantity
                     }
                 }
-                estudiante.aporteQuincenas[it.tag.toString().substring(it.tag.toString().length()-1).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
+                estudiante.aporteSemanas[it.tag.toString().substring(it.tag.toString().length() - (it.tag.toString().length() == 3 ? 1 : 2)).toInteger() - 1] = it.stats.team_contributions.get(json.teams[0].tag).monedas.comparative_percentage
             }
         }
 
@@ -85,35 +85,36 @@ class AppService
     }
 
     /***
-     * Retorna los datos de una facción.
-     * @param nombreFaccion
+     * Retorna los datos de un equipo.
+     * @param nombreEquipo
      * @return
      */
-    Faccion traerFaccion(String nombreFaccion)
+    Equipo traerEquipo(String nombreEquipo)
     {
         JSONElement json
-        Faccion faccion
+        Equipo equipo
         Estudiante miembro
 
-        json = motorService.getTeamData(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
-        faccion = new Faccion()
-        faccion.nombreFaccion = json.name
-        faccion.monedas = json.currencies.team_currencies.monedas.quantity
-        faccion.puntos = json.currencies.player_totals.puntos.quantity
-        faccion.miembros = []
+        json = motorService.getTeamData(APP_TOKEN, nombreEquipo.replaceAll(' ', '')).json
+        equipo = new Equipo()
+        equipo.nombre = json.name
+        equipo.monedas = json.currencies.team_currencies.monedas.quantity
+        equipo.puntos = json.currencies.player_totals.puntos.quantity
+        equipo.miembros = []
         json.members.each{ mie ->
             miembro = new Estudiante()
             miembro.user = new User()
-            miembro.faccion = faccion
+            miembro.equipo = equipo
             miembro.user.username = mie.id_in_app.replace('*', '.')
             miembro.nombre = mie.name
             miembro.puntos = mie.currencies.puntos.quantity
             miembro.gemas = mie.currencies.gemas.quantity
             miembro.medallas = mie.currencies.medallas.quantity
-            faccion.miembros.add(miembro)
+            miembro.monedas = mie.contributions.monedas != null ? mie.contributions.monedas : 0
+            equipo.miembros.add(miembro)
         }
 
-        return faccion
+        return equipo
     }
 
     /***
@@ -125,38 +126,39 @@ class AppService
     {
         JSONElement json
         Seccion seccion
-        Faccion faccion
+        Equipo equipo
         Estudiante miembro
 
         json = motorService.getTeams(APP_TOKEN).json
         seccion = new Seccion()
         seccion.nombre = nombreSeccion
-        seccion.facciones = []
+        seccion.equipos = []
         json.teams.each{ tm ->
             if(tm.name.toString().contains(nombreSeccion))
             {
-                ('A'..'D').each{
+                ('1'..'10').each{
                     if(tm.name.toString().contains(it))
                     {
-                        faccion = new Faccion()
-                        faccion.seccion = seccion
-                        faccion.nombreFaccion = tm.name
-                        faccion.puntos = tm.currencies.player_totals.puntos.quantity
-                        faccion.monedas = tm.currencies.team_currencies.monedas.quantity
-                        faccion.miembros = []
+                        equipo = new Equipo()
+                        equipo.seccion = seccion
+                        equipo.nombre = tm.name
+                        equipo.puntos = tm.currencies.player_totals.puntos.quantity
+                        equipo.monedas = tm.currencies.team_currencies.monedas.quantity
+                        equipo.miembros = []
                         tm.members.each{ mie ->
                             miembro = new Estudiante()
                             miembro.user = new User()
-                            miembro.faccion = faccion
+                            miembro.equipo = equipo
                             miembro.user.username = mie.id_in_app.replace('*', '.')
                             miembro.nombre = mie.name
                             miembro.puntos = mie.currencies.puntos.quantity
                             miembro.gemas = mie.currencies.gemas.quantity
                             miembro.medallas = mie.currencies.medallas.quantity
-                            faccion.miembros.add(miembro)
+                            miembro.monedas = mie.contributions.monedas != null ? mie.contributions.monedas : 0
+                            equipo.miembros.add(miembro)
                         }
                     }
-                    seccion.facciones.add(faccion)
+                    seccion.equipos.add(equipo)
                 }
             }
         }
@@ -165,21 +167,21 @@ class AppService
     }
 
     /***
-     * Crea un estudiante y lo asigna a una facción.
+     * Crea un estudiante y lo asigna a un equipo.
      * @param idEstudiante
      * @param nombreEstudiante
      * @param correoEstudiante
-     * @param nombreFaccion
+     * @param nombreEquipo
      * @return
      * @throws ServicioException
      */
-    String crearEstudiante(String idEstudiante, String nombreEstudiante, String correoEstudiante, String nombreFaccion) throws ServicioException
+    String crearEstudiante(String idEstudiante, String nombreEstudiante, String correoEstudiante, String nombreEquipo) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.createPlayer(APP_TOKEN, idEstudiante.replace('.', '*'), nombreEstudiante, correoEstudiante, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'ok') mensaje = 'El estudiante ' + idEstudiante + ' ha sido creado y asignado a la facción ' + nombreFaccion
+        json = motorService.createPlayer(APP_TOKEN, idEstudiante.replace('.', '*'), nombreEstudiante, correoEstudiante, nombreEquipo.replaceAll(' ', '')).json
+        if(json.status == 'ok') mensaje = 'El estudiante ' + idEstudiante + ' ha sido creado y asignado al equipo ' + nombreEquipo
         else throw new ServicioException('Hubo un problema al crear el estudiante ' + idEstudiante + ': ' + json.status.toString())
 
         return mensaje
@@ -204,37 +206,37 @@ class AppService
     }
 
     /***
-     * Crea una facción.
-     * @param nombreFaccion
+     * Crea un equipo.
+     * @param nombreEquipo
      * @return
      * @throws ServicioException
      */
-    String crearFaccion(String nombreFaccion) throws ServicioException
+    String crearEquipo(String nombreEquipo) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.createTeam(APP_TOKEN, nombreFaccion, nombreFaccion.replaceAll(' ', '')).json
-        if(json.success) mensaje = 'La facción ' + nombreFaccion + ' ha sido creada.'
-        else throw new ServicioException('Hubo un problema al crear la facción ' + nombreFaccion + ': ' + json.status.toString())
+        json = motorService.createTeam(APP_TOKEN, nombreEquipo, nombreEquipo.replaceAll(' ', '')).json
+        if(json.success) mensaje = 'El equipo ' + nombreEquipo + ' ha sido creado.'
+        else throw new ServicioException('Hubo un problema al crear el equipo ' + nombreEquipo + ': ' + json.status.toString())
 
         return mensaje
     }
 
     /***
-     * Elimina una facción.
-     * @param nombreFaccion
+     * Elimina un equipo.
+     * @param nombreEquipo
      * @return
      * @throws ServicioException
      */
-    String eliminarFaccion(String nombreFaccion) throws ServicioException
+    String eliminarEquipo(String nombreEquipo) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.deleteTeam(APP_TOKEN, nombreFaccion.replaceAll(' ', '')).json
-        if(json.status == 'This team was destroyed') mensaje = 'La facción ' + nombreFaccion + ' ha sido eliminada.'
-        else throw new ServicioException('Hubo un problema al eliminar la facción ' + nombreFaccion + ': ' + json.status.toString())
+        json = motorService.deleteTeam(APP_TOKEN, nombreEquipo.replaceAll(' ', '')).json
+        if(json.status == 'This team was destroyed') mensaje = 'El equipo ' + nombreEquipo + ' ha sido eliminado.'
+        else throw new ServicioException('Hubo un problema al eliminar el equipo ' + nombreEquipo + ': ' + json.status.toString())
 
         return mensaje
     }
@@ -297,14 +299,14 @@ class AppService
         Estudiante anterior = null
         Estudiante actual = null
 
-        if(idEstudiantes.size() != idEstudiantes.unique().size()) throw new ServicioException('El grupo tiene integrantes repetidos.')
+        if(idEstudiantes.size() != idEstudiantes.unique().size() && cantidades.get(0) > 0 && cantidades.get(1) > 0) throw new ServicioException('El grupo tiene integrantes repetidos.')
         comprar = true
         for(int i = 0; i < idEstudiantes.size() && comprar; i++)
         {
             anterior = actual
             actual = traerDatosEstudiante(idEstudiantes.get(i).replace('.', '*'))
             if(actual.gemas < cantidades.get(i)) comprar = false
-            if(anterior != null) if(anterior.faccion.nombreFaccion != actual.faccion.nombreFaccion) throw new ServicioException('Los estudiantes no son de la misma facción.')
+            if(anterior != null) if(anterior.equipo.nombre != actual.equipo.nombre) throw new ServicioException('Los estudiantes no son del mismo equipo.')
         }
         if(comprar)
         {
@@ -325,43 +327,43 @@ class AppService
     }
 
     /***
-     * Permite gastar monedas de una facción.
-     * @param nombreFaccion
+     * Permite gastar monedas de un equipo.
+     * @param nombreEquipo
      * @param cantidad
      * @return
      * @throws ServicioException
      */
-    String gastarMonedasFaccion(String nombreFaccion, int cantidad) throws ServicioException
+    String gastarMonedasEquipo(String nombreEquipo, int cantidad) throws ServicioException
     {
         JSONElement json
         String mensaje
 
-        json = motorService.spendTeamCurrencies(APP_TOKEN, MONEDAS, cantidad.toString(), nombreFaccion.replaceAll(' ', '')).json
-        if(json.success) mensaje = 'Se han gastado ' + cantidad + ' monedas de la facción ' + nombreFaccion
-        else if(json.status == 'Not enough currencies') throw new ServicioException('La facción ' + nombreFaccion + ' no tiene ' + cantidad + ' monedas para gastar.')
-        else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' monedas de la facción ' + nombreFaccion + ': ' + json.status.toString())
+        json = motorService.spendTeamCurrencies(APP_TOKEN, MONEDAS, cantidad.toString(), nombreEquipo.replaceAll(' ', '')).json
+        if(json.success) mensaje = 'Se han gastado ' + cantidad + ' monedas del equipo ' + nombreEquipo
+        else if(json.status == 'Not enough currencies') throw new ServicioException('El equipo ' + nombreEquipo + ' no tiene ' + cantidad + ' monedas para gastar.')
+        else throw new ServicioException('Hubo un problema al gastar ' + cantidad + ' monedas del equipo ' + nombreEquipo + ': ' + json.status.toString())
 
         return mensaje
     }
 
     /***
-     * Permite reiniciar en cero las monedas de una facción.
-     * @param nombreFaccion
+     * Permite reiniciar en cero las monedas de un equipo.
+     * @param nombreEquipo
      * @return
      * @throws ServicioException
      */
-    String reiniciarMonedasFaccion(String nombreFaccion) throws ServicioException
+    String reiniciarMonedasEquipo(String nombreEquipo) throws ServicioException
     {
         String mensaje
         JSONElement json
 
-        json = motorService.removeCurrenciesFromTeam(APP_TOKEN, MONEDAS, PARM_MONEDAS, nombreFaccion.replaceAll(' ', '')).json
-        if(json.success) mensaje = 'Se han reiniciado en cero las monedas de la facción ' + nombreFaccion
-        else throw new ServicioException('Hubo un problema al reiniciar las monedas de la facción ' + nombreFaccion + ': ' + json.status.toString())
+        json = motorService.removeCurrenciesFromTeam(APP_TOKEN, MONEDAS, PARM_MONEDAS, nombreEquipo.replaceAll(' ', '')).json
+        if(json.success) mensaje = 'Se han reiniciado en cero las monedas del equipo ' + nombreEquipo
+        else throw new ServicioException('Hubo un problema al reiniciar las monedas del equipo ' + nombreEquipo + ': ' + json.status.toString())
     }
 
     /***
-     * Permite reiniciar en cero las monedas de todas las facciones de una sección.
+     * Permite reiniciar en cero las monedas de todos los equipos de una sección.
      * @param nombreSeccion
      * @return
      */
@@ -371,10 +373,10 @@ class AppService
         Seccion seccion
 
         seccion = traerSeccion(nombreSeccion)
-        mensaje = 'Se han reiniciado en cero las monedas de las siguientes facciones: '
-        seccion.facciones.each{
-            System.out.println(reiniciarMonedasFaccion(it.nombreFaccion))
-            mensaje += ' ' + it.nombreFaccion + ','
+        mensaje = 'Se han reiniciado en cero las monedas de los siguientes equipos: '
+        seccion.equipos.each{
+            System.out.println(reiniciarMonedasEquipo(it.nombre))
+            mensaje += ' ' + it.nombre + ','
         }
         mensaje = mensaje.substring(0, mensaje.length()-1) + '.'
 

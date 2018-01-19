@@ -6,7 +6,7 @@ import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.mel.excepciones.ServicioException
 import org.springframework.web.multipart.MultipartFile
 
-import co.edu.uniandes.login.Faccion
+import co.edu.uniandes.login.Equipo
 import co.edu.uniandes.login.Role
 import co.edu.uniandes.login.User
 import co.edu.uniandes.login.UserRole
@@ -25,11 +25,11 @@ class RequestController
     // Servicio de aplicación MEL gamificada.
     def appService
 
-    // Listado de estudiantes de todas las secciones del profesores.
+    // Listado de estudiantes de todas las secciones del profesor.
     Estudiante[] estudiantesProf = []
 
-    // Listado de facciones de todas las secciones del profesores.
-    Faccion[] faccionesProf = []
+    // Listado de equipos de todas las secciones del profesor.
+    Equipo[] equiposProf = []
 
     // Username del último usuario que ingresó a la aplicación.
     String lstUsuario
@@ -42,12 +42,12 @@ class RequestController
             User currentUser = springSecurityService.getCurrentUser()
             UserRole role = UserRole.find { user.id == currentUser.id && role.authority == "ROLE_STUDENT" }
             if (role != null) redirect action: 'dashboard'
-            if(estudiantesProf.length == 0 || faccionesProf.length == 0 || lstUsuario != springSecurityService.getCurrentUser().username)
+            if(estudiantesProf.length == 0 || equiposProf.length == 0 || lstUsuario != springSecurityService.getCurrentUser().username)
             {
                 lstUsuario = springSecurityService.getCurrentUser().username
                 estudiantesProf = []
-                faccionesProf = []
-                Administrador.findByUser(currentUser).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+                equiposProf = []
+                Administrador.findByUser(currentUser).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
             }
             [userName: currentUser.username]
         }
@@ -58,43 +58,56 @@ class RequestController
 	}
 
 	/**
-	 * Carga el dashboard
+	 * Carga el dashboard de un estudiante.
 	 **/
 	@Secured(['ROLE_STUDENT'])
 	def dashboard()
     {
         Estudiante estudiante
-        def quincenas = []
-        def estrellas = []
+        def monedasTotal = []
+        def semanas = []
+        def monedas = []
         def porcentajes = []
-        Faccion[] facciones = []
+        Equipo[] equipos = []
 
         try
         {
             estudiante = appService.traerDatosEstudiante(springSecurityService.getCurrentUser().username.toString())
             // Instancia datos del usuario y de su pestaña individual
-            for (int i = 0; i < appService.NUM_QUINCENAS; i++)
+            for (int i = 0; i < appService.NUM_SEMANAS; i++)
             {
-                quincenas.add(i + 1)
-                estrellas.add(estudiante.estrellasQuincenas[i])
-                porcentajes.add(estudiante.aporteQuincenas[i])
+                semanas.add(i + 1)
+                monedas.add(estudiante.monedasSemanas[i])
+                porcentajes.add(estudiante.aporteSemanas[i])
             }
-            facciones = appService.traerSeccion(estudiante.faccion.nombreFaccion.substring(0, 9)).facciones
-            [userName: estudiante.user.username, estudiante: estudiante, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, facciones: facciones]
+            equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 9)).equipos
+            for (int i = 0; i < equipos.length; i++)
+            {
+                monedasTotal.add(0)
+                for (int k = 0; k < equipos[i].miembros.size(); k++)
+                {
+                    monedasTotal[monedasTotal.size() - 1] += equipos[i].miembros[k].monedas
+                }
+            }
+            [userName: estudiante.user.username, estudiante: estudiante, semanas: semanas, monedas: monedas, monedasTotal: monedasTotal, porcentajes: porcentajes, equipos: equipos]
         }
         catch(Exception ex)
         {
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
 	}
-	
+
+    /**
+     * Carga el dashboard de un estudiante por parte del profesor.
+     **/
 	def dashboardEstudiante()
 	{
 		Estudiante estudiante
-		def quincenas = []
-		def estrellas = []
+        def monedasTotal = []
+		def semanas = []
+		def monedas = []
 		def porcentajes = []
-        Faccion[] facciones = []
+        Equipo[] equipos = []
 
         try
         {
@@ -102,16 +115,24 @@ class RequestController
             if (estudiante != null)
             {
                 // Instancia datos del usuario y de su pestaña individual
-                for (int i = 0; i < appService.NUM_QUINCENAS; i++)
+                for (int i = 0; i < appService.NUM_SEMANAS; i++)
                 {
-                    quincenas.add(i + 1)
-                    estrellas.add(estudiante.estrellasQuincenas[i])
-                    porcentajes.add(estudiante.aporteQuincenas[i])
+                    semanas.add(i + 1)
+                    monedas.add(estudiante.monedasSemanas[i])
+                    porcentajes.add(estudiante.aporteSemanas[i])
                 }
-                facciones = appService.traerSeccion(estudiante.faccion.nombreFaccion.substring(0, 9)).facciones
+                equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 9)).equipos
+                for (int i = 0; i < equipos.length; i++)
+                {
+                    monedasTotal.add(0)
+                    for (int k = 0; k < equipos[i].miembros.size(); k++)
+                    {
+                        monedasTotal[monedasTotal.size() - 1] += equipos[i].miembros[k].monedas
+                    }
+                }
             }
             else estudiante = new Estudiante(user: new User())
-            [userName: springSecurityService.getCurrentUser().username, estudiante: estudiante, quincenas: quincenas, estrellas: estrellas, porcentajes: porcentajes, estudiantes: estudiantesProf, facciones: facciones]
+            [userName: springSecurityService.getCurrentUser().username, estudiante: estudiante, semanas: semanas, monedas: monedas, monedasTotal: monedasTotal, porcentajes: porcentajes, estudiantes: estudiantesProf, equipos: equipos]
         }
         catch(Exception ex)
         {
@@ -119,11 +140,11 @@ class RequestController
         }
 	}
 
-	def comprarFaccion()
+	def comprarEquipo()
     {
         try
         {
-            [userName: springSecurityService.getCurrentUser().username, facciones: faccionesProf.sort(false) { it.nombreFaccion }]
+            [userName: springSecurityService.getCurrentUser().username, equipos: equiposProf.sort(false) { it.nombre }]
         }
         catch(Exception ex)
         {
@@ -131,7 +152,7 @@ class RequestController
         }
 	}
 	
-	def comprarFaccionSave()
+	def comprarEquipoSave()
     {
 		String mensaje
 		Integer value
@@ -139,27 +160,27 @@ class RequestController
         try
         {
             value = params.int('value1')
-            mensaje = appService.gastarMonedasFaccion(params['faccionId'].toString(), value)
+            mensaje = appService.gastarMonedasEquipo(params['equipoId'].toString(), value)
             mensaje = 'La compra del poder ha sido exitosa. ' + mensaje
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró el poder. ' + ex.message
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.message + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
 	}
 
@@ -193,25 +214,25 @@ class RequestController
             cantidades.addAll([value1, value2] as Integer[])
             mensaje = appService.gastarGemasGrupo(idEstudiantes, cantidades)
             mensaje = 'La compra de la ayuda ha sido exitosa. ' + mensaje
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró la ayuda. ' + ex.message
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
 	}
 
@@ -237,25 +258,25 @@ class RequestController
             value = params.int('value1')
             mensaje = appService.gastarGemasEstudiante(params['userId1'].toString(), value)
             mensaje = 'La compra del ejercicio ha sido exitosa. ' + mensaje
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró el ejercicio. ' + ex.message
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage())
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
 	}
 
@@ -298,7 +319,7 @@ class RequestController
 		String prueba
 		String tipoPrueba
 		int numPrueba
-		int quincena
+		int semana
 		String scoreTxt = "0"
         String mensaje
         double score
@@ -308,31 +329,31 @@ class RequestController
             prueba = linea[6]
             userId = linea[0]
             tipoPrueba = prueba.subSequence(0,1)
-            quincena = Integer.parseInt(prueba.subSequence(2,4))
+            semana = Integer.parseInt(prueba.subSequence(2,4))
             if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
             score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
             if (tipoPrueba == 'M')
             {
-                mensaje = appService.registrarPrueba(appService.MECANICA + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                mensaje = appService.registrarPrueba(appService.MECANICA + semana.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             }
             else if (tipoPrueba == 'C')
             {
                 numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
-                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + quincena.toString(), userId, score.toInteger())
-                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + quincena.toString(), userId, score.toInteger())
-                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + semana.toString(), userId, score.toInteger())
+                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + semana.toString(), userId, score.toInteger())
+                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + semana.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             }
             else if (tipoPrueba == 'H')
             {
-                mensaje = appService.registrarPrueba(appService.HONORIFICA + quincena.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje)
+                mensaje = appService.registrarPrueba(appService.HONORIFICA + semana.toString(), userId, score.toInteger())
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             }
         }
         catch(ServicioException ex)
         {
-            System.out.println("Usuario: " + userId + " - Error: " + ex.message)
+            System.out.println("Usuario: " + userId + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser.username)
         }
 	}
 
@@ -383,14 +404,14 @@ class RequestController
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage())
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
 	}
 
@@ -422,13 +443,13 @@ class RequestController
                 registros.add(linea)
             }
             br.close()
-            registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
-            registros.each{ try {message = appService.eliminarFaccion('Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
-            registros.each{ try {message = appService.crearFaccion('Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)} catch(ServicioException ex){System.out.println(ex.message)} }
+            registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
+            registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
+            registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
             registros.each{
                 try
                 {
-                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Faccion ' + it[2]); System.out.println(message)
+                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)
                     user = User.findByUsername(it[0])
                     if(user == null)
                     {
@@ -445,21 +466,21 @@ class RequestController
                 }
                 catch(ServicioException ex)
                 {
-                    System.out.println(ex.message)
+                    System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
                 }
             }
             redirect(action: 'index')
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage())
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
     }
 
@@ -506,7 +527,7 @@ class RequestController
                 profesor.secciones = []
                 it[1].split('&').each {sec ->
                     seccion = Seccion.findByNombre('Seccion ' + sec)
-                    if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, facciones: [], estudiantes: [])
+                    if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, equipos: [], estudiantes: [])
                     profesor.addToSecciones(seccion)
                 }
                 profesor.save(flush: true)
@@ -516,18 +537,18 @@ class RequestController
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage())
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
     }
 
-    @Secured(['ROLE_SUPERADMIN'])
+    @Secured(['ROLE_SUPERADMIN', 'ROLE_ADMIN'])
     def reiniciarMonedas()
     {
         try
@@ -540,7 +561,7 @@ class RequestController
         }
     }
 
-    @Secured(['ROLE_SUPERADMIN'])
+    @Secured(['ROLE_SUPERADMIN', 'ROLE_ADMIN'])
     def reiniciarMonedasSave()
     {
         String mensaje
@@ -549,19 +570,19 @@ class RequestController
         {
             mensaje = appService.reiniciarMonedasSeccion(params['nombreSeccion'].toString())
             mensaje = 'El reinicio de monedas ha sido exitoso. ' + mensaje
-            System.out.println(mensaje)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
         {
             estudiantesProf = []
-            faccionesProf = []
-            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).facciones.each { fac -> estudiantesProf += fac.miembros; faccionesProf += fac } }
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
     }
 }

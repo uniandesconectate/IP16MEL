@@ -1,6 +1,7 @@
 package co.edu.uniandes.mel.servicios
 
-import co.edu.uniandes.login.Faccion
+import co.edu.uniandes.login.Equipo
+import co.edu.uniandes.login.Estudiante
 import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.login.User
 import grails.test.mixin.Mock
@@ -14,7 +15,7 @@ import spock.lang.Specification
 @Mock([MotorService])
 class AppServiceSpec extends Specification
 {
-    final static String FACCION = 'test Sección 1 Faccion A'
+    final static String EQUIPO = 'test Sección 1 Equipo 1'
     final static String MECANICA = 'mq1'
     final static String COGNITIVA_FACIL = 'cfq1'
     final static String COGNITIVA_INTERMEDIA = 'cmq1'
@@ -31,81 +32,81 @@ class AppServiceSpec extends Specification
 
     }
 
-    void "test crear facción"()
+    void "test crear equipo"()
     {
         when:
-        String mensaje = service.crearFaccion(FACCION)
+        String mensaje = service.crearEquipo(EQUIPO)
 
         then:
-        mensaje == 'La facción ' + FACCION + ' ha sido creada.'
+        mensaje == 'El equipo ' + EQUIPO + ' ha sido creado.'
     }
 
     void "test crear estudiantes"()
     {
         when:
-        String mensaje = service.crearEstudiante('1', '1', '1@uniandes.edu.co', FACCION)
+        String mensaje = service.crearEstudiante('1', '1', '1@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 1 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 1 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('2', '2', '2@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('2', '2', '2@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 2 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 2 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('3', '3', '3@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('3', '3', '3@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 3 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 3 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('4', '4', '4@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('4', '4', '4@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 4 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 4 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('5', '5', '5@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('5', '5', '5@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 5 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 5 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('6', '6', '6@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('6', '6', '6@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 6 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 6 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('7', '7', '7@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('7', '7', '7@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 7 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 7 ha sido creado y asignado al equipo ' + EQUIPO
 
         when:
-        mensaje = service.crearEstudiante('8', '8', '8@uniandes.edu.co', FACCION)
+        mensaje = service.crearEstudiante('8', '8', '8@uniandes.edu.co', EQUIPO)
         then:
-        mensaje == 'El estudiante 8 ha sido creado y asignado a la facción ' + FACCION
+        mensaje == 'El estudiante 8 ha sido creado y asignado al equipo ' + EQUIPO
     }
 
     void "test traer datos del estudiante"()
     {
         when:
-        User estudiante = service.traerDatosEstudiante('1')
+        Estudiante estudiante = service.traerDatosEstudiante('1')
 
         then:
         estudiante.nombre == '1'
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 0
-        estudiante.aporteQuincenas[0] == 0
+        estudiante.monedasSemanas[0] == 0
+        estudiante.aporteSemanas[0] == 0
     }
 
-    void "test traer datos de la facción"()
+    void "test traer datos del equipo"()
     {
         when:
-        Faccion faccion = service.traerFaccion(FACCION)
+        Equipo equipo = service.traerEquipo(EQUIPO)
 
         then:
-        faccion.monedas == 0
-        faccion.puntos == 0
-        faccion.promedioPuntos() == 0
-        faccion.promedioMonedas() == 0
+        equipo.monedas == 0
+        equipo.puntos == 0
+        equipo.promedioPuntos() == 0
+        equipo.promedioMonedas() == 0
     }
 
     void "test registrar pruebas mecánicas"()
@@ -154,81 +155,81 @@ class AppServiceSpec extends Specification
     void "test traer datos del estudiante después de pruebas mecánicas"()
     {
         when:
-        User estudiante = service.traerDatosEstudiante('1')
+        Estudiante estudiante = service.traerDatosEstudiante('1')
 
         then:
         estudiante.puntos == 0
         estudiante.gemas == 1
-        estudiante.estrellasQuincenas[0] == 5
-        estudiante.aporteQuincenas[0] == 32
+        estudiante.monedasSemanas[0] == 10
+        estudiante.aporteSemanas[0] == 32
 
         when:
         estudiante = service.traerDatosEstudiante('2')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 4
-        estudiante.aporteQuincenas[0] == 16
+        estudiante.monedasSemanas[0] == 5
+        estudiante.aporteSemanas[0] == 16
 
         when:
         estudiante = service.traerDatosEstudiante('3')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 3
-        estudiante.aporteQuincenas[0] == 12
+        estudiante.monedasSemanas[0] == 4
+        estudiante.aporteSemanas[0] == 12
 
         when:
         estudiante = service.traerDatosEstudiante('4')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 2
-        estudiante.aporteQuincenas[0] == 9
+        estudiante.monedasSemanas[0] == 3
+        estudiante.aporteSemanas[0] == 9
 
         when:
         estudiante = service.traerDatosEstudiante('5')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 1
-        estudiante.aporteQuincenas[0] == 6
+        estudiante.monedasSemanas[0] == 2
+        estudiante.aporteSemanas[0] == 6
 
         when:
         estudiante = service.traerDatosEstudiante('6')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 0
-        estudiante.aporteQuincenas[0] == 0
+        estudiante.monedasSemanas[0] == 0
+        estudiante.aporteSemanas[0] == 0
 
         when:
         estudiante = service.traerDatosEstudiante('7')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 4
-        estudiante.aporteQuincenas[0] == 16
+        estudiante.monedasSemanas[0] == 5
+        estudiante.aporteSemanas[0] == 16
 
         when:
         estudiante = service.traerDatosEstudiante('8')
         then:
         estudiante.puntos == 0
         estudiante.gemas == 0
-        estudiante.estrellasQuincenas[0] == 1
-        estudiante.aporteQuincenas[0] == 6
+        estudiante.monedasSemanas[0] == 2
+        estudiante.aporteSemanas[0] == 6
     }
 
-    void "test traer datos de la facción después de pruebas mecánicas"()
+    void "test traer datos del equipo después de pruebas mecánicas"()
     {
         when:
-        Faccion faccion = service.traerFaccion(FACCION)
+        Equipo equipo = service.traerEquipo(EQUIPO)
 
         then:
-        faccion.monedas == 31
-        faccion.puntos == 0
-        faccion.promedioMonedas() == 3
-        faccion.promedioPuntos() == 0
+        equipo.monedas == 31
+        equipo.puntos == 0
+        equipo.promedioMonedas() == 3
+        equipo.promedioPuntos() == 0
     }
 
     void "test registrar pruebas cognitivas"()
@@ -272,12 +273,12 @@ class AppServiceSpec extends Specification
     void "test traer datos del estudiante después de pruebas cognitivas"()
     {
         when:
-        User estudiante = service.traerDatosEstudiante('1')
+        Estudiante estudiante = service.traerDatosEstudiante('1')
         then:
         estudiante.puntos == 3
         estudiante.gemas == 2
         estudiante.medallas == 0
-        estudiante.estrellasQuincenas[0] == 5
+        estudiante.monedasSemanas[0] == 10
 
         when:
         estudiante = service.traerDatosEstudiante('2')
@@ -285,7 +286,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 8
         estudiante.gemas == 2
         estudiante.medallas == 0
-        estudiante.estrellasQuincenas[0] == 4
+        estudiante.monedasSemanas[0] == 5
 
         when:
         estudiante = service.traerDatosEstudiante('3')
@@ -293,7 +294,7 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 20
         estudiante.gemas == 3
         estudiante.medallas == 0
-        estudiante.estrellasQuincenas[0] == 3
+        estudiante.monedasSemanas[0] == 4
 
         when:
         estudiante = service.traerDatosEstudiante('6')
@@ -301,19 +302,19 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 20
         estudiante.gemas == 3
         estudiante.medallas == 0
-        estudiante.estrellasQuincenas[0] == 0
+        estudiante.monedasSemanas[0] == 0
     }
 
-    void "test traer datos de la facción después de pruebas cognitivas"()
+    void "test traer datos del equipo después de pruebas cognitivas"()
     {
         when:
-        Faccion faccion = service.traerFaccion(FACCION)
+        Equipo equipo = service.traerEquipo(EQUIPO)
 
         then:
-        faccion.monedas == 31
-        faccion.puntos == 51
-        faccion.promedioMonedas() == 3
-        faccion.promedioPuntos() == 6
+        equipo.monedas == 31
+        equipo.puntos == 51
+        equipo.promedioMonedas() == 3
+        equipo.promedioPuntos() == 6
     }
 
     void "test registrar pruebas honoríficas"()
@@ -342,12 +343,12 @@ class AppServiceSpec extends Specification
     void "test traer datos del estudiante después de pruebas honorificas"()
     {
         when:
-        User estudiante = service.traerDatosEstudiante('3')
+        Estudiante estudiante = service.traerDatosEstudiante('3')
         then:
         estudiante.puntos == 50
         estudiante.gemas == 3
         estudiante.medallas == 1
-        estudiante.estrellasQuincenas[0] == 3
+        estudiante.monedasSemanas[0] == 4
 
         when:
         estudiante = service.traerDatosEstudiante('6')
@@ -355,29 +356,29 @@ class AppServiceSpec extends Specification
         estudiante.puntos == 20
         estudiante.gemas == 3
         estudiante.medallas == 0
-        estudiante.estrellasQuincenas[0] == 0
+        estudiante.monedasSemanas[0] == 0
     }
 
-    void "test traer datos de la facción después de pruebas honoríficas"()
+    void "test traer datos del equipo después de pruebas honoríficas"()
     {
         when:
-        Faccion faccion = service.traerFaccion(FACCION)
+        Equipo equipo = service.traerEquipo(EQUIPO)
 
         then:
-        faccion.monedas == 31
-        faccion.puntos == 111
-        faccion.promedioMonedas() == 3
-        faccion.promedioPuntos() == 13
+        equipo.monedas == 31
+        equipo.puntos == 111
+        equipo.promedioMonedas() == 3
+        equipo.promedioPuntos() == 13
     }
 
-    void "test traer comparativo de facciones"()
+    void "test traer comparativo de equipos"()
     {
         when:
-        Seccion seccion = service.traerSeccion(FACCION)
+        Seccion seccion = service.traerSeccion(EQUIPO)
 
         then:
-        seccion.facciones[0].promedioMonedas() == 3
-        seccion.facciones[0].promedioPuntos() == 13
+        seccion.equipos[0].promedioMonedas() == 3
+        seccion.equipos[0].promedioPuntos() == 13
     }
 
     void "test eliminar estudiantes"()
@@ -423,12 +424,12 @@ class AppServiceSpec extends Specification
         mensaje == 'El estudiante 8 ha sido eliminado.'
     }
 
-    void "test eliminar facción"()
+    void "test eliminar equipo"()
     {
         when:
-        String mensaje = service.eliminarFaccion(FACCION)
+        String mensaje = service.eliminarEquipo(EQUIPO)
 
         then:
-        mensaje == 'La facción ' + FACCION + ' ha sido eliminada.'
+        mensaje == 'El equipo ' + EQUIPO + ' ha sido eliminado.'
     }
 }

@@ -10,14 +10,14 @@
 		<g:form url="[action:'stAssesmentCourseGrades']" method="POST" >
 		
 				<strong>Actividad: </strong>
-				<g:select from="${estudiantes.sort{it.user.username}}" name="username" optionValue="${{it.nombre + ' ('+it.faccion.nombreFaccion + ')'}}" optionKey="${{it.user.username}}" noSelection="${['Empty':'Elegir uno']}" />
+				<g:select from="${estudiantes.sort{it.user.username}}" name="username" optionValue="${{it.nombre + ' ('+it.equipo.nombre + ')'}}" optionKey="${{it.user.username}}" noSelection="${['Empty':'Elegir uno']}" />
 				<g:actionSubmit class="btn btn-green" action="dashboardEstudiante" value="Enviar" />
 				<br />
 				<br />
 		</g:form>
 
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#faccion">Facción</a></li>
+  <li class="active"><a data-toggle="tab" href="#equipo">Equipo</a></li>
   <li><a data-toggle="tab" href="#individual">Individual</a></li>
 
 </ul>
@@ -28,7 +28,7 @@
     <div class="col-xs-12 col-sm-4">
       <div class="boxSem">
 		<br />
-        <!--  TABLA QUINCENA -->
+        <!--  TABLA SEMANA -->
         <table width="100%" cellpadding="0" cellspacing="0">
           <thead>
             <tr>
@@ -36,20 +36,20 @@
                 <i class="fa fa-calendar" aria-hidden="true"></i>
               </th>
               <th>
-                Estrellas ganadas por quincena
+                Monedas ganadas por semana
               </th>
               <th>
-                Aporte a mi facción por quincena
+                Aporte a mi equipo por semana
               </th>
             </tr>
           </thead>
           <tbody>
-          	<g:each in="${quincenas}" var="quincena" status="i">
+          	<g:each in="${semanas}" var="semana" status="i">
 	            <!-- item -->
 	            <tr>
-	              <td>${quincena}</td>
+	              <td>${semana}</td>
 	              <td>
-	                <i class="fa fa-star" aria-hidden="true"></i> X ${estrellas[i]}
+                      <span class="mon"> X ${monedas[i]}</span>
 	              </td>
 	              <td>
 	                <div class="progress">
@@ -65,15 +65,17 @@
           <tfoot>
             <tr>
               <td colspan="2">
-                <span class="gem">${estudiante.gemas} - Puntos: ${estudiante.puntos}</span>
+                <span class="gem">Gemas ${estudiante.gemas}</span>
+                  <span class="cop">Puntos ${estudiante.puntos}</span>
               </td>
               <td>
-                <span class="med">${estudiante.medallas}</span>
+                  <span class="med">Medallas ${estudiante.medallas}</span>
+                  <span class="mon">Monedas ${estudiante.monedas}</span>
               </td>
             </tr>
           </tfoot>
         </table>
-        <!--  TABLA QUINCENA -->
+        <!--  TABLA SEMANA -->
       </div>
     </div>
   </div>  
@@ -81,56 +83,65 @@
 
 
     
-<div id="faccion" class="tab-pane fade in active">
+<div id="equipo" class="tab-pane fade in active">
 <br />
   <div class="container">
     <div class="col-xs-12 col-sm-8">
       <div class="boxFacciones">
           <br />
           <ul class="nav nav-tabs">
-              <li class="active"><a data-toggle="tab" href="#faccion1">A</a></li>
-              <li><a data-toggle="tab" href="#faccion2">B</a></li>
-              <li><a data-toggle="tab" href="#faccion3">C</a></li>
-              <li><a data-toggle="tab" href="#faccion4">D</a></li>
+            <g:each in="${equipos}" status="i" var="equipo">
+                <g:if test="${i == 0}">
+                    <li class="active"><a data-toggle="tab" href="#equipo${i+1}">Equipo ${i+1}</a></li>
+                </g:if>
+                <g:else>
+                    <li><a data-toggle="tab" href="#equipo${i+1}">Equipo ${i+1}</a></li>
+                </g:else>
+            </g:each>
           </ul>
           <div class="tab-content">
-              <g:each in="${facciones}" status="i" var="faccion">
+              <g:each in="${equipos}" status="i" var="equipo">
                   <g:if test="${i == 0}">
-                      <div id="faccion${i+1}" class="tab-pane fade in active">
+                      <div id="equipo${i+1}" class="tab-pane fade in active">
                   </g:if>
                   <g:else>
-                      <div id="faccion${i+1}" class="tab-pane fade">
+                      <div id="equipo${i+1}" class="tab-pane fade">
                   </g:else>
                       <div class="fac1">
                           <table width="100%" cellpadding="0" cellspacing="0">
                               <thead>
                               <tr>
-                                  <th colspan="3">
-                                      <i class="fa fa-users" aria-hidden="true"></i> ${faccion.nombreFaccion}
+                                  <th colspan="4">
+                                      <i class="fa fa-users" aria-hidden="true"></i> ${equipo.nombre}
                                   </th>
                               </tr>
                               <tr>
                                   <th>
-                                      <span class="cop"> X ${faccion.puntos} - Promedio ${faccion.promedioPuntos()}</span>
+                                      <span class="login"><i class="fa fa-user-o" aria-hidden="true"></i> Login</span>
                                   </th>
-                                  <th colspan="2">
-                                      <span class="mon"> X ${faccion.monedas} - Prom ${faccion.promedioMonedas()}</span>
+                                  <th>
+                                      <span class="cop"> Puntos X ${equipo.puntos} - Promedio ${equipo.promedioPuntos()}</span>
+                                  </th>
+                                  <th>
+                                      <span class="mon"> Monedas X ${monedasTotal[i]} - Disponibles ${equipo.monedas}</span>
+                                  </th>
+                                  <th>
+                                      <span class="med">Medallas</span>
                                   </th>
                               </tr>
                               </thead>
                               <tbody>
-                              <g:each in="${faccion.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
+                              <g:each in="${equipo.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
                                   <tr>
                                       <td>${miembro.user.username}</td>
+                                      <td style="text-align:center;">${miembro.puntos}</td>
+                                      <td style="text-align:center;">${miembro.monedas}</td>
                                       <td>
                                           <g:set var="counter" value="${0}"/>
                                           <g:while test="${counter < miembro.medallas}">
                                               <asset:image src="med.png" alt="Medalla" />
                                               <g:set var="counter" value="${counter+1}"/>
                                           </g:while>
-                                      </td>
-                                      <td>
-                                          ${miembro.puntos}
                                       </td>
                                   </tr>
                               </g:each>

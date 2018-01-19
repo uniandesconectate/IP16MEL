@@ -4,14 +4,15 @@ class Estudiante
 {
     User user
     String nombre
-    int medallas=0
-    int gemas=0
-    int puntos=0
-    int[] estrellasQuincenas =[0, 0, 0, 0, 0, 0]
-    double[] aporteQuincenas =[0, 0, 0, 0, 0, 0]
-    static belongsTo = [faccion: Faccion]
+    int medallas = 0
+    int gemas = 0
+    int puntos = 0
+    int[] monedasSemanas = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    double[] aporteSemanas = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    int monedas = 0
+    static belongsTo = [equipo: Equipo]
 
     static constraints = {
-        faccion nullable: true
+        equipo nullable: true
     }
 }
