@@ -162,18 +162,18 @@ class RequestController
             value = params.int('value1')
             mensaje = appService.gastarMonedasEquipo(params['equipoId'].toString(), value)
             mensaje = 'La compra del poder ha sido exitosa. ' + mensaje
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró el poder. ' + ex.message
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.message + "</p>")
         }
         finally
@@ -214,18 +214,18 @@ class RequestController
             cantidades.addAll([value1, value2] as Integer[])
             mensaje = appService.gastarGemasGrupo(idEstudiantes, cantidades)
             mensaje = 'La compra de la ayuda ha sido exitosa. ' + mensaje
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró la ayuda. ' + ex.message
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -258,18 +258,18 @@ class RequestController
             value = params.int('value1')
             mensaje = appService.gastarGemasEstudiante(params['userId1'].toString(), value)
             mensaje = 'La compra del ejercicio ha sido exitosa. ' + mensaje
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(ServicioException ex)
         {
             mensaje = 'No se compró el ejercicio. ' + ex.message
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -335,7 +335,7 @@ class RequestController
             if (tipoPrueba == 'M')
             {
                 mensaje = appService.registrarPrueba(appService.MECANICA + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             }
             else if (tipoPrueba == 'C')
             {
@@ -343,17 +343,17 @@ class RequestController
                 if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + semana.toString(), userId, score.toInteger())
                 else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + semana.toString(), userId, score.toInteger())
                 else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             }
             else if (tipoPrueba == 'H')
             {
                 mensaje = appService.registrarPrueba(appService.HONORIFICA + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             }
         }
         catch(ServicioException ex)
         {
-            System.out.println("Usuario: " + userId + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println("Usuario: " + userId + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
         }
 	}
 
@@ -404,7 +404,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -414,6 +414,30 @@ class RequestController
             Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
 	}
+
+    @Secured(['permitAll'])
+    def cargarAutomat()
+    {
+        try
+        {
+            MultipartFile archivo = request.getFile('archivo')
+            def split
+            if (archivo && (split = archivo.getOriginalFilename().split('\\.')).length > 1 && split[split.length - 1] == 'csv')
+            {
+                String nombreArchivo = grailsApplication.config.co.edu.uniandes.uploadfolder + archivo.getOriginalFilename()
+                File archivoLocal = new File(nombreArchivo)
+                archivo.transferTo(archivoLocal)
+                upload(nombreArchivo)
+            }
+            else throw new ServicioException("Debe cargar un archivo en formato csv")
+            redirect(action: 'index')
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+    }
 
     @Secured(['ROLE_SUPERADMIN'])
     def cargarEstudiantes()
@@ -443,13 +467,13 @@ class RequestController
                 registros.add(linea)
             }
             br.close()
-            registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
-            registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
-            registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)} }
+            registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
+            registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
+            registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
             registros.each{
                 try
                 {
-                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser.username)
+                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
                     user = User.findByUsername(it[0])
                     if(user == null)
                     {
@@ -466,14 +490,14 @@ class RequestController
                 }
                 catch(ServicioException ex)
                 {
-                    System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
+                    System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
                 }
             }
             redirect(action: 'index')
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -537,7 +561,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
@@ -570,12 +594,12 @@ class RequestController
         {
             mensaje = appService.reiniciarMonedasSeccion(params['nombreSeccion'].toString())
             mensaje = 'El reinicio de monedas ha sido exitoso. ' + mensaje
-            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             [userName: springSecurityService.getCurrentUser().username, message: mensaje]
         }
         catch(Exception ex)
         {
-            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser.username)
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
         finally
