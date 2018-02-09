@@ -1,0 +1,4 @@
+wget http://uraba.uniandes.edu.co/mel/gradeBookExtract$(date +%Y-%m-%d).csv -P /datos/cargueMEL
+curl -F "archivo=@/datos/cargueMEL/gradeBookExtract$(date +%Y-%m-%d).csv" -X POST http://union.uniandes.edu.co:8080/MEL/request/cargarAutomat
+rm /datos/cargueMEL/catalina.out
+cp /var/lib/tomcat7/logs/catalina.out /datos/cargueMEL
