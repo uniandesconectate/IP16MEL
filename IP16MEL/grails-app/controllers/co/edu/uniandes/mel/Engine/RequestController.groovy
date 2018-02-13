@@ -34,6 +34,9 @@ class RequestController
     // Username del último usuario que ingresó a la aplicación.
     String lstUsuario
 
+    /**
+     * Despliega la vista principal del dashboard.
+     */
 	@Secured(['ROLE_STUDENT','ROLE_ADMIN','ROLE_SUPERADMIN'])
 	def index()
     {
@@ -58,7 +61,7 @@ class RequestController
 	}
 
 	/**
-	 * Carga el dashboard de un estudiante.
+	 * Despliega el dashboard de un estudiante.
 	 **/
 	@Secured(['ROLE_STUDENT'])
 	def dashboard()
@@ -98,7 +101,7 @@ class RequestController
 	}
 
     /**
-     * Carga el dashboard de un estudiante por parte del profesor.
+     * Despliega el dashboard de un estudiante para ser visualizado por un profesor.
      **/
 	def dashboardEstudiante()
 	{
@@ -140,6 +143,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista para comprar un poder para un equipo.
+     */
 	def comprarEquipo()
     {
         try
@@ -151,7 +157,10 @@ class RequestController
             render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
         }
 	}
-	
+
+    /**
+     * Despliega la vista de confirmación de compra de un poder por parte de un equipo.
+     */
 	def comprarEquipoSave()
     {
 		String mensaje
@@ -184,6 +193,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista para comprar una ayuda para una parejas de estudiantes.
+     */
 	def comprarEnGrupo()
     {
         try
@@ -196,6 +208,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista de confirmación de compra de una ayuda por parte de una pareja de estudiantes.
+     */
 	def comprarEnGrupoSave()
     {
 		String mensaje
@@ -236,6 +251,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista para comprar un ejercicio para un estudiante.
+     */
 	def comprarEjercicios()
 	{
         try
@@ -248,6 +266,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista de confirmación de compra de un ejercicio por parte de un estudiante.
+     */
 	def comprarEjerciciosSave()
     {
 		String mensaje
@@ -280,6 +301,11 @@ class RequestController
         }
 	}
 
+    /**
+     * Procesa los datos de los archivos de notas de Sicua.
+     * @param csvFile
+     *        Archivo de notas en formato csv.
+     */
 	private void upload(String csvFile)
     {
 		BufferedReader br = null
@@ -312,7 +338,12 @@ class RequestController
             }
         }
 	}
-	
+
+    /**
+     * Procesa una línea específica de un archivo de notas de Sicua.
+     * @param linea
+     *        Línea en formato csv.
+     */
 	private void proceseLinea(def linea)
     {
 		String userId
@@ -357,6 +388,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista para seleccionar el archivo de notas de Sicua a cargar.
+     */
     @Secured(['ROLE_SUPERADMIN'])
 	def solicitarArchivo()
     {
@@ -372,6 +406,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Despliega la vista para editar usuarios.
+     */
     @Secured(['ROLE_SUPERADMIN'])
     def editarUsuarios()
     {
@@ -385,6 +422,9 @@ class RequestController
         }
     }
 
+    /**
+     * Despliega la vista para cargar un archivo de notas de Sicua.
+     */
     @Secured(['ROLE_SUPERADMIN'])
 	def cargarInformacion()
     {
@@ -415,6 +455,9 @@ class RequestController
         }
 	}
 
+    /**
+     * Método que se invoca para cargar automáticamente un archivo de notas de Sicua.
+     */
     @Secured(['permitAll'])
     def cargarAutomat()
     {
@@ -439,6 +482,9 @@ class RequestController
         }
     }
 
+    /**
+     * Permite cargar estudiantes a partir de un archivo csv.
+     */
     @Secured(['ROLE_SUPERADMIN'])
     def cargarEstudiantes()
     {
@@ -508,6 +554,9 @@ class RequestController
         }
     }
 
+    /**
+     * Permite cargar profesores a partir de un archivo csv.
+     */
     @Secured(['ROLE_SUPERADMIN'])
     def cargarProfesores()
     {
@@ -572,6 +621,9 @@ class RequestController
         }
     }
 
+    /**
+     * Despliega la vista para reiniciar las monedas de todos los equipos de una sección.
+     */
     @Secured(['ROLE_SUPERADMIN', 'ROLE_ADMIN'])
     def reiniciarMonedas()
     {
@@ -585,6 +637,9 @@ class RequestController
         }
     }
 
+    /**
+     * Despliega la vista de confirmación de reinicio de monedas de una sección.
+     */
     @Secured(['ROLE_SUPERADMIN', 'ROLE_ADMIN'])
     def reiniciarMonedasSave()
     {
