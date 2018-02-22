@@ -471,6 +471,14 @@ class RequestController
                 File archivoLocal = new File(nombreArchivo)
                 archivo.transferTo(archivoLocal)
                 upload(nombreArchivo)
+
+                // Imprimir el estado actual del juego.
+                System.out.println("--- Inicio estado del juego MEL --- " + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                Administrador.findByNombre('se-busto').secciones.sort{it.nombre}.each{ appService.traerSeccion(it.nombre).equipos.each { eq ->
+                    System.out.println("Equipo: " + eq.nombre + " pts: " + eq.puntos + " mon: " + eq.monedas)
+                    eq.miembros.each {mie -> System.out.println("Miembro: " + mie.nombre + " gem: " + mie.gemas + " med: " + mie.medallas + " pts: " +mie.puntos + " mon: " + mie.monedas) }
+                }}
+                System.out.println("--- Fin estado del juego MEL ---")
             }
             else throw new ServicioException("Debe cargar un archivo en formato csv")
             redirect(action: 'index')
