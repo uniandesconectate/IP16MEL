@@ -136,8 +136,10 @@ class AppService
         json.teams.each{ tm ->
             if(tm.name.toString().contains(nombreSeccion))
             {
-                ('1'..'10').each{
-                    if(tm.name.toString().contains(it))
+                equipo = null
+                for(int k = 1; k <= 40 && equipo == null; k++)
+                {
+                    if(tm.name.toString().endsWith(k.toString()))
                     {
                         equipo = new Equipo()
                         equipo.seccion = seccion
@@ -157,8 +159,8 @@ class AppService
                             miembro.monedas = mie.contributions.monedas != null ? mie.contributions.monedas : 0
                             equipo.miembros.add(miembro)
                         }
+                        seccion.equipos.add(equipo)
                     }
-                    seccion.equipos.add(equipo)
                 }
             }
         }

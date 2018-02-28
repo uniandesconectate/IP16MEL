@@ -67,17 +67,17 @@
                             <div class="boxFacciones">
                                 <br />
                                 <ul class="nav nav-tabs">
-                                    <g:each in="${equipos}" status="i" var="equipo">
+                                    <g:each in="${equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}}" status="i" var="equipo">
                                         <g:if test="${i == 0}">
-                                            <li class="active"><a data-toggle="tab" href="#equipo${i+1}">Equipo ${i+1}</a></li>
+                                            <li class="active"><a data-toggle="tab" href="#equipo${i+1}">Equipo ${equipo.nombre.substring(equipo.nombre.lastIndexOf(' '))}</a></li>
                                         </g:if>
                                         <g:else>
-                                            <li><a data-toggle="tab" href="#equipo${i+1}">Equipo ${i+1}</a></li>
+                                            <li><a data-toggle="tab" href="#equipo${i+1}">Equipo ${equipo.nombre.substring(equipo.nombre.lastIndexOf(' '))}</a></li>
                                         </g:else>
                                     </g:each>
                                 </ul>
                                 <div class="tab-content">
-                                    <g:each in="${equipos}" status="i" var="equipo">
+                                    <g:each in="${equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}}" status="i" var="equipo">
                                         <g:if test="${i == 0}">
                                         <div id="equipo${i+1}" class="tab-pane fade in active">
                                         </g:if>
