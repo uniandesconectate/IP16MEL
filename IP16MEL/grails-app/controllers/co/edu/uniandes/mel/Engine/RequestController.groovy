@@ -83,7 +83,7 @@ class RequestController
                 monedas.add(estudiante.monedasSemanas[i])
                 porcentajes.add(estudiante.aporteSemanas[i])
             }
-            equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 17).trim()).equipos
+            equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 17).trim()).equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}
             for (int i = 0; i < equipos.length; i++)
             {
                 monedasTotal.add(0)
@@ -124,7 +124,7 @@ class RequestController
                     monedas.add(estudiante.monedasSemanas[i])
                     porcentajes.add(estudiante.aporteSemanas[i])
                 }
-                equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 17).trim()).equipos
+                equipos = appService.traerSeccion(estudiante.equipo.nombre.substring(0, 17).trim()).equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}
                 for (int i = 0; i < equipos.length; i++)
                 {
                     monedasTotal.add(0)
