@@ -113,22 +113,6 @@ class MotorService
     }
 
     /***
-     * Permite agregar un jugador a un equipo.
-     * @param app
-     * @param idTeam
-     * @param idPlayer
-     * @return
-     */
-    RestResponse joinTeam(String app, String idTeam, String idPlayer)
-    {
-        RestBuilder rest
-        RestResponse resp
-        rest = new RestBuilder()
-        resp = rest.post("http://playngage.io/api/v2/teams/" + idTeam + "/players/" + idPlayer) { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
-        return resp
-    }
-
-    /***
      * Permite a un jugador aceptar una misión.
      * @param app
      * @param idMission
@@ -310,7 +294,7 @@ class MotorService
         RestBuilder rest
         RestResponse resp
         rest = new RestBuilder()
-        resp = rest.put("http://playngage.io/api/v2/teams/" + idTeam + "/players/" + idPlayer + "?exclude=members,pending") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
+        resp = rest.put("http://playngage.io/api/v2/teams/" + idTeam + "/players/" + idPlayer + "?exclude=members,pending&options=move_contributions") { header 'Authorization', 'Token token=' + app header 'Accept', '*/*' }
         return resp
     }
 

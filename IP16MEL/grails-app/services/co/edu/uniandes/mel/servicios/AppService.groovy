@@ -225,6 +225,25 @@ class AppService
         return mensaje
     }
 
+    /**
+     * Asigna el jugador al equipo indicado por parámetro, sacándolo de los equipos en los que se encuentre asignado actualmente.
+     * @param nombreEquipo
+     * @param idEstudiante
+     * @return
+     * @throws ServicioException
+     */
+    String cambiarEquipo(String nombreEquipo, String idEstudiante) throws ServicioException
+    {
+        JSONElement json
+        String mensaje
+
+        json = motorService.changeTeam(APP_TOKEN, nombreEquipo.replaceAll(' ', ''), idEstudiante).json
+        if(json.success) mensaje = 'El jugador ' + idEstudiante + ' ha sido movido al equipo ' + nombreEquipo
+        else throw new ServicioException('Hubo un problema al mover el jugador ' + idEstudiante + ' al equipo ' + nombreEquipo + ': ' + json.status.toString())
+
+        return mensaje
+    }
+
     /***
      * Elimina un equipo.
      * @param nombreEquipo

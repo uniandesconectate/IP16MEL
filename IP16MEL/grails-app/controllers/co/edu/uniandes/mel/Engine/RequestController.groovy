@@ -672,4 +672,67 @@ class RequestController
             Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
         }
     }
+
+    /**
+     * Permite a un jugador cambiar de equipo.
+     */
+    @Secured(['ROLE_SUPERADMIN', 'ROLE_ADMIN'])
+    def cambiarEquipos()
+    {
+        int cnt
+        int veces = 0
+        int resJugadores = 0
+        int numJugadores
+        String equipoAct
+        String nombreEquipo
+        String usuEstudiante
+        String mensaje
+
+        try
+        {
+            numJugadores = Integer.parseInt((String) params.numMiembros)
+            equipoAct = params.equipoAc
+            cnt = Integer.parseInt((String) params.cnt)
+            for(int i = 0; i < numJugadores; i++)
+            {
+                usuEstudiante = params['miembro_' + i].toString()
+                nombreEquipo = params['selEquipo_' + i].toString()
+                if(nombreEquipo == 'nuevo')
+                {
+                    nombreEquipo = equipoAct.substring(0, equipoAct.length() - 1) + cnt
+                    if(veces == 0)
+                    {
+                        mensaje = appService.crearEquipo(nombreEquipo)
+                        System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                    }
+                    veces++
+                    mensaje = appService.cambiarEquipo(nombreEquipo, usuEstudiante)
+                    System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                }
+                else if(nombreEquipo != 'igual')
+                {
+                    mensaje = appService.cambiarEquipo(nombreEquipo, usuEstudiante)
+                    System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                }
+                else resJugadores++
+            }
+            if(resJugadores == 0)
+            {
+                mensaje = appService.eliminarEquipo(equipoAct)
+                System.out.println(mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            }
+            redirect(action: 'dashboardEstudiante', params: [username: usuEstudiante])
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+        }
+        finally
+        {
+            estudiantesProf = []
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
+        }
+    }
 }

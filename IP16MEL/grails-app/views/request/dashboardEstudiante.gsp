@@ -7,8 +7,7 @@
 
 <section>
 
-		<g:form url="[action:'stAssesmentCourseGrades']" method="POST" >
-		
+		<g:form url="[action:'stAssesmentCourseGrades']" method="POST" style="margin-left:1%;" >
 				<strong>Actividad: </strong>
 				<g:select from="${estudiantes.sort{it.user.username}}" name="username" optionValue="${{it.nombre + ' ('+it.equipo.nombre + ')'}}" optionKey="${{it.user.username}}" noSelection="${['Empty':'Elegir uno']}" />
 				<g:actionSubmit class="btn btn-green" action="dashboardEstudiante" value="Enviar" />
@@ -16,7 +15,7 @@
 				<br />
 		</g:form>
 
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs" style="margin-left:1%;">
   <li class="active"><a data-toggle="tab" href="#equipo">Equipo</a></li>
   <li><a data-toggle="tab" href="#individual">Individual</a></li>
 
@@ -97,6 +96,7 @@
                 <g:else>
                     <li><a data-toggle="tab" href="#equipo${i+1}">Equipo ${equipo.nombre.substring(equipo.nombre.lastIndexOf(' '))}</a></li>
                 </g:else>
+                <g:set var="cnt" value="${equipo.nombre.substring(equipo.nombre.lastIndexOf(' ')).toInteger()}" />
             </g:each>
           </ul>
           <div class="tab-content">
@@ -108,45 +108,65 @@
                       <div id="equipo${i+1}" class="tab-pane fade">
                   </g:else>
                       <div class="fac1">
-                          <table width="100%" cellpadding="0" cellspacing="0">
-                              <thead>
-                              <tr>
-                                  <th colspan="4">
-                                      <i class="fa fa-users" aria-hidden="true"></i> ${equipo.nombre}
-                                  </th>
-                              </tr>
-                              <tr>
-                                  <th>
-                                      <span class="login"><i class="fa fa-user-o" aria-hidden="true"></i> Login</span>
-                                  </th>
-                                  <th>
-                                      <span class="cop"> Puntos X ${equipo.puntos} - Promedio ${equipo.promedioPuntos()}</span>
-                                  </th>
-                                  <th>
-                                      <span class="mon"> Monedas X ${monedasTotal[i]} - Disponibles ${equipo.monedas}</span>
-                                  </th>
-                                  <th>
-                                      <span class="med">Medallas</span>
-                                  </th>
-                              </tr>
-                              </thead>
-                              <tbody>
-                              <g:each in="${equipo.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
+                          <g:form action="cambiarEquipos" method="POST">
+                              <input type="hidden" name="numMiembros" value="${equipo.miembros.size()}" />
+                              <input type="hidden" name="equipoAc" value="${equipo.nombre}" />
+                              <input type="hidden" name="cnt" value="${cnt + 1}" />
+                              <table width="100%" cellpadding="0" cellspacing="0">
+                                  <thead>
                                   <tr>
-                                      <td>${miembro.user.username}</td>
-                                      <td style="text-align:center;">${miembro.puntos}</td>
-                                      <td style="text-align:center;">${miembro.monedas}</td>
-                                      <td>
-                                          <g:set var="counter" value="${0}"/>
-                                          <g:while test="${counter < miembro.medallas}">
-                                              <asset:image src="med.png" alt="Medalla" />
-                                              <g:set var="counter" value="${counter+1}"/>
-                                          </g:while>
-                                      </td>
+                                      <th colspan="5">
+                                          <i class="fa fa-users" aria-hidden="true"></i> ${equipo.nombre}
+                                      </th>
                                   </tr>
-                              </g:each>
-                              </tbody>
-                          </table>
+                                  <tr>
+                                      <th>
+                                          <span class="login"><i class="fa fa-user-o" aria-hidden="true"></i> Login</span>
+                                      </th>
+                                      <th>
+                                          <span class="cop"> Puntos X ${equipo.puntos} - Promedio ${equipo.promedioPuntos()}</span>
+                                      </th>
+                                      <th>
+                                          <span class="mon"> Monedas X ${monedasTotal[i]} - Disponibles ${equipo.monedas}</span>
+                                      </th>
+                                      <th>
+                                          <span class="med">Medallas</span>
+                                      </th>
+                                      <th style="text-align:center;background: #82bc79">
+                                          <button type="submit" style="padding: 1% 4% 1% 4%;" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Actualizar equipos"><span class="glyphicon glyphicon-refresh"></span></button> <span style="font-weight:400;">Equipo</span>
+                                      </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  <g:each in="${equipo.miembros.sort(false){-it.puntos}}" var="miembro" status="k">
+                                      <tr>
+                                          <td>${miembro.user.username}</td>
+                                          <td style="text-align:center;">${miembro.puntos}</td>
+                                          <td style="text-align:center;">${miembro.monedas}</td>
+                                          <td>
+                                              <g:set var="counter" value="${0}"/>
+                                              <g:while test="${counter < miembro.medallas}">
+                                                  <asset:image src="med.png" alt="Medalla" />
+                                                  <g:set var="counter" value="${counter+1}"/>
+                                              </g:while>
+                                          </td>
+                                          <td>
+                                              <input type="hidden" name="miembro_${k}" value="${miembro.user.username}" />
+                                              <select name="selEquipo_${k}" style="margin:5% 0% 5% 0%;">
+                                                  <option value="igual" selected>--</option>
+                                                    <g:each in="${equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}}" status="e2" var="equipo2">
+                                                        <g:if test="${equipo != equipo2}">
+                                                            <option value="${equipo2.nombre}">${equipo2.nombre.substring(equipo2.nombre.length() - 8, equipo2.nombre.length())}</option>
+                                                        </g:if>
+                                                    </g:each>
+                                                  <option value="nuevo">Equipo ${cnt + 1}</option>
+                                              </select>
+                                          </td>
+                                      </tr>
+                                  </g:each>
+                                  </tbody>
+                              </table>
+                          </g:form>
                       </div>
                   </div>
               </g:each>
