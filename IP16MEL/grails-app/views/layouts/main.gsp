@@ -1,25 +1,66 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
-<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
-<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
-<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"><!--<![endif]-->
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<title><g:layoutTitle default="Grails"/></title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
-		<link rel="apple-touch-icon" href="${assetPath(src: 'apple-touch-icon.png')}">
-		<link rel="apple-touch-icon" sizes="114x114" href="${assetPath(src: 'apple-touch-icon-retina.png')}">
-  		<asset:stylesheet src="application.css"/>
-		<asset:javascript src="application.js"/>
-		<g:layoutHead/>
-	</head>
-	<body>
-		<div id="grailsLogo" role="banner"><a href="http://grails.org"><asset:image src="grails_logo.png" alt="Grails"/></a></div>
-		<g:layoutBody/>
-		<div class="footer" role="contentinfo"></div>
-		<div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>
-	</body>
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Matemática Estructural y Lógica | Universidad de Los Andes</title>
+	<link rel="shortcut icon" href="favicon.ico" />
+	<asset:stylesheet src="font-awesome.min.css" />
+	<asset:stylesheet src="custom.min.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<g:layoutHead/>
+</head>
+<body>
+<header>
+	<div class="container">
+		<div class="col-xs-12 col-md-8">
+			<h1><g:link controller="request" action="index">Matemática Estructural y Lógica</g:link></h1>
+		</div>
+		<sec:ifLoggedIn>
+			<div class="col-xs-12 col-md-4">
+				<div class="userBox">
+					<div class="user">${userName}</div>
+					<g:link controller="logout">Salir</g:link>
+				</div>
+			</div>
+		</sec:ifLoggedIn>
+		<sec:ifNotLoggedIn>
+			<div class="col-xs-12 col-md-4">
+				<div class="userBox">
+					<div class="user"></div>
+					<g:link controller="request" action="index">Login</g:link><br />
+				</div>
+			</div>
+		</sec:ifNotLoggedIn>
+	</div>
+</header>
+
+<g:layoutBody/>
+
+<footer>
+	<div class="container">
+		<div class="col-xs-12 col-sm-3">
+			<a href="http://uniandes.edu.co/" target="_blank">
+				<asset:image src="uniandes.png" alt="Universidad de Los Andes" />
+			</a>
+		</div>
+		<div class="col-xs-12 col-sm-6">
+			Universidad de los Andes | Vigilada Mineducación<br />
+			Reconocimiento como Universidad: Decreto 1297 del 30 de mayo de 1964.<br />
+			Reconocimiento personería jurídica: Resolución 28 del 23 de febrero de 1949 Minjusticia.<br />
+			Cra 1 Nº 18A- 12 Bogotá, (Colombia) | Código postal: 111711 | Tels: +571 3394949 - +571 3394999
+		</div>
+		<div class="col-xs-12 col-sm-3">
+			<a href="http://conectate.uniandes.edu.co/" target="_blank">
+				<asset:image src="conectate.png" alt="Conecta-TE" />
+			</a>
+		</div>
+	</div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+</body>
 </html>
