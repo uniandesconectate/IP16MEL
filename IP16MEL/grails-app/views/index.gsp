@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
+    <meta name='layout' content='mainBootstrap'/>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Matemática Estructural y Lógica | Universidad de Los Andes</title>
