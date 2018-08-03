@@ -521,23 +521,23 @@ class RequestController
                 registros.add(linea)
             }
             br.close()
-            registros.each{ try {message = appService.eliminarEstudiante(it[0]); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
+            registros.each{ try {message = appService.eliminarEstudiante(it[0].trim()); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
             registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
             registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
             registros.each{
                 try
                 {
-                    message = appService.crearEstudiante(it[0], it[0], it[0] + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-                    user = User.findByUsername(it[0])
+                    message = appService.crearEstudiante(it[0].trim(), it[0].trim(), it[0].trim() + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                    user = User.findByUsername(it[0].trim())
                     if(user == null)
                     {
-                        user = new User(username: it[0], password: 'L4m3nt0B0l')
+                        user = new User(username: it[0].trim(), password: 'L4m3nt0B0l')
                         user.save(flush: true)
                     }
                     estudiante = Estudiante.findByUser(user)
                     if(estudiante != null) estudiante.delete()
                     estudiante = new Estudiante()
-                    estudiante.nombre = it[0]
+                    estudiante.nombre = it[0].trim()
                     estudiante.user = user
                     estudiante.save(flush: true)
                     UserRole.create estudiante.user, Role.get(2), true
@@ -594,16 +594,16 @@ class RequestController
             }
             br.close()
             registros.each{
-                user = User.findByUsername(it[0])
+                user = User.findByUsername(it[0].trim())
                 if(user == null)
                 {
-                    user = new User(username: it[0], password: 'ks3d7fcd8$f1')
+                    user = new User(username: it[0].trim(), password: 'ks3d7fcd8$f1')
                     user.save(flush: true)
                 }
                 profesor = Administrador.findByUser(user)
                 if(profesor != null) profesor.delete()
                 profesor = new Administrador()
-                profesor.nombre = it[0]
+                profesor.nombre = it[0].trim()
                 profesor.user = user
                 profesor.secciones = []
                 it[1].split('&').each {sec ->

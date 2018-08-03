@@ -63,7 +63,7 @@
                 <div id="equipo" class="tab-pane fade">
                     <br />
                     <div class="container">
-                        <div class="col-xs-12 col-sm-8">
+                        <div class="col-xs-12 col-sm-12">
                             <div class="boxFacciones">
                                 <br />
                                 <ul class="nav nav-tabs">

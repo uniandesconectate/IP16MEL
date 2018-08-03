@@ -85,7 +85,7 @@
 <div id="equipo" class="tab-pane fade in active">
 <br />
   <div class="container">
-    <div class="col-xs-12 col-sm-8">
+    <div class="col-xs-12 col-sm-12">
       <div class="boxFacciones">
           <br />
           <ul class="nav nav-tabs">
@@ -156,7 +156,7 @@
                                                   <option value="igual" selected>--</option>
                                                     <g:each in="${equipos.sort{it.nombre.substring(it.nombre.lastIndexOf(' ')).toInteger()}}" status="e2" var="equipo2">
                                                         <g:if test="${equipo != equipo2}">
-                                                            <option value="${equipo2.nombre}">${equipo2.nombre.substring(equipo2.nombre.length() - 8, equipo2.nombre.length())}</option>
+                                                            <option value="${equipo2.nombre}">${equipo2.nombre.substring(equipo2.nombre.length() - 9, equipo2.nombre.length())}</option>
                                                         </g:if>
                                                     </g:each>
                                                   <option value="nuevo">Equipo ${cnt + 1}</option>
