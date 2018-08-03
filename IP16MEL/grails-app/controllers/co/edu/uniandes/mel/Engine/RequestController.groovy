@@ -522,12 +522,12 @@ class RequestController
             }
             br.close()
             registros.each{ try {message = appService.eliminarEstudiante(it[0].trim()); System.out.println(message  + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
-            registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
-            registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
+            registros.each{ try {message = appService.eliminarEquipo('Seccion ' + it[1].trim() + ' Equipo ' + it[2].trim()); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
+            registros.each{ try {message = appService.crearEquipo('Seccion ' + it[1].trim() + ' Equipo ' + it[2].trim()); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} catch(ServicioException ex){System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))} }
             registros.each{
                 try
                 {
-                    message = appService.crearEstudiante(it[0].trim(), it[0].trim(), it[0].trim() + '@uniandes.edu.co', 'Seccion ' + it[1] + ' Equipo ' + it[2]); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                    message = appService.crearEstudiante(it[0].trim(), it[0].trim(), it[0].trim() + '@uniandes.edu.co', 'Seccion ' + it[1].trim() + ' Equipo ' + it[2].trim()); System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
                     user = User.findByUsername(it[0].trim())
                     if(user == null)
                     {
@@ -606,7 +606,7 @@ class RequestController
                 profesor.nombre = it[0].trim()
                 profesor.user = user
                 profesor.secciones = []
-                it[1].split('&').each {sec ->
+                it[1].trim().split('&').each {sec ->
                     seccion = Seccion.findByNombre('Seccion ' + sec)
                     if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, equipos: [], estudiantes: [])
                     profesor.addToSecciones(seccion)
