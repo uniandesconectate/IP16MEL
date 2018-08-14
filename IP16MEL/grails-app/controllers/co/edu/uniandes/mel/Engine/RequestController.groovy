@@ -4,6 +4,7 @@ import co.edu.uniandes.login.Administrador
 import co.edu.uniandes.login.Estudiante
 import co.edu.uniandes.login.Seccion
 import co.edu.uniandes.mel.excepciones.ServicioException
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.springframework.web.multipart.MultipartFile
 
 import co.edu.uniandes.login.Equipo
@@ -474,7 +475,7 @@ class RequestController
 
                 // Imprimir el estado actual del juego.
                 System.out.println("--- Inicio estado del juego MEL --- " + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-                Administrador.findByNombre('se-busto').secciones.sort{it.nombre}.each{ appService.traerSeccion(it.nombre).equipos.each { eq ->
+                Administrador.findByNombre('sistema').secciones.sort{it.nombre}.each{ appService.traerSeccion(it.nombre).equipos.each { eq ->
                     System.out.println("Equipo: " + eq.nombre + " pts: " + eq.puntos + " mon: " + eq.monedas)
                     eq.miembros.each {mie -> System.out.println("Miembro: " + mie.nombre + " gem: " + mie.gemas + " med: " + mie.medallas + " pts: " +mie.puntos + " mon: " + mie.monedas) }
                 }}
@@ -577,8 +578,10 @@ class RequestController
         String[] linea
         ArrayList<String[]> registros = new ArrayList<String[]>()
         User user
+        Role rol
         Administrador profesor
         Seccion seccion
+        Hashtable<String, String> secciones
 
         try
         {
@@ -593,6 +596,7 @@ class RequestController
                 registros.add(linea)
             }
             br.close()
+            secciones = new Hashtable<String, String>()
             registros.each{
                 user = User.findByUsername(it[0].trim())
                 if(user == null)
@@ -610,10 +614,41 @@ class RequestController
                     seccion = Seccion.findByNombre('Seccion ' + sec)
                     if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, equipos: [], estudiantes: [])
                     profesor.addToSecciones(seccion)
+                    secciones.put(sec, sec)
                 }
                 profesor.save(flush: true)
-                UserRole.create profesor.user, Role.get(1), true
+                UserRole.removeAll(user, true)
+                if(it.length > 2 && it[2]?.trim()?.toUpperCase() == 'A') rol = Role.findByAuthority('ROLE_SUPERADMIN')
+                else rol = Role.findByAuthority('ROLE_ADMIN')
+                UserRole.create user, rol, true
+                System.out.println('Se ha creado el usuario ' + profesor.user.username + ' con rol ' + rol.authority + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             }
+
+            // Adición de usuario sistema (con acceso a todas las secciones del periodo actual) para cargue automático de notas.
+            user = User.findByUsername('sistema')
+            if(user == null)
+            {
+                user = new User(username: 'sistema', password: 'ks3d7fcd8$f1')
+                user.save(flush: true)
+            }
+            profesor = Administrador.findByUser(user)
+            if(profesor != null) profesor.delete()
+            profesor = new Administrador()
+            profesor.nombre = 'sistema'
+            profesor.user = user
+            profesor.secciones = []
+            secciones.keys().each {sec ->
+                seccion = Seccion.findByNombre('Seccion ' + sec)
+                if(seccion == null) seccion = new Seccion(nombre: 'Seccion ' + sec, equipos: [], estudiantes: [])
+                profesor.addToSecciones(seccion)
+            }
+            profesor.save(flush: true)
+            UserRole.removeAll(user, true)
+            rol = Role.findByAuthority('ROLE_SUPERADMIN')
+            UserRole.create user, rol, true
+            System.out.println('Se ha creado el usuario ' + profesor.user.username + ' con rol ' + rol.authority + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+
+            // Volver al índice.
             redirect(action: 'index')
         }
         catch(Exception ex)
