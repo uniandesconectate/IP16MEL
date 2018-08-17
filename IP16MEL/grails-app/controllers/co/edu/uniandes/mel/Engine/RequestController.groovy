@@ -57,7 +57,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -97,7 +97,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -140,7 +140,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -155,7 +155,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -184,7 +184,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.message + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -205,7 +205,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -242,7 +242,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -263,7 +263,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -292,7 +292,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -403,7 +403,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
 	}
 
@@ -419,7 +419,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
     }
 
@@ -446,7 +446,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -487,7 +487,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
     }
 
@@ -553,7 +553,72 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
+        }
+        finally
+        {
+            estudiantesProf = []
+            equiposProf = []
+            Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
+        }
+    }
+
+    /**
+     * Despliega la vista para agregar un estudiante.
+     */
+    def agregarEstudiante()
+    {
+        try
+        {
+            [userName: springSecurityService.getCurrentUser().username, equipos: equiposProf.sort(false) { it.nombre }]
+        }
+        catch(Exception ex)
+        {
+            render (view: 'viewException', model: [exception: ex])
+        }
+    }
+
+    /**
+     * Permite crear un estudiante y agregarlo a un equipo existente.
+     */
+    def agregarEstudianteSave()
+    {
+        String login
+        String equipo
+        String message
+        User user
+        Estudiante estudiante
+
+        try
+        {
+            login = params.login.trim()
+            equipo = params['equipoId'].toString()
+            message = appService.crearEstudiante(login, login, login + '@uniandes.edu.co', equipo);
+            System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format('yyyy-MM-dd HH:mm:ss'))
+            user = User.findByUsername(login)
+            if (user == null) {
+                user = new User(username: login, password: 'L4m3nt0B0l')
+                user.save(flush: true)
+            }
+            estudiante = Estudiante.findByUser(user)
+            if (estudiante != null) estudiante.delete()
+            estudiante = new Estudiante()
+            estudiante.nombre = login
+            estudiante.user = user
+            estudiante.save(flush: true)
+            UserRole.create estudiante.user, Role.get(2), true
+            [userName: springSecurityService.getCurrentUser().username, message: message]
+        }
+/*        catch(ServicioException ex)
+        {
+            message = 'No se agregó el estudiante. ' + ex.message
+            System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            [userName: springSecurityService.getCurrentUser().username, message: message]
+        }*/
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -654,7 +719,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -676,7 +741,7 @@ class RequestController
         }
         catch(Exception ex)
         {
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
     }
 
@@ -698,7 +763,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
@@ -761,7 +826,7 @@ class RequestController
         catch(Exception ex)
         {
             System.out.println(ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            render("<h3>Ha ocurrido un error</h3><p>" + ex.getMessage() + "</p>")
+            render (view: 'viewException', model: [exception: ex])
         }
         finally
         {
