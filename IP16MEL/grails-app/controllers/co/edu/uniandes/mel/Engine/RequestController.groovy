@@ -609,12 +609,6 @@ class RequestController
             UserRole.create estudiante.user, Role.get(2), true
             [userName: springSecurityService.getCurrentUser().username, message: message]
         }
-/*        catch(ServicioException ex)
-        {
-            message = 'No se agregó el estudiante. ' + ex.message
-            System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            [userName: springSecurityService.getCurrentUser().username, message: message]
-        }*/
         catch(Exception ex)
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
