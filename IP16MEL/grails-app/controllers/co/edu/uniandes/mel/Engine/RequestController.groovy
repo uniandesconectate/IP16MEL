@@ -570,7 +570,7 @@ class RequestController
     {
         try
         {
-            [userName: springSecurityService.getCurrentUser().username, equipos: equiposProf.sort(false) { it.nombre }]
+            [userName: springSecurityService.getCurrentUser().username, equipos: equiposProf.sort(false) { it.nombre }, mensaje: params.mensaje, login: params.login, equipo: params.equipo]
         }
         catch(Exception ex)
         {
@@ -587,27 +587,51 @@ class RequestController
         String equipo
         String message
         User user
-        Estudiante estudiante
+        Estudiante estudiante = null
 
         try
         {
             login = params.login.trim()
             equipo = params['equipoId'].toString()
-            message = appService.crearEstudiante(login, login, login + '@uniandes.edu.co', equipo);
-            System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format('yyyy-MM-dd HH:mm:ss'))
-            user = User.findByUsername(login)
-            if (user == null) {
-                user = new User(username: login, password: 'L4m3nt0B0l')
-                user.save(flush: true)
+            try
+            {
+                if(params.eliminar != null)
+                {
+                    message = appService.eliminarEstudiante(login)
+                    System.out.println(message  + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                }
+                message = appService.crearEstudiante(login, login, login + '@uniandes.edu.co', equipo)
+                System.out.println(message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format('yyyy-MM-dd HH:mm:ss'))
             }
-            estudiante = Estudiante.findByUser(user)
-            if (estudiante != null) estudiante.delete()
-            estudiante = new Estudiante()
-            estudiante.nombre = login
-            estudiante.user = user
-            estudiante.save(flush: true)
-            UserRole.create estudiante.user, Role.get(2), true
-            [userName: springSecurityService.getCurrentUser().username, message: message]
+            catch (Exception ex)
+            {
+                if(ex.getMessage().toLowerCase().contains("player already exists"))
+                {
+                    estudiante = appService.traerDatosEstudiante(login)
+                    message = "El estudiante " + login + " está asignado al equipo " + estudiante.equipo.nombre + ". Si hace clic en Enviar, el estudiante será reasignado al nuevo equipo, perdiendo el progreso acumulado."
+                }
+            }
+            if(estudiante == null)
+            {
+                user = User.findByUsername(login)
+                if (user == null)
+                {
+                    user = new User(username: login, password: 'L4m3nt0B0l')
+                    user.save(flush: true)
+                }
+                estudiante = Estudiante.findByUser(user)
+                if (estudiante != null) estudiante.delete()
+                estudiante = new Estudiante()
+                estudiante.nombre = login
+                estudiante.user = user
+                estudiante.save(flush: true)
+                UserRole.create estudiante.user, Role.get(2), true
+                [userName: springSecurityService.getCurrentUser().username, message: message]
+            }
+            else
+            {
+                redirect(action: "agregarEstudiante", params: [mensaje: message, login: login, equipo: equipo])
+            }
         }
         catch(Exception ex)
         {
