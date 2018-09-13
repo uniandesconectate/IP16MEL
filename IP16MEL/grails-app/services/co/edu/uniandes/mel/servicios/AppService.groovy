@@ -237,7 +237,7 @@ class AppService
         JSONElement json
         String mensaje
 
-        json = motorService.changeTeam(APP_TOKEN, nombreEquipo.replaceAll(' ', ''), idEstudiante).json
+        json = motorService.changeTeam(APP_TOKEN, nombreEquipo.replaceAll(' ', ''), idEstudiante.replace('.', '*')).json
         if(json.success) mensaje = 'El jugador ' + idEstudiante + ' ha sido movido al equipo ' + nombreEquipo
         else throw new ServicioException('Hubo un problema al mover el jugador ' + idEstudiante + ' al equipo ' + nombreEquipo + ': ' + json.status.toString())
 
