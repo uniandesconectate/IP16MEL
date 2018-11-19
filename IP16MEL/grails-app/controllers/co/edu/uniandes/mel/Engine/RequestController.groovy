@@ -156,17 +156,22 @@ class RequestController
         {
             estudiantesProf.each {est ->
                 user = User.findByUsername(est.user.username)
-                if(!user) user = new User(username: est.user.username, password: '12345').save(failOnError: true)
                 estudiante = Estudiante.findByUser(user)
                 if(estudiante)
                 {
+                    if(estudiante.notas == null)
+                    {
+                        estudiante.notas = new Estudiante().notas
+                        estudiante.save(flush: true)
+                    }
+                    if(estudiante.motor == null)
+                    {
+                        estudiante.motor = new Estudiante().motor
+                        estudiante.save(flush: true)
+                    }
+                    est.id = estudiante.id
                     est.notas = estudiante.notas
                     est.motor = estudiante.motor
-                }
-                else
-                {
-                    est.user = user
-                    est.save(failOnError: true)
                 }
             }
             [pruebas: appService.TAGS_USU, equipos: equiposProf]
@@ -182,6 +187,7 @@ class RequestController
      */
     def notasSave()
     {
+        int score
         User user
         Estudiante estudiante
 
@@ -191,7 +197,12 @@ class RequestController
                 user = User.findByUsername(est.user.username)
                 estudiante = Estudiante.findByUser(user)
                 (0..appService.TAGS_USU.size() - 1).each {pr ->
-                    if(params.get('pru_' + estudiante.id + '_' + pr)) estudiante.notas[pr] = Integer.parseInt((String) params.get('pru_' + estudiante.id + '_' + pr))
+                    if(params.get('pru_' + estudiante.id + '_' + pr))
+                    {
+                        score = Integer.parseInt((String) params.get('pru_' + estudiante.id + '_' + pr))
+                        if(estudiante.notas[pr] != score) System.out.println("Usuario: " + user.username + ' - Mensaje: Se ha cambiado la nota anterior ' + estudiante.notas[pr].toString() + ' por la nueva nota ' + score.toString() + ' para la prueba ' + appService.TAGS_MOTOR[pr] + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                        estudiante.notas[pr] = score
+                    }
                 }
                 estudiante.save(flush: true)
             }
@@ -559,22 +570,22 @@ class RequestController
         User user
         Estudiante estudiante
 
-        try
-        {
-            estudiantesProf.each {est ->
-                user = User.findByUsername(est.user.username)
-                estudiante = Estudiante.findByUser(user)
-                (0..appService.getTAGS_MOTOR().size() - 1).each {
+        estudiantesProf.each {est ->
+            user = User.findByUsername(est.user.username)
+            estudiante = Estudiante.findByUser(user)
+            (0..appService.TAGS_MOTOR.size() - 1).each{
+                try
+                {
                     mensaje = appService.registrarPrueba(appService.TAGS_MOTOR[it] , user.username, estudiante.notas[it])
                     System.out.println("Usuario: " + user.username + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-                    if(estudiante.notas[it] > 0) estudiante.motor[it] = true
                 }
-                estudiante.save(flush: true)
+                catch(ServicioException ex)
+                {
+                    System.out.println("Usuario: " + user?.username + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                }
+                if(estudiante.notas[it] > 0) estudiante.motor[it] = true
             }
-        }
-        catch(ServicioException ex)
-        {
-            System.out.println("Usuario: " + user?.username + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+            estudiante.save(flush: true)
         }
     }
 

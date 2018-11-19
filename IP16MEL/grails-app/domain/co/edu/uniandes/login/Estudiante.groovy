@@ -15,7 +15,7 @@ class Estudiante
                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    boolean [] motor = [false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+    boolean[] motor = [false, false, false, false, false, false, false, false, false, false, false, false, false, false,
                      false, false, false, false, false, false, false, false, false, false, false, false, false, false,
                      false, false, false, false, false, false, false, false, false, false, false, false, false, false,
                      false, false, false, false, false, false, false, false, false, false, false, false, false, false,
@@ -24,6 +24,8 @@ class Estudiante
 
     static constraints = {
         equipo nullable: true
+        notas nullable: true
+        motor nullable: true
     }
 
     static mapping = {

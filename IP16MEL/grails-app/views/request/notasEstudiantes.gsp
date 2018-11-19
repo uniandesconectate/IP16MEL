@@ -4,6 +4,7 @@
         <meta name="layout" content="mainBootstrap"/>
     </head>
     <body>
+        <h3 style="margin:2% 0% 0% 3%;">Notas de los estudiantes en escala [0..100]</h3>
         <g:form>
             <g:actionSubmit style="margin:3% 1% 1% 3%;" class="btn btn-green" action="notasSave" value="Guardar" />
             <g:each in="${equipos.sort{it.nombre}}" var="eq" status="e">
@@ -21,7 +22,7 @@
                             <tr>
                                 <th>${mi.user.username}</th>
                                 <g:each in="${(0..pruebas.size() - 1)}" var="pr" status="p">
-                                    <td><input type="number" value="${mi.notas[pr] > 0 ? mi.notas[pr] : ''}" name="pru_${mi.id}_${pr}" style="width:100px;" placeholder="${mi.user.username}" /></td>
+                                    <td><input min="0" max="100" type="number" value="${mi.notas[pr] > 0 ? mi.notas[pr] : ''}" name="pru_${mi.id}_${pr}" style="width:100px;" placeholder="${mi.user.username}" ${mi.motor[pr] ? 'disabled' : ''} /></td>
                                 </g:each>
                                 <th>${mi.user.username}</th>
                             </tr>
