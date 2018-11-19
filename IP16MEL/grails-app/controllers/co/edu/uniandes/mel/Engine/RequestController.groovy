@@ -145,6 +145,65 @@ class RequestController
 	}
 
     /**
+     * Despliega las notas de los estudiantes para edición.
+     */
+    def notasEstudiantes()
+    {
+        User user
+        Estudiante estudiante
+
+        try
+        {
+            estudiantesProf.each {est ->
+                user = User.findByUsername(est.user.username)
+                if(!user) user = new User(username: est.user.username, password: '12345').save(failOnError: true)
+                estudiante = Estudiante.findByUser(user)
+                if(estudiante)
+                {
+                    est.notas = estudiante.notas
+                    est.motor = estudiante.motor
+                }
+                else
+                {
+                    est.user = user
+                    est.save(failOnError: true)
+                }
+            }
+            [pruebas: appService.TAGS_USU, equipos: equiposProf]
+        }
+        catch(Exception ex)
+        {
+            render (view: 'viewException', model: [exception: ex])
+        }
+    }
+
+    /**
+     * Guarda las notas de los estudiantes.
+     */
+    def notasSave()
+    {
+        User user
+        Estudiante estudiante
+
+        try
+        {
+            estudiantesProf.each {est ->
+                user = User.findByUsername(est.user.username)
+                estudiante = Estudiante.findByUser(user)
+                (0..appService.TAGS_USU.size() - 1).each {pr ->
+                    if(params.get('pru_' + estudiante.id + '_' + pr)) estudiante.notas[pr] = Integer.parseInt((String) params.get('pru_' + estudiante.id + '_' + pr))
+                }
+                estudiante.save(flush: true)
+            }
+            redirect(action: 'notasEstudiantes')
+        }
+        catch(Exception ex)
+        {
+            render (view: 'viewException', model: [exception: ex])
+        }
+    }
+
+    /**
      * Despliega la vista para comprar un poder para un equipo.
      */
 	def comprarEquipo()
@@ -353,8 +412,9 @@ class RequestController
 		int numPrueba
 		int semana
 		String scoreTxt = "0"
-        String mensaje
         double score
+        User user
+        Estudiante estudiante
 
         try
         {
@@ -364,23 +424,20 @@ class RequestController
             semana = Integer.parseInt(prueba.subSequence(2,4))
             if (linea[7] != null) if (!linea[7].trim().equals("")) scoreTxt = linea[7]
             score = Double.parseDouble(scoreTxt.trim().replace("%", "").replace("\"", "").replace(",", "."))
-            if (tipoPrueba == 'M')
+            user = User.findByUsername(userId)
+            estudiante = Estudiante.findByUser(user)
+            if(estudiante)
             {
-                mensaje = appService.registrarPrueba(appService.MECANICA + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            }
-            else if (tipoPrueba == 'C')
-            {
-                numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
-                if (numPrueba == 1) mensaje = appService.registrarPrueba(appService.COGNITIVA_FACIL + semana.toString(), userId, score.toInteger())
-                else if (numPrueba == 2) mensaje = appService.registrarPrueba(appService.COGNITIVA_MEDIA + semana.toString(), userId, score.toInteger())
-                else if (numPrueba == 3) mensaje = appService.registrarPrueba(appService.COGNITIVA_DIFICIL + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
-            }
-            else if (tipoPrueba == 'H')
-            {
-                mensaje = appService.registrarPrueba(appService.HONORIFICA + semana.toString(), userId, score.toInteger())
-                System.out.println("Usuario: " + userId + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                if (tipoPrueba == 'M') {if(estudiante.notas[semana * 5 - 5] == 0) estudiante.notas[semana * 5 - 5] = score.toInteger()}
+                else if (tipoPrueba == 'C')
+                {
+                    numPrueba = Integer.parseInt(prueba.substring(prueba.length() - 2))
+                    if (numPrueba == 1) {if(estudiante.notas[semana * 5 - 4] == 0) estudiante.notas[semana * 5 - 4] = score.toInteger()}
+                    else if (numPrueba == 2) {if(estudiante.notas[semana * 5 - 3] == 0) estudiante.notas[semana * 5 - 3] = score.toInteger()}
+                    else if (numPrueba == 3) {if(estudiante.notas[semana * 5 - 2] == 0) estudiante.notas[semana * 5 - 2] = score.toInteger()}
+                }
+                else if (tipoPrueba == 'H') {if(estudiante.notas[semana * 5 - 1] == 0) estudiante.notas[semana * 5 - 1] = score.toInteger()}
+                estudiante.save(flush: true)
             }
         }
         catch(ServicioException ex)
@@ -439,6 +496,7 @@ class RequestController
                 File archivoLocal = new File(nombreArchivo)
                 archivo.transferTo(archivoLocal)
                 upload(nombreArchivo)
+                enviarNotas()
             }
             else throw new ServicioException("Debe cargar un archivo en formato csv")
             redirect(action: 'index')
@@ -472,6 +530,7 @@ class RequestController
                 File archivoLocal = new File(nombreArchivo)
                 archivo.transferTo(archivoLocal)
                 upload(nombreArchivo)
+                enviarNotas()
 
                 // Imprimir el estado actual del juego.
                 System.out.println("--- Inicio estado del juego MEL --- " + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
@@ -488,6 +547,34 @@ class RequestController
         {
             System.out.println(ex.getMessage() + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
             render (view: 'viewException', model: [exception: ex])
+        }
+    }
+
+    /**
+     * Envía las notas al motor de gamificación.
+     */
+    def enviarNotas()
+    {
+        String mensaje
+        User user
+        Estudiante estudiante
+
+        try
+        {
+            estudiantesProf.each {est ->
+                user = User.findByUsername(est.user.username)
+                estudiante = Estudiante.findByUser(user)
+                (0..appService.getTAGS_MOTOR().size() - 1).each {
+                    mensaje = appService.registrarPrueba(appService.TAGS_MOTOR[it] , user.username, estudiante.notas[it])
+                    System.out.println("Usuario: " + user.username + " - Mensaje: " + mensaje + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
+                    if(estudiante.notas[it] > 0) estudiante.motor[it] = true
+                }
+                estudiante.save(flush: true)
+            }
+        }
+        catch(ServicioException ex)
+        {
+            System.out.println("Usuario: " + user?.username + " - Error: " + ex.message + ' - MEL:' + springSecurityService.currentUser?.username + ' ' + new Date().format( 'yyyy-MM-dd HH:mm:ss' ))
         }
     }
 

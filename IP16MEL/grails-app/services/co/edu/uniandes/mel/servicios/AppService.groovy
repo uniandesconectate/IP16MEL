@@ -27,12 +27,37 @@ class AppService
                                         'CQ01P02', 'CQ02P02', 'CQ03P02', 'CQ04P02', 'CQ05P02', 'CQ06P02', 'CQ07P02', 'CQ08P02', 'CQ09P02', 'CQ10P02', 'CQ11P02', 'CQ12P02', 'CQ13P02', 'CQ14P02',
                                         'CQ01P03', 'CQ02P03', 'CQ03P03', 'CQ04P03', 'CQ05P03', 'CQ06P03', 'CQ07P03', 'CQ08P03', 'CQ09P03', 'CQ10P03', 'CQ11P03', 'CQ12P03', 'CQ13P03', 'CQ14P03']
 
-    // Prefijos de las pruebas en el motor.
-    final static String MECANICA = 'mq'
-    final static String HONORIFICA = 'hq'
-    final static String COGNITIVA_FACIL = 'cfq'
-    final static String COGNITIVA_MEDIA = 'cmq'
-    final static String COGNITIVA_DIFICIL = 'cdq'
+    // Tags de las pruebas para usuarios.
+    final static String[] TAGS_USU = ['MEC_01', 'COF_01', 'COM_01', 'COD_01', 'HON_01',
+                                      'MEC_02', 'COF_02', 'COM_02', 'COD_02', 'HON_02',
+                                      'MEC_03', 'COF_03', 'COM_03', 'COD_03', 'HON_03',
+                                      'MEC_04', 'COF_04', 'COM_04', 'COD_04', 'HON_04',
+                                      'MEC_05', 'COF_05', 'COM_05', 'COD_05', 'HON_05',
+                                      'MEC_06', 'COF_06', 'COM_06', 'COD_06', 'HON_06',
+                                      'MEC_07', 'COF_07', 'COM_07', 'COD_07', 'HON_07',
+                                      'MEC_08', 'COF_08', 'COM_08', 'COD_08', 'HON_08',
+                                      'MEC_09', 'COF_09', 'COM_09', 'COD_09', 'HON_09',
+                                      'MEC_10', 'COF_10', 'COM_10', 'COD_10', 'HON_10',
+                                      'MEC_11', 'COF_11', 'COM_11', 'COD_11', 'HON_11',
+                                      'MEC_12', 'COF_12', 'COM_12', 'COD_12', 'HON_12',
+                                      'MEC_13', 'COF_13', 'COM_13', 'COD_13', 'HON_13',
+                                      'MEC_14', 'COF_14', 'COM_14', 'COD_14', 'HON_14']
+
+    // Tags de las pruebas en el motor.
+    final static String[] TAGS_MOTOR = ['mq1', 'cfq1', 'cmq1', 'cdq1', 'hq1',
+                                      'mq2', 'cfq2', 'cmq2', 'cdq2', 'hq2',
+                                      'mq3', 'cfq3', 'cmq3', 'cdq3', 'hq3',
+                                      'mq4', 'cfq4', 'cmq4', 'cdq4', 'hq4',
+                                      'mq5', 'cfq5', 'cmq5', 'cdq5', 'hq5',
+                                      'mq6', 'cfq6', 'cmq6', 'cdq6', 'hq6',
+                                      'mq7', 'cfq7', 'cmq7', 'cdq7', 'hq7',
+                                      'mq8', 'cfq8', 'cmq8', 'cdq8', 'hq8',
+                                      'mq9', 'cfq9', 'cmq9', 'cdq9', 'hq9',
+                                      'mq10', 'cfq10', 'cmq10', 'cdq10', 'hq10',
+                                      'mq11', 'cfq11', 'cmq11', 'cdq11', 'hq11',
+                                      'mq12', 'cfq12', 'cmq12', 'cdq12', 'hq12',
+                                      'mq13', 'cfq13', 'cmq13', 'cdq13', 'hq13',
+                                      'mq14', 'cfq14', 'cmq14', 'cdq14', 'hq14']
 
     // Número de semanas del semestre.
     final static int NUM_SEMANAS = 14
