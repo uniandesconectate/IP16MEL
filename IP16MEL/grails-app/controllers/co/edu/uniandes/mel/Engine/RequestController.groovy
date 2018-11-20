@@ -206,7 +206,7 @@ class RequestController
                 }
                 estudiante.save(flush: true)
             }
-            redirect(action: 'notasEstudiantes')
+            redirect(action: 'index')
         }
         catch(Exception ex)
         {
