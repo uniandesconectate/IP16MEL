@@ -570,6 +570,10 @@ class RequestController
         User user
         Estudiante estudiante
 
+        estudiantesProf = []
+        equiposProf = []
+        Administrador.findByUser(springSecurityService.getCurrentUser() as User).secciones.each { appService.traerSeccion(it.nombre).equipos.each { eq -> estudiantesProf += eq.miembros; equiposProf += eq } }
+
         estudiantesProf.each {est ->
             user = User.findByUsername(est.user.username)
             estudiante = Estudiante.findByUser(user)
