@@ -66,7 +66,7 @@ grails.project.dependency.resolution = {
         runtime ":hibernate4:4.3.6.1" // or ":hibernate:3.6.10.18"
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
-        runtime (':xframeoptions:1.0')
+        runtime (':xframeoptions:1.0')  // Ajuste para evitar clickjacking.
 
 		//Adicionadas RCA
 		//N�cleo para seguridad con spring: Maneja usuarios y roles por base de datos
