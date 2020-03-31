@@ -66,13 +66,14 @@ grails.project.dependency.resolution = {
         runtime ":hibernate4:4.3.6.1" // or ":hibernate:3.6.10.18"
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
+        runtime (':xframeoptions:1.0')
 
 		//Adicionadas RCA
-		//Núcleo para seguridad con spring: Maneja usuarios y roles por base de datos
+		//Nï¿½cleo para seguridad con spring: Maneja usuarios y roles por base de datos
 		//con anotaciones para los accesos. Las anotaciones y los nombres de rol deben
 		// comenzar por ROLE_X, donde X es el nombre del role
 		compile ':spring-security-core:2.0-RC4'
-		//Seguridad LDAP con spring: Maneja el acceso a través de directorio activo 
+		//Seguridad LDAP con spring: Maneja el acceso a travï¿½s de directorio activo 
 		compile ":spring-security-ldap:2.0-RC4"
 		//Manejador de base de datos
 		compile ":mysql-connectorj:5.1.22.1"
